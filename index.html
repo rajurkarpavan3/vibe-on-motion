@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIBE ON MOTION — Interactive Animation Workspace</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { brand: { orange: '#FE7143', dark: '#000000' } } } }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gifshot@0.4.5/dist/gifshot.min.js"></script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #FAF9F6; color: #000; }
+    .font-outfit { font-family: 'Outfit', sans-serif; }
+
+    /* ── Keyframes ────────────────────────────────────────────────────────── */
+    /* Fade group */
+    @keyframes kf-fade         { 0%{opacity:0} 100%{opacity:1} }
+    @keyframes kf-slide        { 0%{transform:translateX(var(--slide-x,-60px)) translateY(var(--slide-y,0px));opacity:var(--slide-fade,0)} 100%{transform:translate(0,0);opacity:1} }
+    @keyframes kf-fade-slide   { 0%{transform:translateX(-40px);opacity:0} 100%{transform:translateX(0);opacity:1} }
+    /* Move group (no fade) */
+    @keyframes kf-move         { 0%{transform:translateX(var(--slide-x,-60px)) translateY(var(--slide-y,0px))} 100%{transform:translate(0,0)} }
+    /* Scale group */
+    @keyframes kf-grow         { 0%{transform:scale(0);opacity:0} 100%{transform:scale(1);opacity:1} }
+    @keyframes kf-shrink       { 0%{transform:scale(1.6);opacity:0} 100%{transform:scale(1);opacity:1} }
+    @keyframes kf-spin         { 0%{transform:rotate(var(--spin-deg,-180deg)) scale(0);opacity:0} 100%{transform:rotate(0deg) scale(1);opacity:1} }
+    @keyframes kf-twist        { 0%{transform:scale(0) rotate(-270deg);opacity:0} 70%{transform:scale(1.1) rotate(8deg)} 100%{transform:scale(1) rotate(0deg);opacity:1} }
+    @keyframes kf-move-scale   { 0%{transform:translateY(40px) scale(0.8);opacity:0} 100%{transform:translate(0,0) scale(1);opacity:1} }
+    @keyframes kf-scale-pop    { 0%{transform:scale(0);opacity:0} 55%{transform:scale(var(--pop-scale,1.25))} 100%{transform:scale(1);opacity:1} }
+    /* Mask group */
+    @keyframes kf-mask-reveal  { 0%{clip-path:inset(100% 0 0 0)} 100%{clip-path:inset(0% 0 0 0)} }
+    @keyframes kf-mask-center  { 0%{clip-path:inset(50% 50%)} 100%{clip-path:inset(0%)} }
+    @keyframes kf-mask-resize  { 0%{clip-path:inset(0 50%)} 100%{clip-path:inset(0 0%)} }
+    @keyframes kf-mask-slide   { 0%{clip-path:inset(0 100% 0 0);transform:translateX(-30px)} 100%{clip-path:inset(0 0% 0 0);transform:translateX(0)} }
+    @keyframes kf-mask-expand  { 0%{clip-path:circle(0% at 50% 50%)} 100%{clip-path:circle(100% at 50% 50%)} }
+    /* Blur group */
+    @keyframes kf-blur         { 0%{filter:blur(var(--blur-px,20px));opacity:0} 100%{filter:blur(0px);opacity:1} }
+    @keyframes kf-blur-slide   { 0%{filter:blur(16px);transform:translateX(-30px);opacity:0} 100%{filter:blur(0px);transform:translateX(0);opacity:1} }
+    @keyframes kf-blur-scale   { 0%{filter:blur(12px);transform:scale(0.85);opacity:0} 100%{filter:blur(0px);transform:scale(1);opacity:1} }
+    @keyframes kf-soft-blur    { 0%{filter:blur(6px);opacity:0.4} 100%{filter:blur(0px);opacity:1} }
+    /* Basic Motion (loops) */
+    @keyframes kf-float        { 0%,100%{transform:translateY(0)} 50%{transform:translateY(var(--float-y,-24px))} }
+    @keyframes kf-rotate       { 0%{transform:rotate(0deg)} 100%{transform:rotate(var(--rot-deg,360deg))} }
+    @keyframes kf-bounce       { 0%,100%{transform:translateY(0);animation-timing-function:cubic-bezier(.8,0,1,1)} 50%{transform:translateY(var(--bounce-y,-36px));animation-timing-function:cubic-bezier(0,0,.2,1)} }
+    @keyframes kf-pulse        { 0%,100%{transform:scale(1)} 50%{transform:scale(var(--pulse-scale,1.1))} }
+    @keyframes kf-wave         { 0%,100%{transform:rotate(0deg) translateY(0)} 25%{transform:rotate(5deg) translateY(-6px)} 75%{transform:rotate(-5deg) translateY(6px)} }
+    @keyframes kf-wiggle       { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(6deg)} 75%{transform:rotate(-6deg)} }
+    /* UI Motion */
+    @keyframes kf-hover-bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+    @keyframes kf-icon-nudge   { 0%,100%{transform:translate(0,0)} 50%{transform:translate(4px,-4px)} }
+    @keyframes kf-notif-pop    { 0%{transform:scale(0)} 75%{transform:scale(1.15)} 100%{transform:scale(1)} }
+    @keyframes kf-card-lift    { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-8px) scale(1.02)} }
+    @keyframes kf-magnetic     { 0%,100%{transform:translate(0,0)} 50%{transform:translate(8px,-8px)} }
+    /* Fade */
+    @keyframes kf-fade         { 0%{opacity:0} 100%{opacity:1} }
+    @keyframes kf-slide        { 0%{transform:translate(var(--slide-x,-40px),var(--slide-y,0));opacity:var(--slide-fade,0)} 100%{transform:translate(0,0);opacity:1} }
+    
+    /* Move (no fade) */
+    @keyframes kf-move         { 0%{transform:translate(var(--slide-x,-40px),var(--slide-y,0))} 100%{transform:translate(0,0)} }
+    @keyframes kf-prev-move-r  { 0%{transform:translateX(-10px)} 100%{transform:translateX(0)} }
+    @keyframes kf-prev-move-l  { 0%{transform:translateX(10px)} 100%{transform:translateX(0)} }
+    @keyframes kf-prev-move-t  { 0%{transform:translateY(10px)} 100%{transform:translateY(0)} }
+    @keyframes kf-prev-move-b  { 0%{transform:translateY(-10px)} 100%{transform:translateY(0)} }
+
+    /* Scale */
+    @keyframes kf-grow         { 0%{transform:scale(var(--scale-from,0))} 100%{transform:scale(1)} }
+    @keyframes kf-shrink       { 0%{transform:scale(var(--scale-from,2))} 100%{transform:scale(1)} }
+    @keyframes kf-spin         { 0%{transform:rotate(0deg)} 100%{transform:rotate(var(--rot-deg,360deg))} }
+    @keyframes kf-move-scale   { 0%{transform:translate(var(--slide-x,-40px),var(--slide-y,0)) scale(0)} 100%{transform:translate(0,0) scale(1)} }
+    @keyframes kf-scale-pop    { 0%{transform:scale(0)} 70%{transform:scale(var(--pop-scale,1.25))} 100%{transform:scale(1)} }
+    
+    /* Mask */
+    @keyframes kf-mask-top    { 0%{clip-path:inset(100% 0 0 0)} 100%{clip-path:inset(0)} }
+    @keyframes kf-mask-bottom { 0%{clip-path:inset(0 0 100% 0)} 100%{clip-path:inset(0)} }
+    @keyframes kf-mask-left   { 0%{clip-path:inset(0 0 0 100%)} 100%{clip-path:inset(0)} }
+    @keyframes kf-mask-right  { 0%{clip-path:inset(0 100% 0 0)} 100%{clip-path:inset(0)} }
+    @keyframes kf-mask-center  { 0%{clip-path:circle(0%)} 100%{clip-path:circle(100%)} }
+    @keyframes kf-mask-resize  { 0%{clip-path:inset(20% 20% 20% 20%)} 100%{clip-path:inset(0)} }
+    @keyframes kf-mask-slide   { 0%{clip-path:inset(0 100% 0 0);transform:translateX(-20px)} 100%{clip-path:inset(0);transform:translateX(0)} }
+    @keyframes kf-mask-expand  { 0%{clip-path:ellipse(0% 0% at 50% 50%)} 100%{clip-path:ellipse(100% 100% at 50% 50%)} }
+
+    /* Blur */
+    @keyframes kf-blur         { 0%{filter:blur(var(--blur-px,20px))} 100%{filter:blur(0)} }
+    @keyframes kf-blur-slide   { 0%{filter:blur(var(--blur-px,20px));transform:translateX(-40px)} 100%{filter:blur(0);transform:translateX(0)} }
+    @keyframes kf-blur-scale   { 0%{filter:blur(var(--blur-px,20px));transform:scale(1.5)} 100%{filter:blur(0);transform:scale(1)} }
+    @keyframes kf-soft-blur    { 0%{filter:blur(var(--blur-px,10px));opacity:0} 100%{filter:blur(0);opacity:1} }
+
+    /* Basic Motion */
+    @keyframes kf-float        { 0%,100%{transform:translateY(0)} 50%{transform:translateY(var(--float-y,-24px))} }
+    @keyframes kf-rotate       { 0%{transform:rotate(0deg)} 100%{transform:rotate(var(--rot-deg,360deg))} }
+    @keyframes kf-bounce       { 0%,100%{transform:translateY(0);animation-timing-function:cubic-bezier(.8,0,1,1)} 50%{transform:translateY(var(--bounce-y,-36px));animation-timing-function:cubic-bezier(0,0,.2,1)} }
+    @keyframes kf-pulse        { 0%,100%{transform:scale(1)} 50%{transform:scale(var(--pulse-scale,1.1))} }
+    @keyframes kf-wave         { 0%,100%{transform:rotate(0deg) translateY(0)} 25%{transform:rotate(5deg) translateY(-6px)} 75%{transform:rotate(-5deg) translateY(6px)} }
+    @keyframes kf-wiggle       { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(6deg)} 75%{transform:rotate(-6deg)} }
+    
+    /* UI Motion */
+    @keyframes kf-hover-bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+    @keyframes kf-notif-pop    { 0%{transform:scale(0)} 75%{transform:scale(1.15)} 100%{transform:scale(1)} }
+    @keyframes kf-card-lift    { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-8px) scale(1.02)} }
+    @keyframes kf-magnetic     { 0%,100%{transform:translate(0,0)} 50%{transform:translate(8px,-8px)} }
+    
+    /* Premium */
+    @keyframes kf-luxury       { 0%{transform:translateY(20px) scale(.96);opacity:0;filter:blur(8px)} 100%{transform:translateY(0) scale(1);opacity:1;filter:blur(0)} }
+    @keyframes kf-soft-hover   { 0%,100%{transform:scale(1) translateY(0)} 50%{transform:scale(1.02) translateY(-3px)} }
+    @keyframes kf-glass-shimmer{ 0%,100%{opacity:.85;filter:brightness(1)} 50%{opacity:1;filter:brightness(1.12)} }
+    
+    /* Previews */
+    @keyframes kf-prev-move-r { 0% {transform:translateX(-10px); opacity:0;} 100% {transform:translateX(0); opacity:1;} }
+    @keyframes kf-prev-move-l { 0% {transform:translateX(10px); opacity:0;} 100% {transform:translateX(0); opacity:1;} }
+    @keyframes kf-prev-move-t { 0% {transform:translateY(10px); opacity:0;} 100% {transform:translateY(0); opacity:1;} }
+    @keyframes kf-prev-move-b { 0% {transform:translateY(-10px); opacity:0;} 100% {transform:translateY(0); opacity:1;} }
+    
+    /* Playful */
+    @keyframes kf-elastic-pop  { 0%{transform:scale(0)} 50%{transform:scale(1.2)} 75%{transform:scale(.92)} 100%{transform:scale(1)} }
+    @keyframes kf-jelly        { 0%,100%{transform:scale(1,1)} 30%{transform:scale(1.2,.8)} 50%{transform:scale(.9,1.15)} 70%{transform:scale(1.05,.95)} }
+    @keyframes kf-bloom        { 0%{transform:scale(.4);filter:blur(10px);opacity:0} 100%{transform:scale(1);filter:blur(0);opacity:1} }
+    @keyframes kf-bubble-rise  { 0%{transform:translateY(60px) scale(.5);opacity:0} 50%{transform:translateY(0) scale(1.05);opacity:1} 100%{transform:translateY(-60px) scale(.8);opacity:0} }
+    @keyframes kf-orbit        { 0%{transform:rotate(0deg) translateX(var(--orbit-r,50px)) rotate(0deg)} 100%{transform:rotate(360deg) translateX(var(--orbit-r,50px)) rotate(-360deg)} }
+    
+    /* Tech */
+    @keyframes kf-glitch       { 0%,100%{transform:translate(0);clip-path:inset(0);filter:none} 10%{transform:translate(-4px,2px);clip-path:inset(10% 0 60% 0);filter:drop-shadow(var(--rgb-split,-4px) 0 0 red) drop-shadow(calc(var(--rgb-split,-4px) * -1) 0 0 blue)} 20%{transform:translate(4px,-2px);clip-path:inset(80% 0 5% 0);filter:drop-shadow(calc(var(--rgb-split,-4px) * -1) 0 0 red) drop-shadow(var(--rgb-split,-4px) 0 0 blue)} 30%{transform:translate(-2px,2px);clip-path:inset(40% 0 40% 0);filter:none} 40%{transform:translate(2px,-2px);clip-path:inset(20% 0 20% 0);filter:drop-shadow(var(--rgb-split,-4px) 0 0 red)} 50%{transform:translate(0);clip-path:inset(0);filter:none} }
+    @keyframes kf-hologram     { 0%,100%{opacity:1;filter:hue-rotate(0deg) brightness(1)} 33%{opacity:.7;filter:hue-rotate(90deg) brightness(1.3)} 66%{opacity:.9;filter:hue-rotate(180deg) brightness(.9)} }
+    @keyframes kf-neon-glow    { 0%,100%{filter:drop-shadow(0 0 2px var(--glow-color,#FE7143))} 50%{filter:drop-shadow(0 0 12px var(--glow-color,#FE7143)) drop-shadow(0 0 24px var(--glow-color,#FE7143))} }
+    @keyframes kf-pixel        { 0%{opacity:0;filter:contrast(2) brightness(1.3)} 100%{opacity:1;filter:contrast(1) brightness(1)} }
+    @keyframes kf-rgb-split    { 0%,100%{filter:none} 50%{filter:drop-shadow(var(--rgb-split,-4px) 0 0 red) drop-shadow(calc(var(--rgb-split,-4px) * -1) 0 0 blue)} }
+    @keyframes kf-x-ray        { 0%,100%{filter:invert(1) grayscale(1) opacity(var(--xray-op,0.8)) drop-shadow(0 0 4px rgba(255,255,255,0.5))} 50%{filter:invert(1) grayscale(1) opacity(calc(var(--xray-op,0.8) + 0.2)) drop-shadow(0 0 12px rgba(255,255,255,0.8))} }
+
+    /* Gaming */
+    @keyframes kf-loot-glow    { 0%,100%{filter:drop-shadow(0 0 4px gold) brightness(1)} 50%{filter:drop-shadow(0 0 20px gold) drop-shadow(0 0 40px gold) brightness(1.4)} }
+    @keyframes kf-damage-shake { 0%,100%{transform:translate(0,0) rotate(0deg)} 15%{transform:translate(-6px,2px) rotate(-2deg)} 30%{transform:translate(6px,-2px) rotate(2deg)} 45%{transform:translate(-4px,1px) rotate(-1deg)} 60%{transform:translate(4px,-1px) rotate(1deg)} }
+    @keyframes kf-energy       { 0%{transform:scale(.9);filter:brightness(1) saturate(1)} 50%{transform:scale(1.05);filter:brightness(1.5) saturate(2)} 100%{transform:scale(1);filter:brightness(1) saturate(1)} }
+
+    /* Stroke */
+    @keyframes kf-trim-paths   { 0%{stroke-dashoffset:2000;} 100%{stroke-dashoffset:0;} }
+    .layer-trim-paths svg path, .layer-trim-paths svg line, .layer-trim-paths svg polyline, .layer-trim-paths svg polygon, .layer-trim-paths svg rect, .layer-trim-paths svg circle, .layer-trim-paths svg ellipse {
+      stroke-dasharray: 2000 !important;
+      fill: transparent !important;
+      stroke-width: var(--stroke-w, 2px) !important;
+      stroke-linecap: var(--stroke-cap, round) !important;
+      stroke: var(--stroke-color, #FE7143) !important;
+    }
+
+    /* ── Utilities ──────────────────────────────────────────────────────────── */
+    .bg-grid {
+      background-size:20px 20px;
+      background-image: linear-gradient(to right,rgba(0,0,0,.04) 1px,transparent 1px),
+                        linear-gradient(to bottom,rgba(0,0,0,.04) 1px,transparent 1px);
+    }
+    .bg-checkerboard {
+      background-image: linear-gradient(45deg, #e5e5e5 25%, transparent 25%), linear-gradient(-45deg, #e5e5e5 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e5e5e5 75%), linear-gradient(-45deg, transparent 75%, #e5e5e5 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+    /* Range sliders */
+    input[type="range"] {
+      -webkit-appearance:none; appearance:none; width:100%; height:4px;
+      background:linear-gradient(to right,#FE7143 var(--rp,0%),#E5E7EB var(--rp,0%));
+      outline:none; border:none; border-radius:0;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance:none; appearance:none; width:12px; height:12px;
+      border-radius:50%; background:#000; cursor:pointer;
+    }
+    input[type="range"]::-moz-range-thumb { width:12px; height:12px; border-radius:50%; background:#000; border:none; }
+    /* Scrollbars */
+    ::-webkit-scrollbar { width:6px; height:6px; }
+    ::-webkit-scrollbar-track { background:#FAF9F6; }
+    ::-webkit-scrollbar-thumb { background:#000; }
+    ::-webkit-scrollbar-thumb:hover { background:#FE7143; }
+    /* Preset card hover preview */
+    .preset-card:hover .card-dot { animation: var(--prev-anim, kf-float 1.2s ease-in-out infinite); }
+    .preset-card.move-in-right:hover .card-dot { animation: kf-prev-move-r 1s infinite; }
+    .preset-card.move-in-left:hover .card-dot { animation: kf-prev-move-l 1s infinite; }
+    .preset-card.move-top:hover .card-dot { animation: kf-prev-move-t 1s infinite; }
+    .preset-card.move-bottom:hover .card-dot { animation: kf-prev-move-b 1s infinite; }
+    /* Applied state */
+    .preset-card.applied { border-color:#FE7143; background:#FFF8F5; }
+    .preset-card.applied .card-label { color:#FE7143; }
+    /* Layer selected row */
+    .timeline-row.selected { background:#1c1917 !important; color:#fff; }
+    /* Segment block transition */
+    .seg-block { position:absolute; top:4px; bottom:4px; border-radius:0; border:1px solid rgba(0,0,0,.35); display:flex; align-items:center; overflow:hidden; padding:0 6px; cursor:grab; font-size:9px; font-weight:700; color:#fff; user-select:none; }
+    .seg-resize-r, .seg-resize-l { position:absolute; top:0; bottom:0; width:6px; cursor:ew-resize; background:rgba(255,255,255,.35); z-index:20; }
+    .seg-resize-r { right:0; }
+    .seg-resize-l { left:0; }
+  </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col bg-[#FAF9F6] text-black">
+
+  <!-- ── Top Bar ───────────────────────────────────────────────────────────── -->
+  <header class="grid grid-cols-12 border-b border-stone-800 bg-black sticky top-0 z-50" style="height:56px">
+    <div class="col-span-3 flex items-center border-r border-stone-800 h-14">
+      <div class="flex items-center justify-center px-5 border-r border-stone-800 h-14">
+        <img src="vom_logo.png" alt="VOM" style="height:30px;width:auto;object-fit:contain;" onerror="this.style.display='none'">
+      </div>
+      <div class="flex items-center px-4 h-14">
+        <span class="font-outfit font-black tracking-widest text-[10px] text-white uppercase whitespace-nowrap">VIBE ON MOTION</span>
+      </div>
+    </div>
+    <div class="col-span-6 border-r border-stone-800 h-14"></div>
+    <div class="col-span-3 flex items-stretch h-14">
+      <input type="file" id="json-import" accept=".json" class="hidden">
+      <button onclick="document.getElementById('json-import').click()" class="flex-1 flex items-center justify-center space-x-2 px-3 text-[10px] font-bold bg-black text-white hover:bg-brand-orange hover:text-black border-r border-stone-800 transition-colors" title="Load a saved project JSON">
+        <i data-lucide="folder-open" class="w-3.5 h-3.5"></i><span class="hidden lg:inline">LOAD PROJECT</span>
+      </button>
+      <input type="file" id="file-upload" accept="image/*,.svg" class="hidden">
+      <button onclick="newProject()" class="flex-1 flex items-center justify-center space-x-2 px-3 text-[10px] font-bold bg-brand-orange text-white hover:bg-orange-500 transition-colors" title="Start a new project">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i><span class="hidden lg:inline">NEW PROJECT</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Main workspace ────────────────────────────────────────────────────── -->
+  <main class="flex-1 grid grid-cols-12 overflow-hidden" style="height:calc(100vh - 56px)">
+
+    <!-- Left: Presets Library -->
+    <section class="col-span-3 border-r border-black bg-white flex flex-col h-full overflow-hidden">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-4 border-b border-black shrink-0 bg-white" style="height:40px">
+        <span class="text-xs font-bold uppercase font-outfit tracking-wider">Presets</span>
+        <span class="text-[10px] font-bold font-mono bg-brand-orange/10 text-brand-orange border border-brand-orange px-2 py-0.5" id="presets-count">— LIBRARY</span>
+      </div>
+      <!-- Scrollable preset grid -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-5" id="presets-container"></div>
+    </section>
+
+    <!-- Center: Canvas + Timeline -->
+    <section class="col-span-6 flex flex-col bg-[#FAF9F6]">
+      <!-- Canvas toolbar -->
+      <div class="flex items-stretch border-b border-black bg-white shrink-0" style="height:40px">
+        <div class="flex items-stretch border-r border-black" id="bg-toggles">
+          <button onclick="setBg('grid')"        id="bg-grid"        class="px-5 text-[10px] font-bold border-r border-black transition-colors bg-white text-stone-500 hover:bg-stone-100">GRID</button>
+          <button onclick="setBg('transparent')" id="bg-transparent" class="px-5 text-[10px] font-bold border-r border-black transition-colors bg-white text-stone-500 hover:bg-stone-100">TRANSPARENT</button>
+          <button onclick="setBg('light')"       id="bg-light"       class="px-5 text-[10px] font-bold border-r border-black transition-colors bg-white text-stone-500 hover:bg-stone-100">LIGHT</button>
+          <button onclick="setBg('dark')"        id="bg-dark"        class="px-5 text-[10px] font-bold border-r border-black transition-colors bg-white text-stone-500 hover:bg-stone-100">DARK</button>
+          <div class="relative flex items-stretch">
+            <button onclick="toggleCustomBgDrop(event)" id="bg-custom" class="flex items-center space-x-1.5 px-4 text-[10px] font-bold transition-colors bg-white text-stone-500 hover:bg-stone-100 h-full uppercase">
+              <span>CUSTOM</span>
+              <i data-lucide="chevron-down" class="w-3 h-3 text-stone-500"></i>
+            </button>
+            <div id="bg-custom-drop" class="absolute right-0 top-full bg-white border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] z-50 hidden p-3 w-[180px]" onclick="event.stopPropagation()">
+              <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-2 block">Custom Color</label>
+              <div class="flex items-center justify-between">
+                <input type="color" id="bg-custom-color" value="#FFE4E1" oninput="setCustomBgColor(this.value)" onchange="setCustomBgColor(this.value)" class="w-8 h-8 border border-black p-0 cursor-pointer shrink-0">
+                <input type="text" id="bg-custom-hex" value="#FFE4E1" oninput="setCustomBgColor(this.value)" onchange="setCustomBgColor(this.value)" class="w-[100px] text-xs font-mono border border-black px-2 py-1.5 outline-none focus:border-brand-orange uppercase">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="relative flex items-stretch ml-auto" id="size-controls">
+          <button id="size-btn" onclick="toggleSizeDrop(event)" class="flex items-center space-x-1.5 px-4 text-[10px] font-bold bg-brand-orange text-white hover:bg-orange-600 border-l border-black transition-colors h-full">
+            <span id="size-lbl">400×400</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          </button>
+          <div id="size-drop" class="absolute right-0 top-full mt-0 w-44 bg-white border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] z-50 hidden divide-y divide-black">
+            <button onclick="pickSize('200x200',event)" class="w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-brand-orange hover:text-white transition font-outfit uppercase">200 × 200</button>
+            <button onclick="pickSize('400x400',event)" class="w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-brand-orange hover:text-white transition font-outfit uppercase">400 × 400</button>
+            <button onclick="pickSize('600x600',event)" class="w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-brand-orange hover:text-white transition font-outfit uppercase">600 × 600</button>
+            <button onclick="pickSize('800x800',event)" class="w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-brand-orange hover:text-white transition font-outfit uppercase">800 × 800</button>
+            <div class="p-3 bg-stone-50 space-y-2" onclick="event.stopPropagation()">
+              <span class="text-[9px] uppercase tracking-wider text-stone-400">Custom</span>
+              <div class="flex items-center space-x-2">
+                <input id="cw" type="number" value="400" min="50" max="1000" onchange="applyCustomSize()" class="w-16 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+                <span class="text-stone-400 font-bold">×</span>
+                <input id="ch" type="number" value="400" min="50" max="1000" onchange="applyCustomSize()" class="w-16 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Canvas -->
+      <div class="flex-1 flex items-center justify-center p-8 overflow-auto relative" id="canvas-container">
+        <div id="canvas-target" class="relative flex items-center justify-center border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] overflow-hidden bg-white bg-grid" style="width:400px;height:400px;max-width:100%;max-height:100%">
+          <div id="graphic-wrapper" class="flex items-center justify-center" style="width:80%;height:80%;"></div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="border-t border-black bg-white flex flex-col shrink-0" style="height:180px">
+        <!-- Timeline header -->
+        <div class="flex items-center justify-between border-b border-black px-4 bg-stone-50 shrink-0" style="height:40px">
+          <div class="flex items-center space-x-2">
+            <button onclick="togglePlay()" id="play-btn" class="p-1.5 bg-black hover:bg-brand-orange text-white border border-black transition">
+              <i data-lucide="play" class="w-3.5 h-3.5"></i>
+            </button>
+            <button onclick="restartAnim()" class="p-1.5 bg-white hover:bg-stone-100 border border-black text-stone-600 transition">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+          <div class="flex items-center space-x-3">
+            <span class="text-[10px] font-mono text-stone-400">TIME: <span id="time-lbl" class="text-black font-bold">0.00s</span></span>
+            <span class="text-[10px] font-mono text-stone-400 flex items-center space-x-1">
+              <span>TOTAL:</span>
+              <input type="number" id="comp-dur-val" value="5.0" step="0.5" min="0.5" max="60" onchange="updateCompDur(this.value)" class="w-12 text-black font-bold bg-transparent border-b border-stone-300 outline-none focus:border-brand-orange text-center p-0 h-4">
+              <span>s</span>
+            </span>
+          </div>
+        </div>
+        <!-- Timeline body -->
+        <div class="flex-1 flex overflow-hidden">
+          <div id="tl-headers" class="border-r border-black flex flex-col overflow-y-auto divide-y divide-black bg-stone-50" style="width:220px;scrollbar-width:none"></div>
+          <div class="flex-1 flex flex-col overflow-hidden">
+            <div id="tl-ruler" class="relative bg-stone-50 border-b border-black shrink-0 overflow-hidden" style="height:24px"></div>
+            <div class="flex-1 relative overflow-auto" id="tl-scroll" onscroll="document.getElementById('tl-headers').scrollTop=this.scrollTop; document.getElementById('tl-ruler').scrollLeft=this.scrollLeft;">
+              <div id="tl-playhead" class="absolute top-0 bottom-0 z-20 pointer-events-none bg-brand-orange" style="left:0;width:2px"></div>
+              <div id="tl-rows" class="flex flex-col divide-y divide-black"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: Controls -->
+    <section id="right-panel" class="col-span-3 bg-white overflow-y-auto flex flex-col h-full border-l border-black">
+      <!-- populated by buildRightPanel() -->
+    </section>
+  </main>
+
+  <!-- ── Scripts ────────────────────────────────────────────────────────────── -->
+  <script>
+  window.onerror = function(m,u,l){ document.title='ERR:'+m+' L:'+l; return false; };
+  </script>
+  <script>
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DATA
+  // ═══════════════════════════════════════════════════════════════════════════
+  const PRESET_GROUPS = [
+    { key:'fade',    title:'Fade',         presets:[
+      { id:'fade',       name:'Fade',         kf:'kf-fade',       loop:false, easing:'ease-out', controls:['opacity'] },
+      { id:'slide',      name:'Slide',        kf:'kf-slide',      loop:false, easing:'ease-out', controls:['slide-dir','slide-dist','slide-fade'] },
+    ]},
+    { key:'motion',  title:'Basic Motion', presets:[
+      { id:'float',      name:'Float',        kf:'kf-float',      loop:true,  easing:'ease-in-out', controls:['float-dist'] },
+      { id:'rotate',     name:'Rotate',       kf:'kf-rotate',     loop:true,  easing:'linear',      controls:['rot-deg'] },
+      { id:'bounce',     name:'Bounce',       kf:'kf-bounce',     loop:true,  easing:'ease-in-out', controls:['bounce-h'] },
+      { id:'pulse',      name:'Pulse',        kf:'kf-pulse',      loop:true,  easing:'ease-in-out', controls:['pulse-scale'] },
+      { id:'wave',       name:'Wave',         kf:'kf-wave',       loop:true,  easing:'ease-in-out', controls:[] },
+      { id:'wiggle',     name:'Wiggle',       kf:'kf-wiggle',     loop:true,  easing:'ease-in-out', controls:[] },
+    ]},
+    { key:'move',    title:'Move',         presets:[
+      { id:'move-in-right', name:'Move In Right', kf:'kf-move', loop:false, easing:'ease-out', controls:['slide-dist'] },
+      { id:'move-in-left',  name:'Move In Left',  kf:'kf-move', loop:false, easing:'ease-out', controls:['slide-dist'] },
+      { id:'move-top',      name:'Move Top',      kf:'kf-move', loop:false, easing:'ease-out', controls:['slide-dist'] },
+      { id:'move-bottom',   name:'Move Bottom',   kf:'kf-move', loop:false, easing:'ease-out', controls:['slide-dist'] },
+    ]},
+    { key:'stroke',  title:'Stroke',       presets:[
+      { id:'trim-paths',   name:'Trim Paths',    kf:'kf-trim-paths',   loop:true, easing:'linear', controls:['stroke-width','stroke-cap','stroke-color'] },
+    ]},
+    { key:'scale',   title:'Scale',        presets:[
+      { id:'grow',       name:'Grow',         kf:'kf-grow',       loop:false, easing:'cubic-bezier(0.34,1.56,0.64,1)', controls:['scale-range'] },
+      { id:'shrink',     name:'Shrink',       kf:'kf-shrink',     loop:false, easing:'ease-out',  controls:['scale-range'] },
+      { id:'spin',       name:'Spin',         kf:'kf-spin',       loop:false, easing:'ease-out',  controls:['rot-deg'] },
+      { id:'move-scale', name:'Move & Scale', kf:'kf-move-scale', loop:false, easing:'ease-out',  controls:[] },
+      { id:'scale-pop',  name:'Scale Pop',    kf:'kf-scale-pop',  loop:false, easing:'cubic-bezier(0.175,0.885,0.32,1.275)', controls:['pop-scale'] },
+    ]},
+    { key:'mask',    title:'Mask',         presets:[
+      { id:'mask-reveal',name:'Mask Reveal',  kf:'kf-mask-top',   loop:false, easing:'ease-out', controls:['mask-dir'] },
+      { id:'mask-center',name:'Mask Center',  kf:'kf-mask-center',loop:false, easing:'ease-out', controls:[] },
+      { id:'mask-resize',name:'Mask Resize',  kf:'kf-mask-resize',loop:false, easing:'ease-out', controls:[] },
+      { id:'mask-slide', name:'Mask & Slide', kf:'kf-mask-slide', loop:false, easing:'ease-out', controls:[] },
+      { id:'mask-expand',name:'Mask Expand',  kf:'kf-mask-expand',loop:false, easing:'ease-out', controls:[] },
+    ]},
+    { key:'blur',    title:'Blur',         presets:[
+      { id:'blur',       name:'Blur',         kf:'kf-blur',       loop:false, easing:'ease-out', controls:['blur-amt'] },
+      { id:'blur-slide', name:'Blur & Slide', kf:'kf-blur-slide', loop:false, easing:'ease-out', controls:['blur-amt'] },
+      { id:'blur-scale', name:'Blur & Scale', kf:'kf-blur-scale', loop:false, easing:'ease-out', controls:['blur-amt'] },
+      { id:'soft-blur',  name:'Soft Blur',    kf:'kf-soft-blur',  loop:false, easing:'ease-out', controls:['blur-amt'] },
+    ]},
+    { key:'ui',      title:'UI Motion',    presets:[
+      { id:'hover-bounce',name:'Hover Bounce',  kf:'kf-hover-bounce',loop:true, easing:'ease-in-out', controls:[] },
+      { id:'notif-pop',   name:'Notification Pop',kf:'kf-notif-pop', loop:false,easing:'cubic-bezier(0.34,1.56,0.64,1)', controls:[] },
+      { id:'card-lift',   name:'Card Lift',     kf:'kf-card-lift',   loop:true, easing:'ease-in-out', controls:[] },
+      { id:'magnetic',    name:'Magnetic Hover',kf:'kf-magnetic',    loop:true, easing:'ease-in-out', controls:[] },
+    ]},
+    { key:'premium', title:'Premium',      presets:[
+      { id:'luxury',      name:'Luxury Reveal', kf:'kf-luxury',      loop:false, easing:'cubic-bezier(0.16,1,0.3,1)', controls:[] },
+      { id:'soft-hover',  name:'Soft Hover',    kf:'kf-soft-hover',  loop:true,  easing:'ease-in-out', controls:[] },
+      { id:'glass',       name:'Glass Shimmer', kf:'kf-glass-shimmer',loop:true, easing:'ease-in-out', controls:[] },
+    ]},
+    { key:'playful', title:'Playful',      presets:[
+      { id:'elastic-pop', name:'Elastic Pop',   kf:'kf-elastic-pop', loop:false, easing:'ease-out', controls:[] },
+      { id:'jelly',       name:'Jelly Bounce',  kf:'kf-jelly',       loop:true,  easing:'ease-in-out', controls:[] },
+      { id:'bloom',       name:'Bloom',         kf:'kf-bloom',       loop:false, easing:'ease-out',    controls:[] },
+      { id:'bubble-rise', name:'Bubble Rise',   kf:'kf-bubble-rise', loop:true,  easing:'ease-in-out', controls:[] },
+      { id:'orbit',       name:'Orbit',         kf:'kf-orbit',       loop:true,  easing:'linear',      controls:['orbit-r'] },
+    ]},
+    { key:'tech',    title:'Tech',         presets:[
+      { id:'glitch',      name:'Glitch',        kf:'kf-glitch',      loop:true, easing:'steps(1,end)',  controls:['rgb-split'] },
+      { id:'hologram',    name:'Hologram',      kf:'kf-hologram',    loop:true, easing:'linear',        controls:[] },
+      { id:'neon-glow',   name:'Neon Glow',     kf:'kf-neon-glow',   loop:true, easing:'ease-in-out',   controls:['glow-color','glow-size'] },
+      { id:'pixel',       name:'Pixel Dissolve',kf:'kf-pixel',       loop:false,easing:'ease-out',      controls:[] },
+      { id:'rgb-split',   name:'RGB Split',     kf:'kf-rgb-split',   loop:true, easing:'ease-in-out',   controls:['rgb-split'] },
+      { id:'x-ray',       name:'X-Ray',         kf:'kf-x-ray',       loop:true, easing:'ease-in-out',   controls:['xray-op'] },
+    ]},
+    { key:'gaming',  title:'Gaming',       presets:[
+      { id:'loot-glow',   name:'Loot Glow',     kf:'kf-loot-glow',   loop:true,  easing:'ease-in-out', controls:['glow-color'] },
+      { id:'damage-shake',name:'Damage Shake',  kf:'kf-damage-shake',loop:true,  easing:'ease-in-out', controls:[] },
+      { id:'energy',      name:'Energy Charge', kf:'kf-energy',      loop:true,  easing:'ease-in-out', controls:[] },
+    ]},
+  ];
+
+  function getPreset(id) {
+    for (const g of PRESET_GROUPS) {
+      const p = g.presets.find(p => p.id === id);
+      if (p) return p;
+    }
+    return null;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STATE
+  // ═══════════════════════════════════════════════════════════════════════════
+  const PX_PER_SEC = 120;
+
+  const S = {
+    file: null,            // {type:'svg'|'png', data, name}
+    layers: [],            // array of layer objects
+    sel: null,             // selected layer id
+    bg: 'grid',
+    size: '400x400',
+    scale: 1,
+    playing: false,
+    time: 0,
+    compDur: 5.0,          // total composition duration
+  };
+
+  let raf = null, rafStart = null;
+
+  function newLayerId() { return 'L' + Date.now(); }
+
+  function mkLayer(presetId) {
+    const p = getPreset(presetId);
+    if (!p) return null;
+    const params = {};
+    // defaults
+    if (p.controls.includes('opacity'))     params.opacity     = 1;
+    if (p.controls.includes('blur-amt'))    params.blurAmt     = 20;
+    if (p.controls.includes('scale-range')) params.scaleFrom   = 0;
+    if (p.controls.includes('slide-dir'))   params.slideDir    = 'left';
+    if (p.controls.includes('slide-dist'))  params.slideDist   = 60;
+    if (p.controls.includes('slide-fade'))  params.slideFade   = 100;
+    if (p.controls.includes('rot-deg'))     params.rotDeg      = 360;
+    if (p.controls.includes('pop-scale'))   params.popScale    = 1.25;
+    if (p.controls.includes('mask-dir'))    params.maskDir     = 'top';
+    if (p.controls.includes('float-dist'))  params.floatDist   = 24;
+    if (p.controls.includes('bounce-h'))    params.bounceH     = 36;
+    if (p.controls.includes('pulse-scale')) params.pulseScale  = 1.1;
+    if (p.controls.includes('orbit-r'))     params.orbitR      = 50;
+    if (p.controls.includes('glitch-int'))  params.glitchInt   = 1;
+    if (p.controls.includes('glow-color'))  params.glowColor   = '#FE7143';
+    if (p.controls.includes('glow-size'))   params.glowSize    = 12;
+    const layer = {
+      id: newLayerId(),
+      presetId,
+      name: p.name,
+      kf: p.kf,
+      visible: true,
+      direction: 'in',                     // 'in'|'out'
+      duration: 1.5,
+      delay: 0,
+      easing: p.easing,
+      params,
+    };
+    if (presetId === 'move-in-right') { layer.params.slideDir = 'right'; }
+    if (presetId === 'move-in-left') { layer.params.slideDir = 'left'; }
+    if (presetId === 'move-top') { layer.params.slideDir = 'top'; }
+    if (presetId === 'move-bottom') { layer.params.slideDir = 'bottom'; }
+    
+    return layer;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // LEFT PANEL — preset grid
+  // ═══════════════════════════════════════════════════════════════════════════
+  function buildPresets() {
+    const c = document.getElementById('presets-container');
+    const countEl = document.getElementById('presets-count');
+    c.innerHTML = '';
+
+    const hasFile = !!S.file;
+
+    let total = 0;
+    PRESET_GROUPS.forEach(group => {
+      total += group.presets.length;
+      const sec = document.createElement('div');
+      sec.className = 'space-y-2';
+      sec.innerHTML = `<h3 class="text-[10px] font-bold uppercase tracking-widest text-stone-500 font-outfit">${group.title}</h3>`;
+      const grid = document.createElement('div');
+      grid.className = 'grid grid-cols-2 gap-2';
+
+      group.presets.forEach(p => {
+        const isApplied = S.layers.some(l => l.presetId === p.id);
+        const div = document.createElement('div');
+        div.className = `preset-card preset-id-${p.id} flex flex-col justify-between border border-black p-2 h-24 cursor-pointer select-none transition-colors ${isApplied ? 'applied' : 'bg-white hover:bg-stone-50'} ${!hasFile ? 'opacity-40 cursor-not-allowed' : ''}`;
+        div.style.setProperty('--prev-anim', `${p.kf} 1.4s ease-in-out infinite`);
+
+        if (hasFile) {
+          if (!isApplied) {
+            div.onclick = () => applyPreset(p.id);
+          } else {
+            div.onclick = () => {
+              const layer = S.layers.find(l => l.presetId === p.id);
+              if (layer) { S.sel = layer.id; refreshAll(); }
+            };
+          }
+        }
+
+        div.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="card-label text-[10px] font-bold uppercase truncate text-stone-700 ${isApplied ? 'text-brand-orange' : ''}">${p.name}</span>
+            ${isApplied ? `<button onclick="event.stopPropagation(); removeLayerByPreset('${p.id}')" class="text-brand-orange hover:text-orange-700 p-1 -mr-1 -mt-1"><i data-lucide="x" class="w-3 h-3"></i></button>` : ''}
+          </div>
+          <div class="flex-1 mt-1 border border-stone-200 overflow-hidden flex items-center justify-center ${isApplied ? 'bg-orange-50 border-orange-200' : 'bg-white'}">
+            <div class="card-dot w-4 h-4 ${isApplied ? 'bg-brand-orange' : 'bg-black'} border border-black"></div>
+          </div>`;
+        grid.appendChild(div);
+      });
+
+      sec.appendChild(grid);
+      c.appendChild(sec);
+    });
+
+    if (countEl) countEl.textContent = `${total} LIBRARY`;
+    lucide.createIcons();
+  }
+
+  function removeLayerByPreset(presetId) {
+    const layer = S.layers.find(l => l.presetId === presetId);
+    if (layer) removeLayer(layer.id);
+  }
+
+  function applyPreset(presetId) {
+    const existing = S.layers.find(l => l.presetId === presetId);
+    if (existing) {
+      S.sel = existing.id;
+      refreshAll();
+      return;
+    }
+    const layer = mkLayer(presetId);
+    if (!layer) return;
+    S.layers.push(layer);
+    S.sel = layer.id;
+    refreshAll();
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // RENDER GRAPHIC — uses nested wrapper divs so each layer's animation is
+  //   on its own element, allowing transforms from different presets to stack.
+  // ═══════════════════════════════════════════════════════════════════════════
+  function renderGraphic() {
+    const w = document.getElementById('graphic-wrapper');
+    if (!w) return;
+
+    if (!S.file) {
+      w.style.animation = 'none';
+      w.style.transform = '';
+      w.innerHTML = `
+        <div onclick="document.getElementById('file-upload').click()" class="cursor-pointer flex flex-col items-center justify-center p-6 space-y-3 group border-2 border-dashed border-stone-300 hover:border-brand-orange transition-colors bg-white w-full h-full shadow-sm">
+          <div class="w-10 h-10 rounded-full bg-stone-50 group-hover:bg-orange-50 flex items-center justify-center transition-colors">
+            <i data-lucide="upload" class="w-5 h-5 text-stone-400 group-hover:text-brand-orange transition-colors"></i>
+          </div>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 group-hover:text-brand-orange transition-colors text-center">Upload File<br><span class="text-[9px] font-normal tracking-normal text-stone-400">SVG, PNG, JPG</span></p>
+        </div>
+      `;
+      lucide.createIcons();
+      return;
+    }
+
+    // Build asset HTML
+    let assetHTML = '';
+    if (S.file.type === 'svg') {
+      let d = S.file.data;
+      const xi = d.indexOf('<svg');
+      if (xi > -1) d = d.substring(xi);
+      assetHTML = d;
+    } else {
+      assetHTML = `<img src="${S.file.data}" alt="Graphic" style="width:100%;height:100%;object-fit:contain;display:block;">`;
+    }
+
+    // Build nested wrappers: one per visible layer, innermost contains the asset
+    const vis = S.layers.filter(l => l.visible);
+    if (!vis.length) {
+      w.innerHTML = assetHTML;
+      w.style.animation = 'none';
+      w.style.transform = `scale(${S.scale})`;
+      const svgEl = w.querySelector('svg');
+      if (svgEl) svgEl.style.cssText = 'width:100%;height:100%;max-width:100%;max-height:100%;display:block;overflow:visible;';
+      return;
+    }
+
+    // Build from inside out: innermost = asset, each layer wraps it
+    let html = assetHTML;
+    for (let i = vis.length - 1; i >= 0; i--) {
+      const l = vis[i];
+      let kf     = l.kf;
+      if (l.presetId === 'mask-reveal' && l.params && l.params.maskDir) {
+        kf = 'kf-mask-' + l.params.maskDir;
+      }
+      const iters  = '1';
+      const dir    = l.direction === 'out' ? 'reverse' : 'normal';
+      const fill   = 'forwards';
+      const ps     = S.playing ? 'running' : 'paused';
+      
+      let animStr = 'none';
+      if (S.time < l.delay) {
+        if (S.playing) {
+          const delayVal = l.delay - S.time;
+          animStr = `${kf} ${l.duration}s ${l.easing} ${delayVal.toFixed(3)}s ${iters} ${dir} ${fill}`;
+        } else {
+          animStr = 'none';
+        }
+      } else if (S.time <= l.delay + l.duration) {
+        const elapsed = S.time - l.delay;
+        animStr = `${kf} ${l.duration}s ${l.easing} -${elapsed.toFixed(3)}s ${iters} ${dir} ${fill}`;
+      } else {
+        animStr = `${kf} ${l.duration}s ${l.easing} -${l.duration.toFixed(3)}s ${iters} ${dir} ${fill}`;
+      }
+      
+      const stScale = (l.params && l.params.layerScale !== undefined) ? l.params.layerScale : 1;
+      const stRot   = (l.params && l.params.layerRot !== undefined) ? l.params.layerRot : 0;
+      
+      const extraClass = l.presetId === 'trim-paths' ? 'layer-trim-paths' : '';
+      let defsInject = '';
+      if (l.presetId === 'trim-paths' && (l.params?.['stroke-color-mode'] || 'solid') === 'gradient') {
+         const c1 = l.params?.['stroke-c1'] || '#FE7143';
+         const c2 = l.params?.['stroke-c2'] || '#FFB020';
+         defsInject = `<svg class="gradient-defs-svg" width="0" height="0" style="position:absolute;pointer-events:none;"><defs><linearGradient id="grad-${l.id}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs></svg>`;
+      }
+      const inner = `<div class="${extraClass}" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;animation:${animStr};animation-play-state:${ps};">${defsInject}${html}</div>`;
+      html = `<div data-layer-id="${l.id}" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;transform:scale(${stScale}) rotate(${stRot}deg);">${inner}</div>`;
+    }
+    w.innerHTML = html;
+    w.style.animation = 'none';
+
+    // Fix SVG sizing
+    const svgEl = w.querySelector('svg:not(.gradient-defs-svg)');
+    if (svgEl) svgEl.style.cssText = 'width:100%;height:100%;max-width:100%;max-height:100%;display:block;overflow:visible;';
+
+    // Apply CSS vars to each layer wrapper
+    vis.forEach(l => {
+      const el = w.querySelector(`[data-layer-id="${l.id}"]`);
+      if (el) applyCSSVars(el, l);
+    });
+  }
+
+  function applyCSSVars(el, l) {
+    const p = l.params || {};
+    const set = (k,v) => el.style.setProperty(k, v);
+    if (p.blurAmt    !== undefined) set('--blur-px',    `${p.blurAmt}px`);
+    if (p.rotDeg     !== undefined) { set('--rot-deg', `${p.rotDeg}deg`); set('--spin-deg', `-${p.rotDeg}deg`); }
+    if (p.popScale   !== undefined) set('--pop-scale',  p.popScale);
+    if (p.floatDist  !== undefined) set('--float-y',    `-${p.floatDist}px`);
+    if (p.bounceH    !== undefined) set('--bounce-y',   `-${p.bounceH}px`);
+    if (p.pulseScale !== undefined) set('--pulse-scale',p.pulseScale);
+    if (p.orbitR     !== undefined) set('--orbit-r',    `${p.orbitR}px`);
+    if (p.glowColor  !== undefined) set('--glow-color', p.glowColor);
+    if (p.slideFade  !== undefined) set('--slide-fade', 1 - (p.slideFade/100));
+    if (p.slideDist  !== undefined) {
+      const dir = p.slideDir || 'left';
+      const x = (dir==='left'?-1:dir==='right'?1:0) * p.slideDist;
+      const y = (dir==='top'?-1:dir==='bottom'?1:0) * p.slideDist;
+      set('--slide-x', `${x}px`);
+      set('--slide-y', `${y}px`);
+    }
+    if (p.rgbSplit   !== undefined) set('--rgb-split',  `${p.rgbSplit}px`);
+    if (p.xrayOp     !== undefined) set('--xray-op',    p.xrayOp);
+    if (l.presetId === 'trim-paths') {
+      set('--stroke-w', `${p['stroke-width'] ?? 2}px`);
+      set('--stroke-cap', p['stroke-cap'] ?? 'round');
+      if ((p['stroke-color-mode'] || 'solid') === 'gradient') {
+        set('--stroke-color', `url(#grad-${l.id})`);
+      } else {
+        set('--stroke-color', p['stroke-c1'] || '#FE7143');
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TIMELINE
+  // ═══════════════════════════════════════════════════════════════════════════
+  function updateCompDur(val) {
+    let v = parseFloat(val);
+    if(isNaN(v)) v=5;
+    v = Math.max(0.5, Math.min(60, v));
+    S.compDur = v;
+    document.getElementById('comp-dur-val').value = v.toFixed(1);
+    buildTimeline();
+  }
+
+  function getTotalDur() {
+    return S.compDur || 5;
+  }
+
+  function buildTimeline() {
+    const headers = document.getElementById('tl-headers');
+    const ruler   = document.getElementById('tl-ruler');
+    const rows    = document.getElementById('tl-rows');
+    if (!headers || !ruler || !rows) return;
+
+    const total = getTotalDur();
+    const W = total * PX_PER_SEC;
+
+    // Ruler
+    ruler.style.width = W + 'px';
+    let rHTML = '';
+    for (let t = 0; t <= total; t += 0.5) {
+      const x = t * PX_PER_SEC;
+      const major = Number.isInteger(t);
+      rHTML += `<div class="absolute flex flex-col items-center" style="left:${x}px;top:0">
+        <div class="bg-black" style="width:1px;height:${major?14:7}px"></div>
+        ${major ? `<span style="font-size:8px;font-family:monospace;color:#78716c;margin-top:1px">${t.toFixed(1)}s</span>` : ''}
+      </div>`;
+    }
+    ruler.innerHTML = rHTML;
+
+    headers.innerHTML = '';
+    rows.innerHTML = '';
+
+    const COLORS = ['#FE7143','#7C3AED','#0EA5E9','#10B981','#F59E0B','#EC4899','#6366F1'];
+
+    if (!S.layers.length) {
+      headers.innerHTML = `<div class="flex-1 flex items-center justify-center text-[10px] text-stone-400 px-3">No layers</div>`;
+      rows.innerHTML = `<div style="width:${W}px;height:40px" class="flex items-center justify-center text-[10px] text-stone-400">Apply a preset to start</div>`;
+      return;
+    }
+
+    S.layers.forEach((layer, i) => {
+      const color = COLORS[i % COLORS.length];
+      const isSel = layer.id === S.sel;
+      const fn = S.file ? S.file.name.replace(/\.[^.]+$/, '') : 'Object';
+
+      // Header
+      const h = document.createElement('div');
+      h.className = `flex items-center px-2 space-x-1.5 cursor-pointer select-none h-10 ${isSel ? 'bg-stone-900 text-white' : 'bg-stone-50 text-black hover:bg-stone-100'} timeline-row ${isSel ? 'selected' : ''}`;
+      h.style.borderLeft = `3px solid ${color}`;
+      h.onclick = () => { S.sel = layer.id; buildTimeline(); buildRightPanel(); };
+      
+      // Make row draggable
+      h.draggable = true;
+      h.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', i);
+        h.style.opacity = '0.4';
+      });
+      h.addEventListener('dragover', e => {
+        e.preventDefault();
+        h.classList.add('bg-stone-800');
+      });
+      h.addEventListener('dragleave', () => {
+        h.classList.remove('bg-stone-800');
+      });
+      h.addEventListener('drop', e => {
+        e.preventDefault();
+        h.classList.remove('bg-stone-800');
+        const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+        if (fromIdx !== i && !isNaN(fromIdx)) {
+          const temp = S.layers[fromIdx];
+          S.layers.splice(fromIdx, 1);
+          S.layers.splice(i, 0, temp);
+          refreshAll();
+        }
+      });
+      h.addEventListener('dragend', () => {
+        h.style.opacity = '1';
+      });
+
+      h.innerHTML = `
+        <div class="flex items-center shrink-0 mr-1 cursor-grab" title="Drag to reorder">
+          <i data-lucide="grip-vertical" class="w-3.5 h-3.5 text-stone-400"></i>
+        </div>
+        <button onclick="event.stopPropagation();toggleVis('${layer.id}')" class="shrink-0 ${layer.visible?'':'opacity-40'}">
+          <i data-lucide="${layer.visible?'eye':'eye-off'}" class="w-3 h-3"></i>
+        </button>
+        <span class="text-[9px] font-bold truncate flex-1">${fn} — ${layer.name}</span>
+        <button onclick="event.stopPropagation();removeLayer('${layer.id}')" class="shrink-0 text-stone-400 hover:text-red-500 transition-colors">
+          <i data-lucide="x" class="w-3 h-3"></i>
+        </button>`;
+      headers.appendChild(h);
+
+      // Track row
+      const r = document.createElement('div');
+      r.className = `relative h-10 cursor-pointer ${isSel ? 'bg-stone-800' : 'bg-stone-100 hover:bg-stone-200'}`;
+      r.style.width = W + 'px';
+      r.onclick = () => { S.sel = layer.id; buildTimeline(); buildRightPanel(); };
+
+      // Segment block
+      const snap = (v) => Math.round(v * 10) / 10;
+      const bLeft = layer.delay * PX_PER_SEC;
+      const bW    = Math.max(layer.duration * PX_PER_SEC, 10);
+      const seg   = document.createElement('div');
+      seg.className = 'seg-block';
+      seg.style.cssText = `left:${bLeft}px;width:${bW}px;background:${color}`;
+      seg.innerHTML = `<div class="seg-resize-l"></div><span class="truncate z-10 relative pointer-events-none px-1">${layer.name}</span><div class="seg-resize-r"></div>`;
+
+      // Drag to move delay
+      let dx0=0, dl0=0;
+      seg.addEventListener('mousedown', ev => {
+        if (ev.target.classList.contains('seg-resize-l') || ev.target.classList.contains('seg-resize-r')) return;
+        ev.preventDefault(); ev.stopPropagation();
+        dx0=ev.clientX; dl0=layer.delay;
+        const mm = e => { layer.delay=snap(Math.max(0,dl0+(e.clientX-dx0)/PX_PER_SEC)); seg.style.left=(layer.delay*PX_PER_SEC)+'px'; syncRPDelayDisplay(); renderGraphic(); };
+        const mu = () => { window.removeEventListener('mousemove',mm); window.removeEventListener('mouseup',mu); buildTimeline(); };
+        window.addEventListener('mousemove',mm); window.addEventListener('mouseup',mu);
+      });
+
+      // Resize left edge
+      const lh = seg.querySelector('.seg-resize-l');
+      let lx0=0, ldl0=0, ldr0=0;
+      lh.addEventListener('mousedown', ev => {
+        ev.preventDefault(); ev.stopPropagation();
+        lx0=ev.clientX; ldl0=layer.delay; ldr0=layer.duration;
+        const mm = e => { 
+          let newD = snap(Math.max(0, ldl0+(e.clientX-lx0)/PX_PER_SEC));
+          if (newD > ldl0 + ldr0 - 0.1) newD = ldl0 + ldr0 - 0.1;
+          layer.delay = newD;
+          layer.duration = snap(ldl0 + ldr0 - newD);
+          seg.style.left=(layer.delay*PX_PER_SEC)+'px'; 
+          seg.style.width=(layer.duration*PX_PER_SEC)+'px';
+          syncRPDelayDisplay(); syncRPDurDisplay(); renderGraphic();
+        };
+        const mu = () => { window.removeEventListener('mousemove',mm); window.removeEventListener('mouseup',mu); buildTimeline(); };
+        window.addEventListener('mousemove',mm); window.addEventListener('mouseup',mu);
+      });
+
+      // Resize right edge
+      const rh = seg.querySelector('.seg-resize-r');
+      let rx0=0, rd0=0;
+      rh.addEventListener('mousedown', ev => {
+        ev.preventDefault(); ev.stopPropagation();
+        rx0=ev.clientX; rd0=layer.duration;
+        const mm = e => { layer.duration=snap(Math.max(0.1,rd0+(e.clientX-rx0)/PX_PER_SEC)); seg.style.width=(layer.duration*PX_PER_SEC)+'px'; syncRPDurDisplay(); renderGraphic(); };
+        const mu = () => { window.removeEventListener('mousemove',mm); window.removeEventListener('mouseup',mu); buildTimeline(); };
+        window.addEventListener('mousemove',mm); window.addEventListener('mouseup',mu);
+      });
+
+      r.appendChild(seg);
+      rows.appendChild(r);
+    });
+
+    lucide.createIcons();
+    updatePlayhead();
+  }
+
+  function updatePlayhead() {
+    const ph = document.getElementById('tl-playhead');
+    if (ph) ph.style.left = (S.time * PX_PER_SEC) + 'px';
+    const tl = document.getElementById('time-lbl'); if (tl) tl.textContent = S.time.toFixed(2) + 's';
+  }
+
+  function syncRPDelayDisplay() {
+    const el = document.getElementById('rp-delay-val');
+    const sl = getSelLayer();
+    if (el && sl) el.value = sl.delay.toFixed(2);
+  }
+  function syncRPDurDisplay() {
+    const el = document.getElementById('rp-dur-val');
+    const sl = getSelLayer();
+    if (el && sl) el.value = sl.duration.toFixed(2);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // RIGHT PANEL
+  // ═══════════════════════════════════════════════════════════════════════════
+  function buildRightPanel() {
+    const rp = document.getElementById('right-panel');
+    if (!rp) return;
+    const layer = getSelLayer();
+
+    if (!layer) {
+      rp.innerHTML = `
+        <div class="flex items-center justify-between px-4 border-b border-black bg-white shrink-0" style="height:40px">
+          <span class="text-xs font-bold uppercase font-outfit tracking-wider text-stone-500">Controls</span>
+        </div>
+        <div class="flex-1 flex flex-col items-center justify-center p-8 space-y-3 text-center">
+          <i data-lucide="layers" class="w-6 h-6 text-stone-300"></i>
+          <p class="text-xs text-stone-400">Select or apply a preset to edit it</p>
+        </div>
+        ${exportRowHTML()}`;
+      lucide.createIcons();
+      return;
+    }
+
+    const fn = S.file ? S.file.name : 'Object';
+    const preset = getPreset(layer.presetId);
+
+    rp.innerHTML = `
+      <div class="flex flex-col border-b border-black shrink-0 bg-white px-4 py-3 space-y-0.5 relative">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-brand-orange font-outfit">Editing: ${layer.name}</span>
+        <span class="text-[9px] text-stone-400">Applied to: ${fn}</span>
+        <button onclick="removeLayer('${layer.id}')" class="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-red-500 transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-4 space-y-5">
+
+        <!-- Easing -->
+        <div class="space-y-1.5 relative" id="easing-wrap">
+          <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Easing</label>
+          <button onclick="toggleEasingDrop(event)" class="w-full text-left text-xs font-semibold px-3 py-2 bg-white border border-black flex items-center justify-between">
+            <span id="easing-lbl">${easingLabel(layer.easing)}</span>
+            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+          </button>
+          <div id="easing-drop" class="absolute left-0 top-full w-full bg-white border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] z-50 hidden divide-y divide-black overflow-y-auto" style="max-height:200px">
+            ${EASINGS.map(([v,l], idx) => `<button onclick="pickEasingByIdx(${idx},event)" class="w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-brand-orange hover:text-white transition font-outfit uppercase">${l}</button>`).join('')}
+          </div>
+        </div>
+
+        <!-- Direction -->
+        <div class="space-y-1.5">
+          <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Direction</label>
+          <div class="flex border border-black">
+            ${['in','out'].map((d,i) => `
+              <button onclick="setLP('direction','${d}')" class="flex-1 py-1.5 text-[10px] font-bold transition-colors ${layer.direction===d?'bg-black text-white':'bg-white text-stone-500 hover:bg-stone-100'} ${i===0?'border-r border-black':''}">${d==='in'?'In':'Out'}</button>`).join('')}
+          </div>
+        </div>
+
+        <!-- Timing -->
+        <div class="space-y-3">
+          <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Timing</label>
+
+          <!-- Duration -->
+          <div class="space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-stone-600">Duration (s)</span>
+              <input id="rp-duration-val" type="text" value="${layer.duration.toFixed(2)}" onchange="setLPNum('duration',this.value,0.1,30)" class="w-14 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+            </div>
+            <input id="rp-duration-slider" type="range" min="0.1" max="10" step="0.05" value="${layer.duration}" oninput="setLPSlider('duration',this.value,'rp-duration-val')" class="w-full" style="--rp:${pct(layer.duration,0.1,10)}%">
+          </div>
+        </div>
+
+        <!-- Global Transform -->
+        <div class="border-t border-black pt-4 space-y-3">
+          <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Global Transform</label>
+          <div class="space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-stone-600">Scale</span>
+              <input id="pc-layerScale-val" type="text" value="${layer.params?.layerScale ?? 1}" onchange="setPP('layerScale',this.value,-5,5)" class="w-14 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+            </div>
+            <input id="pc-layerScale-sl" type="range" min="-5" max="5" step="0.05" value="${layer.params?.layerScale ?? 1}" oninput="setPPSlider('layerScale',this.value,'pc-layerScale-val')" class="w-full" style="--rp:${pct(layer.params?.layerScale ?? 1,-5,5)}%">
+          </div>
+          <div class="space-y-1 mt-2">
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-stone-600">Rotate (°)</span>
+              <input id="pc-layerRot-val" type="text" value="${layer.params?.layerRot ?? 0}" onchange="setPP('layerRot',this.value,-360,360)" class="w-14 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+            </div>
+            <input id="pc-layerRot-sl" type="range" min="-360" max="360" step="1" value="${layer.params?.layerRot ?? 0}" oninput="setPPSlider('layerRot',this.value,'pc-layerRot-val')" class="w-full" style="--rp:${pct(layer.params?.layerRot ?? 0,-360,360)}%">
+          </div>
+        </div>
+
+        ${presetSpecificHTML(layer)}
+
+        <!-- Actions -->
+        <div class="border-t border-black pt-4 space-y-2">
+          <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Actions</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="duplicateLayer('${layer.id}')" class="py-2 text-[10px] font-bold bg-white hover:bg-stone-100 border border-black uppercase tracking-wider transition flex items-center justify-center space-x-1.5">
+              <i data-lucide="copy" class="w-3 h-3"></i><span>Duplicate</span>
+            </button>
+            <button onclick="resetLayer('${layer.id}')" class="py-2 text-[10px] font-bold bg-white hover:bg-stone-100 border border-black uppercase tracking-wider transition flex items-center justify-center space-x-1.5">
+              <i data-lucide="rotate-ccw" class="w-3 h-3"></i><span>Reset</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      ${exportRowHTML()}`;
+
+    lucide.createIcons();
+  }
+
+  function presetSpecificHTML(layer) {
+    const p = layer.params || {};
+    const preset = getPreset(layer.presetId);
+    if (!preset || !preset.controls.length) return '';
+
+    let html = `<div class="border-t border-black pt-4 space-y-3">
+      <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Preset Controls</label>`;
+
+    const sRow = (key, label, min, max, step, valKey) => {
+      const v = p[valKey] ?? min;
+      return `<div class="space-y-1">
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-stone-600">${label}</span>
+          <input id="pc-${key}-val" type="text" value="${v}" onchange="setPP('${valKey}',this.value,${min},${max})" class="w-14 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+        </div>
+        <input id="pc-${key}-sl" type="range" min="${min}" max="${max}" step="${step}" value="${v}" oninput="setPPSlider('${valKey}',this.value,'pc-${key}-val')" class="w-full" style="--rp:${pct(v,min,max)}%">
+      </div>`;
+    };
+
+    if (preset.controls.includes('opacity'))     html += sRow('opacity','Opacity',0,1,0.05,'opacity');
+    if (preset.controls.includes('blur-amt'))    html += sRow('blur','Blur (px)',0,100,1,'blurAmt');
+    if (preset.controls.includes('scale-range')) html += sRow('scale-from','Scale from',-2,5,0.05,'scaleFrom');
+    if (preset.controls.includes('slide-dist'))  html += sRow('slide-dist','Distance (px)',-500,500,1,'slideDist');
+    if (preset.controls.includes('slide-fade'))  html += sRow('slide-fade','Fade Intensity %',0,100,1,'slideFade');
+    if (preset.controls.includes('slide-dir')) {
+      const dirs = ['left','right','top','bottom'];
+      html += `<div class="space-y-1.5">
+        <span class="text-xs text-stone-600">Slide direction</span>
+        <div class="grid grid-cols-2 gap-1">
+          ${dirs.map(d => `<button onclick="setPP('slideDir','${d}',null,null)" class="py-1.5 text-[10px] font-bold border border-black transition-colors ${p.slideDir===d?'bg-black text-white':'bg-white hover:bg-stone-100'} uppercase">${d}</button>`).join('')}
+        </div>
+      </div>`;
+    }
+    if (preset.controls.includes('stroke-width')) html += sRow('stroke-width','Thickness (px)',0,50,0.5,'stroke-width');
+    if (preset.controls.includes('stroke-cap')) {
+      const caps = ['round','square','butt'];
+      html += `<div class="space-y-1.5">
+        <span class="text-xs text-stone-600">Stroke End</span>
+        <div class="grid grid-cols-3 gap-0 border border-black">
+          ${caps.map((c,i) => `<button onclick="setPP('stroke-cap','${c}',null,null)" class="py-1 text-[10px] font-bold transition-colors ${(p['stroke-cap']===c || (!p['stroke-cap'] && c==='round')) ? 'bg-black text-white' : 'bg-white hover:bg-stone-100'} uppercase ${i<2?'border-r border-black':''}">${c}</button>`).join('')}
+        </div>
+      </div>`;
+    }
+    if (preset.controls.includes('stroke-color')) {
+      const mode = p['stroke-color-mode'] || 'solid';
+      const c1 = p['stroke-c1'] || '#FE7143';
+      const c2 = p['stroke-c2'] || '#FFB020';
+      html += `<div class="space-y-1.5 border border-stone-200 p-2 bg-white">
+        <div class="flex justify-between items-center mb-2 relative" id="stroke-mode-wrap">
+          <span class="text-xs text-stone-600 font-bold">Stroke Color</span>
+          <div class="relative">
+            <button onclick="toggleStrokeModeDrop(event)" class="text-[10px] font-bold px-2 py-1 bg-white border border-black flex items-center justify-between space-x-1.5 w-24">
+              <span>${mode === 'gradient' ? 'Gradient' : 'Solid'}</span>
+              <i data-lucide="chevron-down" class="w-3 h-3 text-stone-600"></i>
+            </button>
+            <div id="stroke-mode-drop" class="absolute right-0 top-full mt-1 w-24 bg-white border border-black shadow-[2px_2px_0_rgba(0,0,0,1)] z-50 hidden divide-y divide-black" onclick="event.stopPropagation()">
+              <button onclick="pickStrokeMode('solid', event)" class="w-full text-left px-3 py-2 text-[9px] font-bold hover:bg-brand-orange hover:text-white transition uppercase">Solid</button>
+              <button onclick="pickStrokeMode('gradient', event)" class="w-full text-left px-3 py-2 text-[9px] font-bold hover:bg-brand-orange hover:text-white transition uppercase">Gradient</button>
+            </div>
+          </div>
+        </div>
+        <div class="flex space-x-2">
+          <input type="color" value="${c1}" onchange="setPPDirect('stroke-c1',this.value)" class="flex-1 h-8 border border-black cursor-pointer">
+          ${mode==='gradient' ? `<input type="color" value="${c2}" onchange="setPPDirect('stroke-c2',this.value)" class="flex-1 h-8 border border-black cursor-pointer">` : ''}
+        </div>
+      </div>`;
+    }
+    if (preset.controls.includes('rot-deg'))     html += sRow('rot','Angle (°)',-360,360,1,'rotDeg');
+    if (preset.controls.includes('pop-scale'))   html += sRow('pop-scale','Peak scale',-2,5,0.05,'popScale');
+    if (preset.controls.includes('float-dist'))  html += sRow('float-dist','Distance (px)',-200,200,1,'floatDist');
+    if (preset.controls.includes('bounce-h'))    html += sRow('bounce-h','Height (px)',-200,200,1,'bounceH');
+    if (preset.controls.includes('pulse-scale')) html += sRow('pulse-scale','Scale peak',-2,3,0.05,'pulseScale');
+    if (preset.controls.includes('orbit-r'))     html += sRow('orbit-r','Orbit radius (px)',-500,500,1,'orbitR');
+    if (preset.controls.includes('glitch-int'))  html += sRow('glitch','Intensity',0.2,3,0.1,'glitchInt');
+    if (preset.controls.includes('rgb-split'))   html += sRow('rgb-split','Split Dist',-20,20,1,'rgbSplit');
+    if (preset.controls.includes('xray-op'))     html += sRow('xray-op','Opacity',0,1,0.05,'xrayOp');
+    if (preset.controls.includes('glow-color')) {
+      html += `<div class="space-y-1.5">
+        <span class="text-xs text-stone-600">Glow colour</span>
+        <input type="color" value="${p.glowColor||'#FE7143'}" onchange="setPPDirect('glowColor',this.value)" class="w-full h-9 border border-black cursor-pointer">
+      </div>`;
+    }
+    if (preset.controls.includes('glow-size'))   html += sRow('glow-size','Glow size (px)',0,60,1,'glowSize');
+    if (preset.controls.includes('mask-dir')) {
+      const dirs = ['top','bottom','left','right'];
+      html += `<div class="space-y-1.5">
+        <span class="text-xs text-stone-600">Mask direction</span>
+        <div class="grid grid-cols-2 gap-1">
+          ${dirs.map(d => `<button onclick="setPP('maskDir','${d}',null,null)" class="py-1.5 text-[10px] font-bold border border-black transition-colors ${p.maskDir===d?'bg-black text-white':'bg-white hover:bg-stone-100'} uppercase">${d}</button>`).join('')}
+        </div>
+      </div>`;
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  function exportRowHTML() {
+    return `<div class="border-t border-black shrink-0 bg-white">
+
+      <!-- Save & Delete -->
+      <div class="flex border-b border-black">
+        <button onclick="exportJSON()" class="flex-1 flex items-center justify-center space-x-1.5 py-3 text-[10px] font-bold bg-black hover:bg-stone-800 text-white border-r border-stone-700 transition-colors" title="Save project as JSON">
+          <i data-lucide="save" class="w-3.5 h-3.5"></i><span>SAVE PROJECT</span>
+        </button>
+        <button onclick="deleteProject()" class="flex-1 flex items-center justify-center space-x-1.5 py-3 text-[10px] font-bold bg-white hover:bg-red-50 text-red-600 border-none transition-colors" title="Delete all assets and start fresh">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i><span>DELETE PROJECT</span>
+        </button>
+      </div>
+
+      <!-- Export / Use in Code -->
+      <div class="p-3 space-y-2">
+        <p class="text-[9px] font-bold uppercase tracking-widest text-stone-400">Export &amp; Use in Code</p>
+        <button onclick="exportGIF()" id="gif-btn2" class="w-full py-2.5 text-[10px] font-bold bg-black hover:bg-brand-orange hover:text-black text-white border border-black flex items-center justify-center space-x-1.5 transition-colors" title="Export animation as animated GIF">
+          <i data-lucide="image" class="w-3.5 h-3.5"></i><span>EXPORT GIF</span>
+        </button>
+        <button onclick="copyCodeJSON()" class="w-full py-2.5 text-[10px] font-bold bg-white hover:bg-stone-50 text-black border border-black flex items-center justify-center space-x-1.5 transition-colors" title="Copy CSS animation code for use in your project">
+          <i data-lucide="code-2" class="w-3.5 h-3.5"></i><span id="copy-btn-lbl">COPY CSS CODE</span>
+        </button>
+        <p class="text-[9px] text-stone-400 leading-relaxed">Paste the CSS code into your project's stylesheet. Add the class to any HTML element to animate it.</p>
+      </div>
+    </div>`;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // EASING HELPERS
+  // ═══════════════════════════════════════════════════════════════════════════
+  const EASINGS = [
+    ['linear','Linear'],['ease-in','Ease In'],['ease-out','Ease Out'],['ease-in-out','Ease In Out'],
+    ['cubic-bezier(0.34,1.56,0.64,1)','Ease Out Back'],['cubic-bezier(0.175,0.885,0.32,1.275)','Bouncy'],
+    ['cubic-bezier(0.16,1,0.3,1)','Gentle'],['cubic-bezier(0.22,1,0.36,1)','Quick'],
+    ['steps(1,end)','Instant'],
+  ];
+  function easingLabel(v) { const e = EASINGS.find(([val])=>val===v); return e ? e[1] : 'Ease Out'; }
+
+  function toggleEasingDrop(e) { if(e) e.stopPropagation(); document.getElementById('easing-drop')?.classList.toggle('hidden'); }
+  function pickEasingByIdx(idx, e) {
+    if(e) e.stopPropagation();
+    const l = getSelLayer(); if(!l) return;
+    const pair = EASINGS[idx]; if(!pair) return;
+    l.easing = pair[0];
+    const lbl = document.getElementById('easing-lbl'); if(lbl) lbl.textContent = pair[1];
+    document.getElementById('easing-drop')?.classList.add('hidden');
+    renderGraphic();
+  }
+
+  function toggleStrokeModeDrop(e) { if(e) e.stopPropagation(); document.getElementById('stroke-mode-drop')?.classList.toggle('hidden'); }
+  function pickStrokeMode(mode, e) {
+    if(e) e.stopPropagation();
+    setPP('stroke-color-mode', mode);
+    document.getElementById('stroke-mode-drop')?.classList.add('hidden');
+  }
+
+  function pct(v, min, max) { return Math.max(0, Math.min(100, Math.round(((v-min)/(max-min))*100))); }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // LAYER MUTATIONS
+  // ═══════════════════════════════════════════════════════════════════════════
+  function getSelLayer() { return S.layers.find(l => l.id === S.sel) || null; }
+
+  function setLP(prop, val) {
+    const l = getSelLayer(); if(!l) return;
+    l[prop] = val;
+    renderGraphic(); buildTimeline(); buildRightPanel();
+  }
+
+  function setLPNum(prop, val, min, max) {
+    const l = getSelLayer(); if(!l) return;
+    let v = parseFloat(val); if(isNaN(v)) return;
+    v = Math.max(min, Math.min(max, v));
+    l[prop] = v;
+    const slider = document.getElementById(`rp-${prop}-slider`);
+    if(slider) { slider.value = v; slider.style.setProperty('--rp', pct(v,parseFloat(slider.min),parseFloat(slider.max))+'%'); }
+    renderGraphic(); buildTimeline();
+  }
+
+  function setLPSlider(prop, val, displayId) {
+    const l = getSelLayer(); if(!l) return;
+    l[prop] = parseFloat(val);
+    const el = document.getElementById(displayId); if(el) el.value = parseFloat(val).toFixed(2);
+    const sl = document.getElementById(`rp-${prop}-slider`);
+    if(sl) sl.style.setProperty('--rp', pct(parseFloat(val),parseFloat(sl.min),parseFloat(sl.max))+'%');
+    renderGraphic(); buildTimeline();
+  }
+
+  function setScale(val) {
+    S.scale = parseFloat(val) || 1;
+    const sl = document.getElementById('scale-slider');
+    if(sl) { sl.value = S.scale; sl.style.setProperty('--rp', pct(S.scale, 0.1, 3) + '%'); }
+    const ct = document.getElementById('canvas-target');
+    if (ct) {
+      ct.style.transform = `scale(${S.scale})`;
+      ct.style.transformOrigin = 'center center';
+    }
+  }
+
+  function setScaleSlider(val) {
+    S.scale = parseFloat(val);
+    const sl = document.getElementById('scale-slider');
+    if (sl) sl.style.setProperty('--rp', Math.round(((S.scale-0.1)/(3-0.1))*100) + '%');
+    const ct = document.getElementById('canvas-target');
+    if (ct) {
+      ct.style.transform = `scale(${S.scale})`;
+      ct.style.transformOrigin = 'center center';
+    }
+    const rpDur = document.getElementById('rp-scale-val');
+    if(rpDur) rpDur.value = S.scale.toFixed(2);
+  }
+
+  function setPP(key, val, min, max) {
+    const l = getSelLayer(); if(!l) return;
+    if(typeof min === 'number' && typeof max === 'number') { let v=parseFloat(val); if(isNaN(v)) return; val=Math.max(min,Math.min(max,v)); }
+    l.params[key] = val;
+    renderGraphic(); buildRightPanel();
+  }
+  function setPPSlider(key, val, displayId) {
+    const l = getSelLayer(); if(!l) return;
+    l.params[key] = parseFloat(val);
+    const el=document.getElementById(displayId); if(el) el.value=parseFloat(val).toFixed(2);
+    // Find the slider by the display ID pattern: pc-XXX-val -> pc-XXX-sl
+    const slId = displayId.replace('-val', '-sl');
+    const sl=document.getElementById(slId);
+    if(sl) sl.style.setProperty('--rp',pct(parseFloat(val),parseFloat(sl.min),parseFloat(sl.max))+'%');
+    renderGraphic();
+  }
+  function setPPDirect(key, val) {
+    const l = getSelLayer(); if(!l) return;
+    l.params[key] = val;
+    renderGraphic();
+  }
+
+  function toggleVis(id) {
+    const l = S.layers.find(l => l.id === id); if(!l) return;
+    l.visible = !l.visible;
+    renderGraphic(); buildTimeline(); if(S.sel===id) buildRightPanel();
+  }
+
+  function removeLayer(id) {
+    S.layers = S.layers.filter(l => l.id !== id);
+    if(S.sel === id) S.sel = S.layers[0]?.id || null;
+    refreshAll();
+  }
+
+  function deleteProject() {
+    if (confirm("Delete this project? All uploaded assets and layers will be removed and you'll start fresh.")) {
+      S.file = null;
+      S.layers = [];
+      S.sel = null;
+      S.bg = 'grid';
+      S.size = '400x400';
+      S.scale = 1;
+      S.time = 0;
+      if (S.playing) togglePlay();
+      refreshAll();
+      setBg(S.bg);
+      applySize(S.size);
+    }
+  }
+
+  function newProject() {
+    if (S.file || S.layers.length) {
+      if (!confirm("Start a new project? Unsaved changes will be lost.")) return;
+    }
+    S.file = null;
+    S.layers = [];
+    S.sel = null;
+    S.bg = 'grid';
+    S.size = '400x400';
+    S.scale = 1;
+    S.time = 0;
+    if (S.playing) togglePlay();
+    // Open file picker to upload asset for the new project
+    refreshAll();
+    setBg(S.bg);
+    applySize(S.size);
+    setTimeout(() => document.getElementById('file-upload').click(), 200);
+  }
+
+  function duplicateLayer(id) {
+    const src = S.layers.find(l => l.id === id); if(!src) return;
+    const copy = JSON.parse(JSON.stringify(src));
+    copy.id = newLayerId();
+    copy.delay = src.delay + src.duration;
+    S.layers.push(copy);
+    S.sel = copy.id;
+    refreshAll();
+  }
+
+  function toggleCustomBgDrop(e) {
+    if (e) e.stopPropagation();
+    document.getElementById('bg-custom-drop')?.classList.toggle('hidden');
+    setBg('custom');
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CANVAS CONTROLS / BACKGROUNDS
+  // ═══════════════════════════════════════════════════════════════════════════
+  const BG_CLASSES = {
+    grid:'bg-white bg-grid', transparent:'bg-transparent bg-checkerboard', dark:'bg-black', light:'bg-stone-50'
+  };
+  function setBg(bg) {
+    S.bg = bg;
+    const c = document.getElementById('canvas-target');
+    const colorInput = document.getElementById('bg-custom-color');
+    
+    document.querySelectorAll('#bg-toggles button').forEach(b => {
+      if (!b.id.startsWith('bg-')) return;
+      const isSel = b.id === 'bg-'+bg;
+      b.className = b.className.replace(/bg-brand-orange text-white hover:bg-orange-600|bg-white text-stone-500 hover:bg-stone-100/g, '').trim();
+      b.className += isSel ? ' bg-brand-orange text-white hover:bg-orange-600' : ' bg-white text-stone-500 hover:bg-stone-100';
+    });
+
+    if (c) {
+      if (bg === 'custom') {
+        const customCol = colorInput ? colorInput.value : '#ffffff';
+        c.style.backgroundColor = customCol;
+        c.className = 'relative flex items-center justify-center border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] overflow-hidden';
+      } else {
+        c.style.backgroundColor = '';
+        c.className = 'relative flex items-center justify-center border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] overflow-hidden ' + (BG_CLASSES[bg] || 'bg-white');
+      }
+    }
+  }
+
+  function setCustomBgColor(color) {
+    const cCol = document.getElementById('bg-custom-color');
+    const cHex = document.getElementById('bg-custom-hex');
+    if (cCol) cCol.value = color;
+    if (cHex) cHex.value = color;
+    setBg('custom');
+  }
+
+  function toggleSizeDrop(e) { if(e) e.stopPropagation(); document.getElementById('size-drop')?.classList.toggle('hidden'); }
+  function pickSize(sz, e) { if(e) e.stopPropagation(); applySize(sz); document.getElementById('size-drop')?.classList.add('hidden'); }
+  function applyCustomSize() {
+    const w=Math.max(50,Math.min(1000,parseInt(document.getElementById('cw').value)||400));
+    const h=Math.max(50,Math.min(1000,parseInt(document.getElementById('ch').value)||400));
+    applySize(`${w}x${h}`);
+  }
+  function applySize(sz) {
+    S.size = sz;
+    const [w,h] = sz.split('x');
+    const c = document.getElementById('canvas-target');
+    c.style.width = w+'px'; c.style.height = h+'px';
+    const lbl = document.getElementById('size-lbl'); if(lbl) lbl.textContent = `${w}×${h}`;
+    const cw=document.getElementById('cw'),ch=document.getElementById('ch');
+    if(cw) cw.value=w; if(ch) ch.value=h;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // FILE UPLOAD
+  // ═══════════════════════════════════════════════════════════════════════════
+  document.getElementById('file-upload').onchange = function(e) {
+    const file = e.target.files[0]; if(!file) return;
+    const fn = file.name.toLowerCase();
+    const isSvg = file.type==='image/svg+xml' || fn.endsWith('.svg');
+    const isImg = file.type.startsWith('image/') || /\.(png|jpg|jpeg|webp)$/.test(fn);
+    const reader = new FileReader();
+    if(isSvg) {
+      reader.onload = ev => { S.file={type:'svg',data:ev.target.result,name:file.name}; refreshAll(); };
+      reader.readAsText(file);
+    } else if(isImg) {
+      reader.onload = ev => { S.file={type:'png',data:ev.target.result,name:file.name}; refreshAll(); };
+      reader.readAsDataURL(file);
+    } else {
+      alert('Please upload SVG, PNG or JPG.');
+    }
+    e.target.value = '';
+  };
+
+  document.getElementById('json-import').onchange = function(e) {
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const cfg = JSON.parse(ev.target.result);
+        // Validate it's a Vibe on Motion project file
+        if (!cfg.layers && !cfg.file) { alert('This does not appear to be a Vibe on Motion project file.'); return; }
+        if (cfg.file)    S.file    = cfg.file;
+        if (cfg.layers)  S.layers  = cfg.layers;
+        if (cfg.scale)   S.scale   = cfg.scale;
+        if (cfg.sel)     S.sel     = cfg.sel;
+        if (cfg.size)    S.size    = cfg.size;
+        if (cfg.bg)      S.bg      = cfg.bg;
+        if (cfg.compDur) S.compDur = cfg.compDur;
+        refreshAll();
+        setBg(S.bg);
+        applySize(S.size);
+        const durEl = document.getElementById('comp-dur-val');
+        if (durEl) durEl.value = S.compDur.toFixed(1);
+      } catch(err) { alert('Could not load project: '+err.message); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  function resetLayer(id) {
+    const l = S.layers.find(x => x.id === id); if(!l) return;
+    const fresh = mkLayer(l.presetId); if(!fresh) return;
+    Object.assign(l, { duration:fresh.duration, delay:fresh.delay, easing:fresh.easing, direction:fresh.direction, playback:fresh.playback, params:{...fresh.params} });
+    refreshAll();
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PLAYBACK
+  // ═══════════════════════════════════════════════════════════════════════════
+  function togglePlay() {
+    S.playing = !S.playing;
+    const btn = document.getElementById('play-btn');
+    if(btn) btn.innerHTML = S.playing ? '<i data-lucide="pause" class="w-3.5 h-3.5"></i>' : '<i data-lucide="play" class="w-3.5 h-3.5"></i>';
+    lucide.createIcons();
+    if(S.playing) {
+      rafStart = performance.now() - S.time * 1000;
+      raf = requestAnimationFrame(tick);
+    } else {
+      if(raf) cancelAnimationFrame(raf); raf = null;
+    }
+    renderGraphic();
+  }
+
+  function tick(ts) {
+    if(!S.playing) return;
+    const total = getTotalDur();
+    const newTime = (ts - rafStart) / 1000;
+    if (newTime >= total) {
+      rafStart = ts;
+      S.time = 0;
+      renderGraphic();
+    } else {
+      S.time = newTime;
+      renderGraphic();
+    }
+    updatePlayhead();
+    raf = requestAnimationFrame(tick);
+  }
+
+  function restartAnim() {
+    S.time = 0;
+    if(raf) cancelAnimationFrame(raf);
+    raf = null;
+    if(S.playing) {
+      rafStart = performance.now();
+      raf = requestAnimationFrame(tick);
+    } else {
+      renderGraphic();
+      updatePlayhead();
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // EXPORTS
+  // ═══════════════════════════════════════════════════════════════════════════
+  function exportJSON() {
+    const cfg = { layers: S.layers, scale: S.scale, sel: S.sel, size: S.size, bg: S.bg, file: S.file, compDur: S.compDur };
+    const blob = new Blob([JSON.stringify(cfg, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (S.file ? S.file.name.replace(/\.[^.]+$/, '') + '-vibe' : 'vibe-project') + '.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }
+
+  function copyCodeJSON() {
+    if (!S.layers.length) { alert('No animations applied yet. Add a preset first.'); return; }
+    // Build CSS keyframe + class for each visible layer
+    const lines = [];
+    lines.push('/* === Vibe on Motion — CSS Animation Code === */');
+    lines.push('/* Paste these styles into your stylesheet,     */');
+    lines.push('/* then add class "vom-animated" to any element */');
+    lines.push('');
+
+    // Collect unique keyframe names
+    const usedKf = [...new Set(S.layers.filter(l => l.visible).map(l => l.kf))];
+    usedKf.forEach(kf => {
+      // Map known keyframe names to their definitions
+      const kfMap = {
+        'kf-fade':        '@keyframes kf-fade        { 0%{opacity:0} 100%{opacity:1} }',
+        'kf-slide':       '@keyframes kf-slide       { 0%{transform:translate(var(--slide-x,-40px),var(--slide-y,0));opacity:var(--slide-fade,0)} 100%{transform:translate(0,0);opacity:1} }',
+        'kf-move':        '@keyframes kf-move        { 0%{transform:translate(var(--slide-x,-40px),var(--slide-y,0))} 100%{transform:translate(0,0)} }',
+        'kf-grow':        '@keyframes kf-grow        { 0%{transform:scale(0);opacity:0} 100%{transform:scale(1);opacity:1} }',
+        'kf-shrink':      '@keyframes kf-shrink      { 0%{transform:scale(1.6);opacity:0} 100%{transform:scale(1);opacity:1} }',
+        'kf-spin':        '@keyframes kf-spin        { 0%{transform:rotate(0deg)} 100%{transform:rotate(var(--rot-deg,360deg))} }',
+        'kf-float':       '@keyframes kf-float       { 0%,100%{transform:translateY(0)} 50%{transform:translateY(var(--float-y,-24px))} }',
+        'kf-bounce':      '@keyframes kf-bounce      { 0%,100%{transform:translateY(0)} 50%{transform:translateY(var(--bounce-y,-36px))} }',
+        'kf-pulse':       '@keyframes kf-pulse       { 0%,100%{transform:scale(1)} 50%{transform:scale(var(--pulse-scale,1.1))} }',
+        'kf-rotate':      '@keyframes kf-rotate      { 0%{transform:rotate(0deg)} 100%{transform:rotate(var(--rot-deg,360deg))} }',
+        'kf-blur':        '@keyframes kf-blur        { 0%{filter:blur(var(--blur-px,20px))} 100%{filter:blur(0)} }',
+        'kf-blur-slide':  '@keyframes kf-blur-slide  { 0%{filter:blur(var(--blur-px,20px));transform:translateX(-40px)} 100%{filter:blur(0);transform:translateX(0)} }',
+        'kf-blur-scale':  '@keyframes kf-blur-scale  { 0%{filter:blur(var(--blur-px,20px));transform:scale(1.5)} 100%{filter:blur(0);transform:scale(1)} }',
+        'kf-soft-blur':   '@keyframes kf-soft-blur   { 0%{filter:blur(var(--blur-px,10px));opacity:0} 100%{filter:blur(0);opacity:1} }',
+        'kf-mask-top':    '@keyframes kf-mask-top    { 0%{clip-path:inset(100% 0 0 0)} 100%{clip-path:inset(0)} }',
+        'kf-mask-bottom': '@keyframes kf-mask-bottom { 0%{clip-path:inset(0 0 100% 0)} 100%{clip-path:inset(0)} }',
+        'kf-mask-left':   '@keyframes kf-mask-left   { 0%{clip-path:inset(0 0 0 100%)} 100%{clip-path:inset(0)} }',
+        'kf-mask-right':  '@keyframes kf-mask-right  { 0%{clip-path:inset(0 100% 0 0)} 100%{clip-path:inset(0)} }',
+        'kf-mask-center': '@keyframes kf-mask-center { 0%{clip-path:circle(0%)} 100%{clip-path:circle(100%)} }',
+        'kf-mask-expand': '@keyframes kf-mask-expand { 0%{clip-path:ellipse(0% 0% at 50% 50%)} 100%{clip-path:ellipse(100% 100% at 50% 50%)} }',
+        'kf-mask-slide':  '@keyframes kf-mask-slide  { 0%{clip-path:inset(0 100% 0 0);transform:translateX(-20px)} 100%{clip-path:inset(0);transform:translateX(0)} }',
+        'kf-mask-resize': '@keyframes kf-mask-resize { 0%{clip-path:inset(20% 20% 20% 20%)} 100%{clip-path:inset(0)} }',
+        'kf-scale-pop':   '@keyframes kf-scale-pop   { 0%{transform:scale(0)} 70%{transform:scale(var(--pop-scale,1.25))} 100%{transform:scale(1)} }',
+        'kf-move-scale':  '@keyframes kf-move-scale  { 0%{transform:translate(var(--slide-x,-40px),var(--slide-y,0)) scale(0)} 100%{transform:translate(0,0) scale(1)} }',
+        'kf-trim-paths':  '@keyframes kf-trim-paths  { 0%{stroke-dashoffset:2000} 100%{stroke-dashoffset:0} }',
+        'kf-wiggle':      '@keyframes kf-wiggle      { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(6deg)} 75%{transform:rotate(-6deg)} }',
+        'kf-wave':        '@keyframes kf-wave        { 0%,100%{transform:rotate(0deg) translateY(0)} 25%{transform:rotate(5deg) translateY(-6px)} 75%{transform:rotate(-5deg) translateY(6px)} }',
+        'kf-glitch':      '@keyframes kf-glitch      { 0%,100%{transform:translate(0);filter:none} 10%{transform:translate(-4px,2px);filter:drop-shadow(-4px 0 0 red) drop-shadow(4px 0 0 blue)} 50%{transform:translate(0);filter:none} }',
+        'kf-neon-glow':   '@keyframes kf-neon-glow   { 0%,100%{filter:drop-shadow(0 0 2px var(--glow-color,#FE7143))} 50%{filter:drop-shadow(0 0 12px var(--glow-color,#FE7143)) drop-shadow(0 0 24px var(--glow-color,#FE7143))} }',
+        'kf-elastic-pop': '@keyframes kf-elastic-pop { 0%{transform:scale(0)} 50%{transform:scale(1.2)} 75%{transform:scale(.92)} 100%{transform:scale(1)} }',
+        'kf-jelly':       '@keyframes kf-jelly       { 0%,100%{transform:scale(1,1)} 30%{transform:scale(1.2,.8)} 50%{transform:scale(.9,1.15)} 70%{transform:scale(1.05,.95)} }',
+        'kf-luxury':      '@keyframes kf-luxury      { 0%{transform:translateY(20px) scale(.96);opacity:0;filter:blur(8px)} 100%{transform:translateY(0) scale(1);opacity:1;filter:blur(0)} }',
+        'kf-loot-glow':   '@keyframes kf-loot-glow   { 0%,100%{filter:drop-shadow(0 0 4px gold) brightness(1)} 50%{filter:drop-shadow(0 0 20px gold) drop-shadow(0 0 40px gold) brightness(1.4)} }',
+        'kf-hover-bounce':'@keyframes kf-hover-bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }',
+        'kf-card-lift':   '@keyframes kf-card-lift   { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-8px) scale(1.02)} }',
+      };
+      if (kfMap[kf]) lines.push(kfMap[kf]);
+    });
+
+    lines.push('');
+
+    // Generate a class per layer
+    S.layers.filter(l => l.visible).forEach((l, i) => {
+      const p = l.params || {};
+      const iters = 'infinite'; // loops always show infinite; one-shots show '1'
+      const preset = getPreset(l.presetId);
+      const isLoop = preset ? preset.loop : false;
+      const vars = [];
+      if (p.blurAmt     !== undefined) vars.push(`  --blur-px: ${p.blurAmt}px;`);
+      if (p.rotDeg      !== undefined) { vars.push(`  --rot-deg: ${p.rotDeg}deg;`); }
+      if (p.floatDist   !== undefined) vars.push(`  --float-y: -${p.floatDist}px;`);
+      if (p.bounceH     !== undefined) vars.push(`  --bounce-y: -${p.bounceH}px;`);
+      if (p.pulseScale  !== undefined) vars.push(`  --pulse-scale: ${p.pulseScale};`);
+      if (p.popScale    !== undefined) vars.push(`  --pop-scale: ${p.popScale};`);
+      if (p.glowColor   !== undefined) vars.push(`  --glow-color: ${p.glowColor};`);
+      if (p.slideDist   !== undefined) {
+        const dir = p.slideDir || 'left';
+        const x = (dir==='left'?-1:dir==='right'?1:0) * p.slideDist;
+        const y = (dir==='top'?-1:dir==='bottom'?1:0) * p.slideDist;
+        vars.push(`  --slide-x: ${x}px;`);
+        vars.push(`  --slide-y: ${y}px;`);
+      }
+      if (l.presetId === 'trim-paths') {
+        vars.push(`  stroke-dasharray: 2000;`);
+        vars.push(`  fill: transparent;`);
+        vars.push(`  stroke-width: ${p['stroke-width'] ?? 2}px;`);
+        vars.push(`  stroke-linecap: ${p['stroke-cap'] ?? 'round'};`);
+        vars.push(`  stroke: ${p['stroke-c1'] || '#FE7143'};`);
+      }
+
+      let kf = l.kf;
+      if (l.presetId === 'mask-reveal' && p.maskDir) kf = 'kf-mask-' + p.maskDir;
+
+      lines.push(`.vom-layer-${i+1} {`);
+      if (vars.length) lines.push(...vars);
+      lines.push(`  animation: ${kf} ${l.duration}s ${l.easing} ${l.delay}s ${isLoop ? 'infinite' : '1'} ${l.direction === 'out' ? 'reverse' : 'normal'} forwards;`);
+      lines.push('}');
+      lines.push('');
+    });
+
+    lines.push('/* HTML usage example:');
+    S.layers.filter(l => l.visible).forEach((l, i) => {
+      lines.push(`  <div class="vom-layer-${i+1}">`);
+      if (i === S.layers.filter(x => x.visible).length - 1) lines.push('    <!-- your content here -->');
+      lines.push('  </div>');
+    });
+    lines.push('*/');
+
+    const code = lines.join('\n');
+    try {
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copy-btn-lbl');
+        if (btn) { btn.textContent = '✓ COPIED!'; setTimeout(() => btn.textContent = 'COPY CSS CODE', 2000); }
+      }).catch(() => fallbackCopy(code));
+    } catch(e) { fallbackCopy(code); }
+  }
+
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = document.getElementById('copy-btn-lbl');
+    if (btn) { btn.textContent = '✓ COPIED!'; setTimeout(() => btn.textContent = 'COPY CSS CODE', 2000); }
+  }
+
+  async function loadGifshot() {
+    if (window.gifshot) return window.gifshot;
+    return new Promise((resolve, reject) => {
+      console.log("gifshot not found. Attempting fallback CDN...");
+      const s = document.createElement('script');
+      s.src = "https://cdn.jsdelivr.net/npm/gifshot@0.4.5/dist/gifshot.min.js";
+      s.onload = () => {
+        if (window.gifshot) resolve(window.gifshot);
+        else reject(new Error("Loaded script did not define gifshot"));
+      };
+      s.onerror = () => {
+        const s2 = document.createElement('script');
+        s2.src = "https://unpkg.com/gifshot@0.4.5/dist/gifshot.min.js";
+        s2.onload = () => {
+          if (window.gifshot) resolve(window.gifshot);
+          else reject(new Error("Loaded unpkg script did not define gifshot"));
+        };
+        s2.onerror = () => reject(new Error("Failed to load gifshot. Check your internet connection."));
+        document.head.appendChild(s2);
+      };
+      document.head.appendChild(s);
+    });
+  }
+
+  function exportGIF() {
+    if(!S.file){alert('No file uploaded.');return;}
+    const setLoading = (on) => {
+      ['gif-btn','gif-btn2'].forEach(id => {
+        const b = document.getElementById(id); if(!b) return;
+        b.disabled = on;
+        b.innerHTML = on
+          ? '<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Building…</span>'
+          : '<i data-lucide="image" class="w-3.5 h-3.5"></i><span>GIF</span>';
+      });
+      lucide.createIcons();
+    };
+    setLoading(true);
+
+    setTimeout(async () => {
+      try {
+        await loadGifshot();
+        const wasPlaying = S.playing;
+        if(wasPlaying) togglePlay();
+
+        const [wStr,hStr] = S.size.split('x');
+        const cw=parseInt(wStr)||400, ch=parseInt(hStr)||400;
+        const cvs=document.createElement('canvas'); cvs.width=cw; cvs.height=ch;
+        const ctx=cvs.getContext('2d');
+        const total=getTotalDur();
+        const N=Math.ceil(total*24);
+        const frames=[];
+
+        const isSvg = S.file.type==='svg';
+        let hasTrim = false;
+        let baseSvg = S.file.data;
+        if(isSvg) {
+          hasTrim = S.layers.some(l => l.presetId === 'trim-paths' && l.visible);
+          const parser=new DOMParser(), doc=parser.parseFromString(S.file.data,'image/svg+xml'), svgEl=doc.querySelector('svg');
+          if(svgEl){if(!svgEl.getAttribute('width'))svgEl.setAttribute('width','300');if(!svgEl.getAttribute('height'))svgEl.setAttribute('height','300');}
+          baseSvg = new XMLSerializer().serializeToString(doc);
+        }
+
+        const expImg = new Image();
+
+        for(let i=0; i<N; i++) {
+          const t = (i/N)*total;
+          ctx.clearRect(0,0,cw,ch);
+          if(S.bg==='dark'){ctx.fillStyle='#000';ctx.fillRect(0,0,cw,ch);}
+          else if(S.bg==='light'){ctx.fillStyle='#fafaf9';ctx.fillRect(0,0,cw,ch);}
+          else if(S.bg==='custom'){ctx.fillStyle=document.getElementById('bg-custom-color').value;ctx.fillRect(0,0,cw,ch);}
+          else if(S.bg==='grid'){ctx.fillStyle='#fff';ctx.fillRect(0,0,cw,ch);}
+          
+          let tx=0, ty=0, sc=1, rot=0, op=1, bl=0;
+          let trimLp = 1, sw = 2, scap = 'round';
+          const tlLayer = S.layers.find(l => l.presetId === 'trim-paths' && l.visible);
+          if (tlLayer) {
+            sw = tlLayer.params?.['stroke-width'] ?? 2;
+            scap = tlLayer.params?.['stroke-cap'] ?? 'round';
+          }
+          
+          S.layers.filter(l=>l.visible).forEach(l=>{
+            if (t < l.delay) return;
+            const lp = Math.min(1,(t-l.delay)/l.duration);
+            let p = l.direction === 'out' ? 1 - lp : lp;
+            
+            if(l.presetId === 'trim-paths') {
+              trimLp = p;
+              sw = l.params?.['stroke-width'] ?? 2;
+              scap = l.params?.['stroke-cap'] ?? 'round';
+            }
+            if(l.kf.includes('float')){ty+=Math.sin(p*2*Math.PI)*(l.params.floatDist||24)*-1;}
+            else if(l.kf.includes('pulse')){sc*=(1+(l.params.pulseScale||1.1)-1)*Math.sin(p*Math.PI);}
+            else if(l.kf.includes('fade')||l.kf.includes('grow')||l.kf.includes('bloom')){op=Math.min(1,p*2);}
+            else if(l.kf.includes('slide')||l.kf.includes('move')){
+              const dir = l.params.slideDir || 'left';
+              const dist = l.params.slideDist || 60;
+              const x = (dir==='left'?-1:dir==='right'?1:0) * dist;
+              const y = (dir==='top'?-1:dir==='bottom'?1:0) * dist;
+              tx += (1-p) * x;
+              ty += (1-p) * y;
+              if (l.kf.includes('slide')) {
+                const sf = l.params.slideFade !== undefined ? l.params.slideFade : 100;
+                const startOp = 1 - (sf/100);
+                op = startOp + p * (1 - startOp);
+              }
+            }
+            else if(l.kf.includes('rotate')){rot+=p*2*Math.PI;}
+            else if(l.kf.includes('blur')){op=p;bl=(1-p)*(l.params.blurAmt||20);}
+            else if(l.kf.includes('bounce')){ty=-Math.abs(Math.sin(p*Math.PI))*(l.params.bounceH||36);}
+            else if(l.kf.includes('scale-pop')||l.kf.includes('elastic')){sc=p<.5?p*2*(l.params.popScale||1.25):(l.params.popScale||1.25)-(p-.5)*2*((l.params.popScale||1.25)-1);}
+          });
+          
+          let srcStr = S.file.data;
+          if(isSvg) {
+            let svgStr = baseSvg;
+            if (hasTrim) {
+              let doff = (1 - trimLp) * 2000;
+              let tl = S.layers.find(l => l.presetId === 'trim-paths' && l.visible);
+              let sCol = tl?.params?.['stroke-c1'] || '#FE7143';
+              let defsInject = '';
+              if (tl && (tl.params?.['stroke-color-mode'] || 'solid') === 'gradient') {
+                 const c1 = tl.params?.['stroke-c1'] || '#FE7143';
+                 const c2 = tl.params?.['stroke-c2'] || '#FFB020';
+                 sCol = `url(#grad-${tl.id})`;
+                 defsInject = `<defs><linearGradient id="grad-${tl.id}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs>`;
+              }
+              let injectStyle = `<style>path, line, polyline, polygon, rect, circle, ellipse { stroke-dasharray: 2000 !important; stroke-dashoffset: ${doff} !important; stroke-width: ${sw}px !important; stroke-linecap: ${scap} !important; fill: transparent !important; stroke: ${sCol} !important; }</style>`;
+              svgStr = svgStr.replace(/(<svg[^>]*>)/i, `$1${defsInject}${injectStyle}`);
+            }
+            srcStr = URL.createObjectURL(new Blob([svgStr], {type:'image/svg+xml;charset=utf-8'}));
+          }
+          
+          await new Promise((resolve) => {
+            const tid = setTimeout(resolve, 500);
+            expImg.onload = () => { clearTimeout(tid); resolve(); };
+            expImg.onerror = () => { clearTimeout(tid); resolve(); };
+            expImg.src = srcStr;
+          });
+
+          const maxSz=Math.min(cw,ch)*.8;
+          let dw=maxSz, dh=maxSz;
+          if(expImg.width&&expImg.height){ const ar=expImg.width/expImg.height; if(ar>1) dh=dw/ar; else dw=dh*ar; }
+
+          ctx.save();
+          ctx.translate(cw/2,ch/2);
+          
+          const gs = S.layers.reduce((acc,l)=>acc*(l.params?.layerScale??1), 1);
+          const gr = S.layers.reduce((acc,l)=>acc+(parseFloat(l.params?.layerRot)||0), 0);
+          ctx.scale(gs, gs);
+          ctx.rotate(gr * Math.PI/180);
+
+          ctx.globalAlpha=Math.max(0,Math.min(1,op));
+          if(bl>0)ctx.filter=`blur(${bl}px)`;else ctx.filter='none';
+          ctx.translate(tx,ty); ctx.rotate(rot); ctx.scale(sc,sc);
+          ctx.drawImage(expImg,-dw/2,-dh/2,dw,dh);
+          ctx.restore();
+          
+          frames.push(cvs.toDataURL('image/png'));
+          if(isSvg) URL.revokeObjectURL(srcStr);
+        }
+        
+        gifshot.createGIF({images:frames,gifWidth:cw,gifHeight:ch,interval:total/N,numFrames:N,frameDuration:1,numWorkers:0},obj=>{
+          if(!obj.error){const a=document.createElement('a');a.href=obj.image;a.download='vibe-on-motion.gif';document.body.appendChild(a);a.click();document.body.removeChild(a);}
+          else alert('GIF error: '+obj.errorMsg);
+          setLoading(false);
+        });
+      } catch (err) {
+        alert('GIF export failed: ' + err.message);
+        console.error(err);
+        setLoading(false);
+      }
+    }, 50);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // REFRESH ALL
+  // ═══════════════════════════════════════════════════════════════════════════
+  function refreshAll() {
+    buildPresets();
+    renderGraphic();
+    buildTimeline();
+    buildRightPanel();
+  }
+
+  function initScrubbing() {
+    const ruler = document.getElementById('tl-ruler');
+    const scroll = document.getElementById('tl-scroll');
+    if (!ruler || !scroll) return;
+
+    const onScrub = (ev, container) => {
+      if (ev.button !== 0) return; // Left click only
+      if (ev.target.tagName === 'INPUT' || ev.target.tagName === 'BUTTON') return;
+      ev.preventDefault();
+      
+      const wasPlaying = S.playing;
+      if (wasPlaying) togglePlay(); // Pause playback while scrubbing
+
+      const handler = (e) => {
+        const rect = container.getBoundingClientRect();
+        let x = e.clientX - rect.left + container.scrollLeft;
+        x = Math.max(0, Math.min(getTotalDur() * PX_PER_SEC, x));
+        S.time = Math.round((x / PX_PER_SEC) * 100) / 100;
+        updatePlayhead();
+        renderGraphic();
+      };
+
+      handler(ev);
+
+      const mm = (e) => handler(e);
+      const mu = () => {
+        window.removeEventListener('mousemove', mm);
+        window.removeEventListener('mouseup', mu);
+      };
+      window.addEventListener('mousemove', mm);
+      window.addEventListener('mouseup', mu);
+    };
+
+    ruler.addEventListener('mousedown', (ev) => onScrub(ev, ruler));
+    scroll.addEventListener('mousedown', (ev) => {
+      if (ev.target.closest('.seg-block')) return;
+      onScrub(ev, scroll);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // INIT
+  // ═══════════════════════════════════════════════════════════════════════════
+  function init() {
+    refreshAll();
+    setBg(S.bg);
+    applySize(S.size);
+    lucide.createIcons();
+    initScrubbing();
+
+    // Close dropdowns on outside click
+    window.addEventListener('click', () => {
+      document.getElementById('size-drop')?.classList.add('hidden');
+      document.getElementById('easing-drop')?.classList.add('hidden');
+      document.getElementById('bg-custom-drop')?.classList.add('hidden');
+      document.getElementById('stroke-mode-drop')?.classList.add('hidden');
+    });
+
+    // Spacebar to play/pause
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        togglePlay();
+      }
+    });
+
+    // Scroll to zoom
+    const canvasContainer = document.getElementById('canvas-container');
+    if (canvasContainer) {
+      canvasContainer.addEventListener('wheel', (e) => {
+        if (e.ctrlKey || e.metaKey) return; // Ignore typical browser zoom
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        let newScale = S.scale + delta;
+        newScale = Math.max(0.1, Math.min(3, newScale));
+        setScale(newScale);
+      });
+    }
+  }
+
+  if(document.readyState==='complete'||document.readyState==='interactive') init();
+  else window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
