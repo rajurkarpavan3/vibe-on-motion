@@ -1747,7 +1747,7 @@
           // No blob URL to revoke - using data URI now
         }
         
-        gifshot.createGIF({images:frames,gifWidth:cw,gifHeight:ch,interval:total/N,numFrames:N,frameDuration:1,numWorkers:0},obj=>{
+        gifshot.createGIF({images:frames,gifWidth:cw,gifHeight:ch,interval:total/N,numFrames:N,frameDuration:1,numWorkers:2},obj=>{
           if(!obj.error){const a=document.createElement('a');a.href=obj.image;a.download='vibe-on-motion.gif';document.body.appendChild(a);a.click();document.body.removeChild(a);}
           else alert('GIF error: '+obj.errorMsg);
           setLoading(false);
