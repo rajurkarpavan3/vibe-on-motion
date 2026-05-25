@@ -18,7 +18,8 @@
   <script src="https://cdn.jsdelivr.net/npm/gifshot@0.4.5/dist/gifshot.min.js"></script>
 
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #FAF9F6; color: #000; }
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: 'Inter', sans-serif; background-color: #FAF9F6; color: #000; height: 100vh; }
     .font-outfit { font-family: 'Outfit', sans-serif; }
 
     /* ── Keyframes ────────────────────────────────────────────────────────── */
@@ -193,7 +194,7 @@
     .seg-resize-l { left:0; }
   </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col bg-[#FAF9F6] text-black">
+<body class="antialiased h-screen overflow-hidden flex flex-col bg-[#FAF9F6] text-black">
 
   <!-- ── Top Bar ───────────────────────────────────────────────────────────── -->
   <header class="grid grid-cols-12 border-b border-stone-800 bg-black sticky top-0 z-50" style="height:56px">
