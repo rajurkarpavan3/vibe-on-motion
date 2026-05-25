@@ -1094,6 +1094,9 @@
         <button onclick="exportGIF()" id="gif-btn2" class="w-full py-2.5 text-[10px] font-bold bg-black hover:bg-brand-orange hover:text-black text-white border border-black flex items-center justify-center space-x-1.5 transition-colors" title="Export animation as animated GIF">
           <i data-lucide="image" class="w-3.5 h-3.5"></i><span>EXPORT GIF</span>
         </button>
+        <button onclick="exportLottie()" id="lottie-btn" class="w-full py-2.5 text-[10px] font-bold bg-black hover:bg-brand-orange hover:text-black text-white border border-black flex items-center justify-center space-x-1.5 transition-colors" title="Export animation as Lottie JSON (transform presets only)">
+          <i data-lucide="film" class="w-3.5 h-3.5"></i><span>EXPORT LOTTIE</span>
+        </button>
         <button onclick="copyCodeJSON()" class="w-full py-2.5 text-[10px] font-bold bg-white hover:bg-stone-50 text-black border border-black flex items-center justify-center space-x-1.5 transition-colors" title="Copy CSS animation code for use in your project">
           <i data-lucide="code-2" class="w-3.5 h-3.5"></i><span id="copy-btn-lbl">COPY CSS CODE</span>
         </button>
@@ -1607,6 +1610,119 @@
       img.onerror = () => reject(new Error('SVG rasterization failed'));
       img.src = dataUri;
     });
+  }
+
+  // ── Lottie Export (transform-based presets) ──────────────────────────────
+  // Supports: fade, grow, shrink, spin, rotate, move*, pulse, float, bounce, wiggle, wave
+  // Effects like blur/glitch/mask are skipped (no Lottie equivalent).
+  function generateLottieJSON(state, assetDataUrl, assetW, assetH) {
+    const [wStr, hStr] = (state.size || '400x400').split('x');
+    const W = parseInt(wStr) || 400, H = parseInt(hStr) || 400;
+    const fr = 30, totalDur = state.compDur || 5, op = Math.round(totalDur * fr);
+    const cx = W/2, cy = H/2;
+    const visLayers = state.layers.filter(l => l.visible);
+    const ease = { i:{x:0.42,y:1}, o:{x:0.58,y:0} };
+    const staticVal = (v) => ({ a: 0, k: v });
+    const animVal = (kfs) => ({ a: 1, k: kfs });
+    const maxSz = Math.min(W,H)*0.8;
+    let dw=maxSz, dh=maxSz;
+    if (assetW && assetH) { const ar=assetW/assetH; if(ar>1) dh=dw/ar; else dw=dh*ar; }
+    function sampleAt(t) {
+      let tx=0,ty=0,sc=1,rot=0,opacity=1;
+      visLayers.forEach(l => {
+        const p=l.params||{}, delay=l.delay||0, dur=l.duration||1.5, id=l.presetId;
+        const isLoop=['float','pulse','bounce','rotate','spin','wiggle','wave'].includes(id);
+        let prog;
+        if(isLoop){ prog=((t-delay)/dur)%1; if(t<delay)prog=0; if(prog<0)prog=0; }
+        else { if(t<delay)prog=0; else if(t>delay+dur)prog=1; else prog=(t-delay)/dur; }
+        const dist=p.slideDist||60;
+        if(id==='fade'){opacity*=(t<delay?0:prog);}
+        else if(id==='grow'){sc*=prog;opacity*=prog;}
+        else if(id==='shrink'){sc*=(1.6-0.6*prog);opacity*=prog;}
+        else if(id==='spin'){rot+=-((p.rotDeg||360))*(1-prog);sc*=prog;opacity*=prog;}
+        else if(id==='rotate'){rot+=(p.rotDeg||360)*prog;}
+        else if(id.indexOf('move')===0){
+          const dir=p.slideDir||(id==='move-in-right'?'right':id==='move-in-left'?'left':id==='move-top'?'top':id==='move-bottom'?'bottom':'left');
+          const dx=(dir==='left'?-1:dir==='right'?1:0)*dist, dy=(dir==='top'?-1:dir==='bottom'?1:0)*dist;
+          tx+=(1-prog)*dx; ty+=(1-prog)*dy;
+        }
+        else if(id==='pulse'){const peak=(p.pulseScale||1.1);sc*=(1+(peak-1)*Math.sin(prog*Math.PI));}
+        else if(id==='float'){ty+=-Math.sin(prog*2*Math.PI)*(p.floatDist||24);}
+        else if(id==='bounce'){ty+=-Math.abs(Math.sin(prog*Math.PI))*(p.bounceH||36);}
+        else if(id==='wiggle'){rot+=Math.sin(prog*2*Math.PI)*6;}
+        else if(id==='wave'){rot+=Math.sin(prog*2*Math.PI)*5;ty+=Math.sin(prog*2*Math.PI)*-6;}
+      });
+      return {tx,ty,sc,rot,op:opacity};
+    }
+    const posKf=[],scaleKf=[],rotKf=[],opKf=[];
+    for(let f=0;f<=op;f++){
+      const t=f/fr, s=sampleAt(t);
+      posKf.push({t:f,s:[cx+s.tx,cy+s.ty,0]});
+      scaleKf.push({t:f,s:[s.sc*100,s.sc*100,100]});
+      rotKf.push({t:f,s:[s.rot]});
+      opKf.push({t:f,s:[Math.max(0,Math.min(1,s.op))*100]});
+    }
+    function maybeStatic(kfs){
+      const first=JSON.stringify(kfs[0].s);
+      if(kfs.every(k=>JSON.stringify(k.s)===first)) return staticVal(kfs[0].s.length===1?kfs[0].s[0]:kfs[0].s);
+      return animVal(kfs.map((k,i)=>i<kfs.length-1?{...k,...ease}:k));
+    }
+    return {
+      v:"5.7.4",fr:fr,ip:0,op:op,w:W,h:H,nm:"Vibe on Motion Export",ddd:0,
+      assets:[{id:"asset_0",w:Math.round(assetW||dw),h:Math.round(assetH||dh),u:"",p:assetDataUrl,e:1}],
+      layers:[{ddd:0,ind:1,ty:2,nm:"Graphic",refId:"asset_0",sr:1,
+        ks:{o:maybeStatic(opKf),r:maybeStatic(rotKf),p:maybeStatic(posKf),
+            a:staticVal([(assetW||dw)/2,(assetH||dh)/2,0]),s:maybeStatic(scaleKf)},
+        ao:0,ip:0,op:op,st:0,bm:0}],
+      markers:[]
+    };
+  }
+
+  function exportLottie() {
+    if(!S.file){ alert('No file uploaded.'); return; }
+    const supported = ['fade','grow','shrink','spin','rotate','move-in-right','move-in-left','move-top','move-bottom','pulse','float','bounce','wiggle','wave'];
+    const visLayers = S.layers.filter(l => l.visible);
+    const unsupported = visLayers.filter(l => !supported.includes(l.presetId)).map(l => l.name);
+    if (visLayers.length && unsupported.length === visLayers.length) {
+      alert('None of your current animations can be exported to Lottie. Lottie supports transform presets (fade, scale, move, rotate, pulse, float, bounce, etc.) but not effects like blur, glitch, or mask.');
+      return;
+    }
+    const proceed = () => {
+      // Determine asset dimensions
+      const finishExport = (dataUrl, aw, ah) => {
+        try {
+          const lottie = generateLottieJSON(S, dataUrl, aw, ah);
+          const blob = new Blob([JSON.stringify(lottie)], {type:'application/json'});
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = (S.file.name ? S.file.name.replace(/\.[^.]+$/, '') : 'vibe-on-motion') + '.json';
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          URL.revokeObjectURL(a.href);
+          if (unsupported.length) {
+            setTimeout(() => alert('Lottie exported! Note: these effects were skipped (no Lottie equivalent): ' + unsupported.join(', ')), 300);
+          }
+        } catch(e) { alert('Lottie export failed: ' + e.message); }
+      };
+      if (S.file.type === 'svg') {
+        // Rasterize SVG to PNG data URL for embedding (Lottie image layer)
+        const [wStr,hStr] = (S.size||'400x400').split('x');
+        const cw = parseInt(wStr)||400, ch = parseInt(hStr)||400;
+        rasterizeSvgToDataURL(S.file.data, cw, ch).then(png => {
+          const im = new Image();
+          im.onload = () => finishExport(png, im.width, im.height);
+          im.onerror = () => finishExport(png, cw, ch);
+          im.src = png;
+        }).catch(() => {
+          finishExport('data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(S.file.data))), 300, 300);
+        });
+      } else {
+        const im = new Image();
+        im.onload = () => finishExport(S.file.data, im.width, im.height);
+        im.onerror = () => finishExport(S.file.data, 300, 300);
+        im.src = S.file.data;
+      }
+    };
+    proceed();
   }
 
   function exportGIF() {
