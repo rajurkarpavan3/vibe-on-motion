@@ -1587,6 +1587,28 @@
     });
   }
 
+
+  // Pre-rasterize SVG to a clean PNG data URL to avoid canvas taint
+  function rasterizeSvgToDataURL(svgString, width, height) {
+    return new Promise((resolve, reject) => {
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width = width || 400;
+      offCanvas.height = height || 400;
+      const offCtx = offCanvas.getContext('2d');
+      const svgBase64 = btoa(unescape(encodeURIComponent(svgString)));
+      const dataUri = 'data:image/svg+xml;base64,' + svgBase64;
+      const img = new Image();
+      img.onload = () => {
+        offCtx.clearRect(0, 0, offCanvas.width, offCanvas.height);
+        offCtx.drawImage(img, 0, 0, offCanvas.width, offCanvas.height);
+        try { resolve(offCanvas.toDataURL('image/png')); }
+        catch(e) { reject(e); }
+      };
+      img.onerror = () => reject(new Error('SVG rasterization failed'));
+      img.src = dataUri;
+    });
+  }
+
   function exportGIF() {
     if(!S.file){alert('No file uploaded.');return;}
     const setLoading = (on) => {
@@ -1692,7 +1714,8 @@
               let injectStyle = `<style>path, line, polyline, polygon, rect, circle, ellipse { stroke-dasharray: 2000 !important; stroke-dashoffset: ${doff} !important; stroke-width: ${sw}px !important; stroke-linecap: ${scap} !important; fill: transparent !important; stroke: ${sCol} !important; }</style>`;
               svgStr = svgStr.replace(/(<svg[^>]*>)/i, `$1${defsInject}${injectStyle}`);
             }
-            srcStr = URL.createObjectURL(new Blob([svgStr], {type:'image/svg+xml;charset=utf-8'}));
+            // Use data URI instead of blob URL to avoid canvas taint
+            try { srcStr = await rasterizeSvgToDataURL(svgStr, cw, ch); } catch(e) { srcStr = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgStr))); }
           }
           
           await new Promise((resolve) => {
@@ -1721,7 +1744,7 @@
           ctx.restore();
           
           frames.push(cvs.toDataURL('image/png'));
-          if(isSvg) URL.revokeObjectURL(srcStr);
+          // No blob URL to revoke - using data URI now
         }
         
         gifshot.createGIF({images:frames,gifWidth:cw,gifHeight:ch,interval:total/N,numFrames:N,frameDuration:1,numWorkers:0},obj=>{
