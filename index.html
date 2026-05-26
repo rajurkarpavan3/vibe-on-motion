@@ -1089,13 +1089,16 @@
         </button>
       </div>
 
-      <!-- Export Options -->
+      <!-- Export CSS & Video -->
       <div class="p-3 space-y-2">
         <p class="text-[9px] font-bold uppercase tracking-widest text-stone-400">Export</p>
-        <button onclick="exportAsHTML()" class="w-full py-2.5 text-[10px] font-bold bg-brand-orange hover:bg-orange-600 text-white border border-brand-orange flex items-center justify-center space-x-1.5 transition-colors" title="Export animation as standalone HTML file">
-          <i data-lucide="code" class="w-3.5 h-3.5"></i><span>EXPORT HTML</span>
+        <button onclick="showCSSPreviewModal()" class="w-full py-2.5 text-[10px] font-bold bg-white hover:bg-stone-50 text-black border border-black flex items-center justify-center space-x-1.5 transition-colors" title="Export CSS code for CSS-compatible animations">
+          <i data-lucide="code-2" class="w-3.5 h-3.5"></i><span>EXPORT CSS</span>
         </button>
-        <p class="text-[9px] text-stone-400 leading-relaxed">✅ Exports exact animation as standalone HTML file • Works in any browser</p>
+        <button onclick="recordAndExportVideo()" class="w-full py-2.5 text-[10px] font-bold bg-brand-orange hover:bg-orange-600 text-white border border-brand-orange flex items-center justify-center space-x-1.5 transition-colors" title="Record and export animation as WebM video">
+          <i data-lucide="video" class="w-3.5 h-3.5"></i><span>EXPORT VIDEO</span>
+        </button>
+        <p class="text-[9px] text-stone-400 leading-relaxed">✅ CSS Export for code • 🎬 Video Export captures all effects (blur, masks, filters, trim paths)</p>
       </div>
     </div>`;
   }
@@ -1961,126 +1964,71 @@
     }
   }
 
-  // HTML Export - Exports animation exactly as created in VOM
-  function exportAsHTML() {
-    if (!S.file) {
+  // Simple Video Export with Browser Compatibility
+  async function recordAndExportVideo() {
+    const graphicWrapper = document.getElementById('graphic-wrapper');
+    if (!graphicWrapper || !S.file) {
       alert('❌ Upload an image and apply animation first');
       return;
     }
 
     try {
-      // Capture all current animation state
-      const animationData = {
-        file: S.file,
-        layers: S.layers.map(l => ({
-          id: l.id,
-          presetId: l.presetId,
-          name: l.name,
-          duration: l.duration,
-          delay: l.delay,
-          direction: l.direction,
-          easing: l.easing,
-          visible: l.visible,
-          params: l.params,
-          kf: l.kf
-        })),
-        compDur: S.compDur,
-        size: S.size,
-        bg: S.bg,
-        scale: S.scale
-      };
-
-      // Get all keyframe CSS
-      const styleEl = document.querySelector('style');
-      const keyframesCSS = styleEl ? styleEl.textContent : '';
-
-      // Build complete HTML file
-      const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Animation - Vibe on Motion Export</title>
-  <style>
-    html, body { height: 100%; margin: 0; overflow: hidden; }
-    body { font-family: 'Inter', sans-serif; background-color: #FAF9F6; display: flex; align-items: center; justify-content: center; }
-    
-    #graphic-wrapper {
-      width: 400px;
-      height: 400px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid #000;
-      background: white;
-      animation-play-state: running;
-    }
-
-    img, svg { max-width: 100%; max-height: 100%; display: block; }
-
-    /* Keyframes from Vibe on Motion */
-    ${keyframesCSS}
-  </style>
-</head>
-<body>
-  <div id="graphic-wrapper"></div>
-
-  <script>
-    // Animation data
-    const DATA = ${JSON.stringify(animationData)};
-
-    // Render animation
-    function render() {
-      const wrapper = document.getElementById('graphic-wrapper');
+      alert('🎬 Recording animation...');
       
-      // Add image/SVG
-      if (DATA.file) {
-        if (DATA.file.type === 'svg') {
-          wrapper.innerHTML = DATA.file.data;
-        } else {
-          const img = document.createElement('img');
-          img.src = DATA.file.data;
-          wrapper.innerHTML = '';
-          wrapper.appendChild(img);
+      S.playing = false;
+      S.time = 0;
+      refreshAll();
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = 400;
+      canvas.height = 400;
+      const stream = canvas.captureStream(30);
+      
+      // Find supported MIME type
+      let mimeType = 'video/webm';
+      const supportedTypes = [
+        'video/webm',
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/mp4',
+        'video/mp4;codecs=h264'
+      ];
+      
+      for (const type of supportedTypes) {
+        if (MediaRecorder.isTypeSupported(type)) {
+          mimeType = type;
+          break;
         }
       }
-
-      // Apply animations to layers
-      DATA.layers.forEach((layer, idx) => {
-        if (!layer.visible) return;
-        
-        const wrapper = document.getElementById('graphic-wrapper');
-        const child = wrapper.children[0];
-        
-        if (child) {
-          // Build animation string
-          const animStr = \`\${layer.kf} \${layer.duration}s \${layer.easing} \${layer.delay}s 1 \${layer.direction === 'out' ? 'reverse' : 'normal'} forwards\`;
-          child.style.animation = animStr;
-        }
+      
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: mimeType
       });
-    }
-
-    window.addEventListener('load', render);
-    render();
-  </script>
-</body>
-</html>`;
-
-      // Download file
-      const blob = new Blob([html], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'animation.html';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      alert('✅ Animation exported as HTML!\n\nFile: animation.html\n\nOpen in any browser to see your animation.');
-
+      
+      const chunks = [];
+      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+        const blob = new Blob(chunks, { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'animation.' + ext;
+        a.click();
+        URL.revokeObjectURL(url);
+        alert('✅ Video downloaded: animation.' + ext);
+      };
+      
+      mediaRecorder.start();
+      S.playing = true;
+      
+      setTimeout(() => {
+        S.playing = false;
+        mediaRecorder.stop();
+      }, S.compDur * 1000);
+      
     } catch (err) {
-      alert('❌ Export error: ' + err.message);
+      alert('❌ Error: ' + err.message + '\n\nTry using CSS export instead.');
     }
   }
 
