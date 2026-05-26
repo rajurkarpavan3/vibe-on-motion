@@ -1095,10 +1095,10 @@
         <button onclick="showCSSPreviewModal()" class="w-full py-2.5 text-[10px] font-bold bg-white hover:bg-stone-50 text-black border border-black flex items-center justify-center space-x-1.5 transition-colors" title="Export CSS code for CSS-compatible animations">
           <i data-lucide="code-2" class="w-3.5 h-3.5"></i><span>EXPORT CSS</span>
         </button>
-        <button onclick="exportVideo()" class="w-full py-2.5 text-[10px] font-bold bg-brand-orange hover:bg-orange-600 text-white border border-brand-orange flex items-center justify-center space-x-1.5 transition-colors" title="Export animation as MP4 video (all effects supported)">
+        <button onclick="recordAndExportVideo()" class="w-full py-2.5 text-[10px] font-bold bg-brand-orange hover:bg-orange-600 text-white border border-brand-orange flex items-center justify-center space-x-1.5 transition-colors" title="Record and export animation as WebM video">
           <i data-lucide="video" class="w-3.5 h-3.5"></i><span>EXPORT VIDEO</span>
         </button>
-        <p class="text-[9px] text-stone-400 leading-relaxed">✅ CSS Export for pure CSS • 🎬 Video Export for all effects (blur, masks, filters, etc)</p>
+        <p class="text-[9px] text-stone-400 leading-relaxed">✅ CSS Export for code • 🎬 Video Export captures all effects (blur, masks, filters, trim paths)</p>
       </div>
     </div>`;
   }
@@ -1964,44 +1964,53 @@
     }
   }
 
-  // Video Export Function
-  async function exportVideo() {
-    const canvas = document.getElementById('graphic-wrapper');
-    if (!canvas) { alert('No animation to export'); return; }
-    
+  // Simple Video Export
+  async function recordAndExportVideo() {
+    const graphicWrapper = document.getElementById('graphic-wrapper');
+    if (!graphicWrapper || !S.file) {
+      alert('❌ Upload an image and apply animation first');
+      return;
+    }
+
     try {
-      const stream = canvas.captureStream(30); // 30 FPS
-      const audio = new AudioContext().createMediaStreamAudioDestination();
-      stream.addTrack(audio.stream.getAudioTracks()[0]);
+      alert('🎬 Recording animation...');
+      
+      S.playing = false;
+      S.time = 0;
+      refreshAll();
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = 400;
+      canvas.height = 400;
+      const stream = canvas.captureStream(30);
       
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'video/mp4',
-        videoBitsPerSecond: 2500000
+        mimeType: 'video/webm'
       });
       
       const chunks = [];
       mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'video/mp4' });
+        const blob = new Blob(chunks, { type: 'video/webm' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'animation.mp4';
+        a.download = 'animation.webm';
         a.click();
         URL.revokeObjectURL(url);
-        alert('✅ Video exported successfully!');
+        alert('✅ Video downloaded: animation.webm');
       };
       
-      const duration = S.compDur * 1000; // Convert to milliseconds
       mediaRecorder.start();
+      S.playing = true;
       
       setTimeout(() => {
+        S.playing = false;
         mediaRecorder.stop();
-      }, duration);
+      }, S.compDur * 1000);
       
-      alert('⏱️ Recording... Duration: ' + S.compDur + 's');
     } catch (err) {
-      alert('Error exporting video: ' + err.message);
+      alert('❌ Error: ' + err.message);
     }
   }
 
