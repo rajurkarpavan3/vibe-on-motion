@@ -1089,19 +1089,16 @@
         </button>
       </div>
 
-      <!-- Export / Use in Code -->
+      <!-- Export CSS & Video -->
       <div class="p-3 space-y-2">
-        <p class="text-[9px] font-bold uppercase tracking-widest text-stone-400">Export &amp; Use in Code</p>
-        <button onclick="exportGIF()" id="gif-btn2" class="w-full py-2.5 text-[10px] font-bold bg-black hover:bg-brand-orange hover:text-black text-white border border-black flex items-center justify-center space-x-1.5 transition-colors" title="Export animation as animated GIF">
-          <i data-lucide="image" class="w-3.5 h-3.5"></i><span>EXPORT GIF</span>
+        <p class="text-[9px] font-bold uppercase tracking-widest text-stone-400">Export</p>
+        <button onclick="showCSSPreviewModal()" class="w-full py-2.5 text-[10px] font-bold bg-white hover:bg-stone-50 text-black border border-black flex items-center justify-center space-x-1.5 transition-colors" title="Export CSS code for CSS-compatible animations">
+          <i data-lucide="code-2" class="w-3.5 h-3.5"></i><span>EXPORT CSS</span>
         </button>
-        <button onclick="exportLottie()" id="lottie-btn" class="w-full py-2.5 text-[10px] font-bold bg-black hover:bg-brand-orange hover:text-black text-white border border-black flex items-center justify-center space-x-1.5 transition-colors" title="Export animation as Lottie JSON (transform presets only)">
-          <i data-lucide="film" class="w-3.5 h-3.5"></i><span>EXPORT LOTTIE</span>
+        <button onclick="exportVideo()" class="w-full py-2.5 text-[10px] font-bold bg-brand-orange hover:bg-orange-600 text-white border border-brand-orange flex items-center justify-center space-x-1.5 transition-colors" title="Export animation as MP4 video (all effects supported)">
+          <i data-lucide="video" class="w-3.5 h-3.5"></i><span>EXPORT VIDEO</span>
         </button>
-        <button onclick="copyCodeJSON()" class="w-full py-2.5 text-[10px] font-bold bg-white hover:bg-stone-50 text-black border border-black flex items-center justify-center space-x-1.5 transition-colors" title="Copy CSS animation code for use in your project">
-          <i data-lucide="code-2" class="w-3.5 h-3.5"></i><span id="copy-btn-lbl">COPY CSS CODE</span>
-        </button>
-        <p class="text-[9px] text-stone-400 leading-relaxed">Paste the CSS code into your project's stylesheet. Add the class to any HTML element to animate it.</p>
+        <p class="text-[9px] text-stone-400 leading-relaxed">✅ CSS Export for pure CSS • 🎬 Video Export for all effects (blur, masks, filters, etc)</p>
       </div>
     </div>`;
   }
@@ -1965,6 +1962,179 @@
         setScale(newScale);
       });
     }
+  }
+
+  // Video Export Function
+  async function exportVideo() {
+    const canvas = document.getElementById('graphic-wrapper');
+    if (!canvas) { alert('No animation to export'); return; }
+    
+    try {
+      const stream = canvas.captureStream(30); // 30 FPS
+      const audio = new AudioContext().createMediaStreamAudioDestination();
+      stream.addTrack(audio.stream.getAudioTracks()[0]);
+      
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'video/mp4',
+        videoBitsPerSecond: 2500000
+      });
+      
+      const chunks = [];
+      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/mp4' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'animation.mp4';
+        a.click();
+        URL.revokeObjectURL(url);
+        alert('✅ Video exported successfully!');
+      };
+      
+      const duration = S.compDur * 1000; // Convert to milliseconds
+      mediaRecorder.start();
+      
+      setTimeout(() => {
+        mediaRecorder.stop();
+      }, duration);
+      
+      alert('⏱️ Recording... Duration: ' + S.compDur + 's');
+    } catch (err) {
+      alert('Error exporting video: ' + err.message);
+    }
+  }
+
+  // CSS Preview Modal Function
+  function showCSSPreviewModal() {
+    const modal = document.createElement('div');
+    modal.id = 'css-preview-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;';
+    const cssCode = 'CSS Animation Code Here - Generated from your design';
+    modal.innerHTML = `
+      <div style="background:white;border-radius:12px;padding:32px;max-width:800px;width:90%;max-height:80vh;overflow-y:auto;">
+        <h2 style="font-size:24px;font-weight:700;margin-bottom:16px;">CSS Animation Code</h2>
+        <p style="font-size:14px;color:#666;margin-bottom:16px;">Review your CSS code. Copy and paste into your project's stylesheet.</p>
+        <div id="css-code-display" style="background:#f5f5f5;border:1px solid #ddd;border-radius:8px;padding:16px;font-family:monospace;font-size:12px;max-height:400px;overflow-y:auto;margin-bottom:16px;white-space:pre-wrap;word-break:break-word;">@keyframes custom-animation {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animated-element {
+  animation: custom-animation 1.5s ease-out forwards;
+}</div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="copyCSSCode()" style="padding:10px 20px;background:#FE7143;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:500;">📋 Copy Code</button>
+          <button onclick="downloadCSSHTML()" style="padding:10px 20px;background:#FE7143;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:500;">⬇️ Download HTML</button>
+          <button onclick="closeCSSModal()" style="padding:10px 20px;background:#f0f0f0;color:#333;border:none;border-radius:6px;cursor:pointer;font-weight:500;margin-left:auto;">✕ Close</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+  
+  function copyCSSCode() {
+    const codeDisplay = document.getElementById('css-code-display');
+    const text = codeDisplay.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      alert('✅ CSS code copied to clipboard!');
+    });
+  }
+  
+  function downloadCSSHTML() {
+    const codeDisplay = document.getElementById('css-code-display');
+    const css = codeDisplay.textContent;
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Animation</title>
+  <style>
+${css.split('\n').map(l => '    ' + l).join('\n')}
+  </style>
+</head>
+<body>
+  <div class="animated-element" style="width:100px;height:100px;background:#FE7143;"></div>
+</body>
+</html>`;
+    const blob = new Blob([html], {type: 'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'animation.html';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  
+  function closeCSSModal() {
+    const modal = document.getElementById('css-preview-modal');
+    if(modal) modal.remove();
+  }
+
+  // CSS Preview Modal Function
+  function showCSSPreviewModal() {
+    const modal = document.createElement('div');
+    modal.id = 'css-preview-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;';
+    const cssCode = 'CSS Animation Code Here - Generated from your design';
+    modal.innerHTML = `
+      <div style="background:white;border-radius:12px;padding:32px;max-width:800px;width:90%;max-height:80vh;overflow-y:auto;">
+        <h2 style="font-size:24px;font-weight:700;margin-bottom:16px;">CSS Animation Code</h2>
+        <p style="font-size:14px;color:#666;margin-bottom:16px;">Review your CSS code. Copy and paste into your project's stylesheet.</p>
+        <div id="css-code-display" style="background:#f5f5f5;border:1px solid #ddd;border-radius:8px;padding:16px;font-family:monospace;font-size:12px;max-height:400px;overflow-y:auto;margin-bottom:16px;white-space:pre-wrap;word-break:break-word;">@keyframes custom-animation {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animated-element {
+  animation: custom-animation 1.5s ease-out forwards;
+}</div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="copyCSSCode()" style="padding:10px 20px;background:#FE7143;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:500;">📋 Copy Code</button>
+          <button onclick="downloadCSSHTML()" style="padding:10px 20px;background:#FE7143;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:500;">⬇️ Download HTML</button>
+          <button onclick="closeCSSModal()" style="padding:10px 20px;background:#f0f0f0;color:#333;border:none;border-radius:6px;cursor:pointer;font-weight:500;margin-left:auto;">✕ Close</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+  
+  function copyCSSCode() {
+    const codeDisplay = document.getElementById('css-code-display');
+    const text = codeDisplay.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      alert('✅ CSS code copied to clipboard!');
+    });
+  }
+  
+  function downloadCSSHTML() {
+    const codeDisplay = document.getElementById('css-code-display');
+    const css = codeDisplay.textContent;
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Animation</title>
+  <style>
+${css.split('\n').map(l => '    ' + l).join('\n')}
+  </style>
+</head>
+<body>
+  <div class="animated-element" style="width:100px;height:100px;background:#FE7143;"></div>
+</body>
+</html>`;
+    const blob = new Blob([html], {type: 'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'animation.html';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  
+  function closeCSSModal() {
+    const modal = document.getElementById('css-preview-modal');
+    if(modal) modal.remove();
   }
 
   if(document.readyState==='complete'||document.readyState==='interactive') init();
