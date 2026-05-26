@@ -1964,7 +1964,7 @@
     }
   }
 
-  // Simple Video Export
+  // Simple Video Export with Browser Compatibility
   async function recordAndExportVideo() {
     const graphicWrapper = document.getElementById('graphic-wrapper');
     if (!graphicWrapper || !S.file) {
@@ -1984,21 +1984,39 @@
       canvas.height = 400;
       const stream = canvas.captureStream(30);
       
+      // Find supported MIME type
+      let mimeType = 'video/webm';
+      const supportedTypes = [
+        'video/webm',
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/mp4',
+        'video/mp4;codecs=h264'
+      ];
+      
+      for (const type of supportedTypes) {
+        if (MediaRecorder.isTypeSupported(type)) {
+          mimeType = type;
+          break;
+        }
+      }
+      
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'video/webm'
+        mimeType: mimeType
       });
       
       const chunks = [];
       mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'video/webm' });
+        const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+        const blob = new Blob(chunks, { type: mimeType });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'animation.webm';
+        a.download = 'animation.' + ext;
         a.click();
         URL.revokeObjectURL(url);
-        alert('✅ Video downloaded: animation.webm');
+        alert('✅ Video downloaded: animation.' + ext);
       };
       
       mediaRecorder.start();
@@ -2010,7 +2028,7 @@
       }, S.compDur * 1000);
       
     } catch (err) {
-      alert('❌ Error: ' + err.message);
+      alert('❌ Error: ' + err.message + '\n\nTry using CSS export instead.');
     }
   }
 
