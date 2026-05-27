@@ -1799,6 +1799,30 @@
 
       const delayMs = Math.round(1000/FPS);
 
+      // Options tuned to avoid "tainted canvas / operation is insecure":
+      //  - skipFonts/fontEmbedCSS: don't fetch cross-origin fonts
+      //  - filter: drop any external <image>/<use href=http> nodes that taint the canvas
+      const _filter = (node) => {
+        if(!node || !node.tagName) return true;
+        const tag = node.tagName.toLowerCase();
+        if(tag === 'image'){
+          const href = node.getAttribute && (node.getAttribute('href') || node.getAttribute('xlink:href') || '');
+          if(href && /^https?:\/\//i.test(href) && href.indexOf(location.origin)!==0) return false;
+        }
+        return true;
+      };
+      const _captureOpts = {
+        width: cw,
+        height: ch,
+        pixelRatio: 1,
+        backgroundColor: bgHex,
+        cacheBust: true,
+        skipFonts: true,
+        fontEmbedCSS: '',
+        filter: _filter,
+        style: { transform:'none', margin:'0' }  // capture upright, ignore zoom
+      };
+
       // Capture each frame: set S.time, re-render DOM (negative-delay seek), snapshot
       for(let i=0;i<N;i++){
         const t = (i/(N-1))*total;
@@ -1807,19 +1831,25 @@
         // give the browser a tick to apply styles & lay out
         await new Promise(r=>requestAnimationFrame(()=>r()));
 
-        const dataUrl = await htmlToImage.toPng(wrap, {
-          width: cw,
-          height: ch,
-          pixelRatio: 1,
-          backgroundColor: bgHex,
-          cacheBust: true,
-          style: { transform:'none', margin:'0' }  // capture upright, ignore zoom
-        });
-
-        const img = await new Promise((res,rej)=>{
-          const im=new Image(); im.onload=()=>res(im); im.onerror=rej; im.src=dataUrl;
-        });
-        gif.addFrame(img,{delay:delayMs,copy:true});
+        let frameCanvas;
+        try{
+          // toCanvas feeds gif.js directly (no second Image decode)
+          frameCanvas = await htmlToImage.toCanvas(wrap, _captureOpts);
+        }catch(e){
+          // Fallback: try the PNG path; if that also fails, skip this frame
+          try{
+            const durl = await htmlToImage.toPng(wrap, _captureOpts);
+            frameCanvas = await new Promise((res,rej)=>{
+              const im=new Image();
+              im.onload=()=>{ const c=document.createElement('canvas'); c.width=cw;c.height=ch; const cx=c.getContext('2d'); cx.fillStyle=bgHex; cx.fillRect(0,0,cw,ch); cx.drawImage(im,0,0,cw,ch); res(c); };
+              im.onerror=rej; im.src=durl;
+            });
+          }catch(e2){
+            console.warn('Frame '+i+' skipped:', e2.message);
+            continue;
+          }
+        }
+        gif.addFrame(frameCanvas,{delay:delayMs,copy:true});
 
         _setGifLoading(true,`Frame ${i+1}/${N}`);
       }
