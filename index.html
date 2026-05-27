@@ -1743,8 +1743,20 @@
     if(!window.GIF) await _loadScript('https://cdn.jsdelivr.net/npm/gif.js.optimized@1.0.1/dist/gif.js');
   }
 
-  // gif.js needs a worker script URL
-  const _GIF_WORKER='https://cdn.jsdelivr.net/npm/gif.js.optimized@1.0.1/dist/gif.worker.js';
+  // gif.js needs a worker script. Loading it cross-origin (from a CDN) makes the
+  // browser throw "The operation is insecure" when the worker touches the canvas.
+  // Fix: fetch the worker source once and serve it from a SAME-ORIGIN blob URL.
+  const _GIF_WORKER_CDN='https://cdn.jsdelivr.net/npm/gif.js.optimized@1.0.1/dist/gif.worker.js';
+  let _gifWorkerBlobURL=null;
+  async function _getGifWorkerURL(){
+    if(_gifWorkerBlobURL) return _gifWorkerBlobURL;
+    const resp=await fetch(_GIF_WORKER_CDN);
+    if(!resp.ok) throw new Error('Could not load GIF worker ('+resp.status+')');
+    const code=await resp.text();
+    const blob=new Blob([code],{type:'application/javascript'});
+    _gifWorkerBlobURL=URL.createObjectURL(blob);
+    return _gifWorkerBlobURL;
+  }
 
   function _setGifLoading(on,label){
     ['gif-btn','gif-btn2'].forEach(id=>{
@@ -1787,12 +1799,15 @@
       else if(S.bg==='light') bgHex='#fafaf9';
       else if(S.bg==='custom'){ const el=document.getElementById('bg-custom-color'); if(el) bgHex=el.value; }
 
+      // Same-origin worker URL (fixes "operation is insecure" / cross-origin Worker)
+      const workerURL = await _getGifWorkerURL();
+
       const gif = new GIF({
         workers: 2,
         quality: 10,
         width: cw,
         height: ch,
-        workerScript: _GIF_WORKER,
+        workerScript: workerURL,
         background: bgHex,
         transparent: null
       });
