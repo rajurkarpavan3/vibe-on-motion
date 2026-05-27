@@ -1089,16 +1089,19 @@
         </button>
       </div>
 
-      <!-- Export CSS & Video -->
+      <!-- Export -->
       <div class="p-3 space-y-2">
-        <p class="text-[9px] font-bold uppercase tracking-widest text-stone-400">Export</p>
-        <button onclick="showCSSPreviewModal()" class="w-full py-2.5 text-[10px] font-bold bg-white hover:bg-stone-50 text-black border border-black flex items-center justify-center space-x-1.5 transition-colors" title="Export CSS code for CSS-compatible animations">
-          <i data-lucide="code-2" class="w-3.5 h-3.5"></i><span>EXPORT CSS</span>
+        <p class="text-[9px] font-bold uppercase tracking-widest text-stone-400">Export &amp; Use in Code</p>
+        <button id="gif-btn2" onclick="exportGIF()" class="w-full py-2.5 text-[10px] font-bold bg-brand-orange hover:bg-orange-600 text-white border border-brand-orange flex items-center justify-center space-x-1.5 transition-colors" title="Export animation as an animated GIF — captures all visible effects">
+          <i data-lucide="film" class="w-3.5 h-3.5"></i><span>EXPORT GIF</span>
         </button>
-        <button onclick="recordAndExportVideo()" class="w-full py-2.5 text-[10px] font-bold bg-brand-orange hover:bg-orange-600 text-white border border-brand-orange flex items-center justify-center space-x-1.5 transition-colors" title="Record and export animation as WebM video">
-          <i data-lucide="video" class="w-3.5 h-3.5"></i><span>EXPORT VIDEO</span>
+        <button onclick="exportLottie()" id="lottie-btn" class="w-full py-2.5 text-[10px] font-bold bg-black hover:bg-brand-orange hover:text-black text-white border border-black flex items-center justify-center space-x-1.5 transition-colors" title="Export animation as Lottie JSON (transform presets)">
+          <i data-lucide="box" class="w-3.5 h-3.5"></i><span>EXPORT LOTTIE</span>
         </button>
-        <p class="text-[9px] text-stone-400 leading-relaxed">✅ CSS Export for code • 🎬 Video Export captures all effects (blur, masks, filters, trim paths)</p>
+        <button onclick="copyCodeJSON()" class="w-full py-2.5 text-[10px] font-bold bg-white hover:bg-stone-50 text-black border border-black flex items-center justify-center space-x-1.5 transition-colors" title="Copy CSS animation code">
+          <i data-lucide="code-2" class="w-3.5 h-3.5"></i><span id="copy-btn-lbl">COPY CSS CODE</span>
+        </button>
+        <p class="text-[9px] text-stone-400 leading-relaxed">🎬 GIF captures all effects (blur, masks, filters, trim paths). CSS &amp; Lottie work for transform/opacity presets.</p>
       </div>
     </div>`;
   }
@@ -1723,156 +1726,130 @@
     proceed();
   }
 
-  function exportGIF() {
-    if(!S.file){alert('No file uploaded.');return;}
-    const setLoading = (on) => {
-      ['gif-btn','gif-btn2'].forEach(id => {
-        const b = document.getElementById(id); if(!b) return;
-        b.disabled = on;
-        b.innerHTML = on
-          ? '<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Building…</span>'
-          : '<i data-lucide="image" class="w-3.5 h-3.5"></i><span>GIF</span>';
-      });
-      lucide.createIcons();
-    };
-    setLoading(true);
-
-    setTimeout(async () => {
-      try {
-        await loadGifshot();
-        const wasPlaying = S.playing;
-        if(wasPlaying) togglePlay();
-
-        const [wStr,hStr] = S.size.split('x');
-        const cw=parseInt(wStr)||400, ch=parseInt(hStr)||400;
-        const cvs=document.createElement('canvas'); cvs.width=cw; cvs.height=ch;
-        const ctx=cvs.getContext('2d');
-        const total=getTotalDur();
-        const N=Math.ceil(total*24);
-        const frames=[];
-
-        const isSvg = S.file.type==='svg';
-        let hasTrim = false;
-        let baseSvg = S.file.data;
-        if(isSvg) {
-          hasTrim = S.layers.some(l => l.presetId === 'trim-paths' && l.visible);
-          const parser=new DOMParser(), doc=parser.parseFromString(S.file.data,'image/svg+xml'), svgEl=doc.querySelector('svg');
-          if(svgEl){if(!svgEl.getAttribute('width'))svgEl.setAttribute('width','300');if(!svgEl.getAttribute('height'))svgEl.setAttribute('height','300');}
-          baseSvg = new XMLSerializer().serializeToString(doc);
-        }
-
-        const expImg = new Image();
-
-        for(let i=0; i<N; i++) {
-          const t = (i/N)*total;
-          ctx.clearRect(0,0,cw,ch);
-          if(S.bg==='dark'){ctx.fillStyle='#000';ctx.fillRect(0,0,cw,ch);}
-          else if(S.bg==='light'){ctx.fillStyle='#fafaf9';ctx.fillRect(0,0,cw,ch);}
-          else if(S.bg==='custom'){ctx.fillStyle=document.getElementById('bg-custom-color').value;ctx.fillRect(0,0,cw,ch);}
-          else if(S.bg==='grid'){ctx.fillStyle='#fff';ctx.fillRect(0,0,cw,ch);}
-          
-          let tx=0, ty=0, sc=1, rot=0, op=1, bl=0;
-          let trimLp = 1, sw = 2, scap = 'round';
-          const tlLayer = S.layers.find(l => l.presetId === 'trim-paths' && l.visible);
-          if (tlLayer) {
-            sw = tlLayer.params?.['stroke-width'] ?? 2;
-            scap = tlLayer.params?.['stroke-cap'] ?? 'round';
-          }
-          
-          S.layers.filter(l=>l.visible).forEach(l=>{
-            if (t < l.delay) return;
-            const lp = Math.min(1,(t-l.delay)/l.duration);
-            let p = l.direction === 'out' ? 1 - lp : lp;
-            
-            if(l.presetId === 'trim-paths') {
-              trimLp = p;
-              sw = l.params?.['stroke-width'] ?? 2;
-              scap = l.params?.['stroke-cap'] ?? 'round';
-            }
-            if(l.kf.includes('float')){ty+=Math.sin(p*2*Math.PI)*(l.params.floatDist||24)*-1;}
-            else if(l.kf.includes('pulse')){sc*=(1+(l.params.pulseScale||1.1)-1)*Math.sin(p*Math.PI);}
-            else if(l.kf.includes('fade')||l.kf.includes('grow')||l.kf.includes('bloom')){op=Math.min(1,p*2);}
-            else if(l.kf.includes('slide')||l.kf.includes('move')){
-              const dir = l.params.slideDir || 'left';
-              const dist = l.params.slideDist || 60;
-              const x = (dir==='left'?-1:dir==='right'?1:0) * dist;
-              const y = (dir==='top'?-1:dir==='bottom'?1:0) * dist;
-              tx += (1-p) * x;
-              ty += (1-p) * y;
-              if (l.kf.includes('slide')) {
-                const sf = l.params.slideFade !== undefined ? l.params.slideFade : 100;
-                const startOp = 1 - (sf/100);
-                op = startOp + p * (1 - startOp);
-              }
-            }
-            else if(l.kf.includes('rotate')){rot+=p*2*Math.PI;}
-            else if(l.kf.includes('blur')){op=p;bl=(1-p)*(l.params.blurAmt||20);}
-            else if(l.kf.includes('bounce')){ty=-Math.abs(Math.sin(p*Math.PI))*(l.params.bounceH||36);}
-            else if(l.kf.includes('scale-pop')||l.kf.includes('elastic')){sc=p<.5?p*2*(l.params.popScale||1.25):(l.params.popScale||1.25)-(p-.5)*2*((l.params.popScale||1.25)-1);}
-          });
-          
-          let srcStr = S.file.data;
-          if(isSvg) {
-            let svgStr = baseSvg;
-            if (hasTrim) {
-              let doff = (1 - trimLp) * 2000;
-              let tl = S.layers.find(l => l.presetId === 'trim-paths' && l.visible);
-              let sCol = tl?.params?.['stroke-c1'] || '#FE7143';
-              let defsInject = '';
-              if (tl && (tl.params?.['stroke-color-mode'] || 'solid') === 'gradient') {
-                 const c1 = tl.params?.['stroke-c1'] || '#FE7143';
-                 const c2 = tl.params?.['stroke-c2'] || '#FFB020';
-                 sCol = `url(#grad-${tl.id})`;
-                 defsInject = `<defs><linearGradient id="grad-${tl.id}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs>`;
-              }
-              let injectStyle = `<style>path, line, polyline, polygon, rect, circle, ellipse { stroke-dasharray: 2000 !important; stroke-dashoffset: ${doff} !important; stroke-width: ${sw}px !important; stroke-linecap: ${scap} !important; fill: transparent !important; stroke: ${sCol} !important; }</style>`;
-              svgStr = svgStr.replace(/(<svg[^>]*>)/i, `$1${defsInject}${injectStyle}`);
-            }
-            // Use data URI instead of blob URL to avoid canvas taint
-            try { srcStr = await rasterizeSvgToDataURL(svgStr, cw, ch); } catch(e) { srcStr = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgStr))); }
-          }
-          
-          await new Promise((resolve) => {
-            const tid = setTimeout(resolve, 500);
-            expImg.onload = () => { clearTimeout(tid); resolve(); };
-            expImg.onerror = () => { clearTimeout(tid); resolve(); };
-            expImg.src = srcStr;
-          });
-
-          const maxSz=Math.min(cw,ch)*.8;
-          let dw=maxSz, dh=maxSz;
-          if(expImg.width&&expImg.height){ const ar=expImg.width/expImg.height; if(ar>1) dh=dw/ar; else dw=dh*ar; }
-
-          ctx.save();
-          ctx.translate(cw/2,ch/2);
-          
-          const gs = S.layers.reduce((acc,l)=>acc*(l.params?.layerScale??1), 1);
-          const gr = S.layers.reduce((acc,l)=>acc+(parseFloat(l.params?.layerRot)||0), 0);
-          ctx.scale(gs, gs);
-          ctx.rotate(gr * Math.PI/180);
-
-          ctx.globalAlpha=Math.max(0,Math.min(1,op));
-          if(bl>0)ctx.filter=`blur(${bl}px)`;else ctx.filter='none';
-          ctx.translate(tx,ty); ctx.rotate(rot); ctx.scale(sc,sc);
-          ctx.drawImage(expImg,-dw/2,-dh/2,dw,dh);
-          ctx.restore();
-          
-          frames.push(cvs.toDataURL('image/png'));
-          // No blob URL to revoke - using data URI now
-        }
-        
-        gifshot.createGIF({images:frames,gifWidth:cw,gifHeight:ch,interval:total/N,numFrames:N,frameDuration:1,numWorkers:2},obj=>{
-          if(!obj.error){const a=document.createElement('a');a.href=obj.image;a.download='vibe-on-motion.gif';document.body.appendChild(a);a.click();document.body.removeChild(a);}
-          else alert('GIF error: '+obj.errorMsg);
-          setLoading(false);
-        });
-      } catch (err) {
-        alert('GIF export failed: ' + err.message);
-        console.error(err);
-        setLoading(false);
-      }
-    }, 50);
+  // ═══════════════════════════════════════════════════════════════════════════
+  // GIF EXPORT — frame-capture via html-to-image (captures ALL visible effects)
+  // ═══════════════════════════════════════════════════════════════════════════
+  function _loadScript(src){
+    return new Promise((res,rej)=>{
+      if([...document.scripts].some(s=>s.src===src)) return res();
+      const sc=document.createElement('script'); sc.src=src;
+      sc.onload=()=>res(); sc.onerror=()=>rej(new Error('Failed to load '+src));
+      document.head.appendChild(sc);
+    });
   }
+
+  async function _ensureLibs(){
+    if(!window.htmlToImage) await _loadScript('https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js');
+    if(!window.GIF) await _loadScript('https://cdn.jsdelivr.net/npm/gif.js.optimized@1.0.1/dist/gif.js');
+  }
+
+  // gif.js needs a worker script URL
+  const _GIF_WORKER='https://cdn.jsdelivr.net/npm/gif.js.optimized@1.0.1/dist/gif.worker.js';
+
+  function _setGifLoading(on,label){
+    ['gif-btn','gif-btn2'].forEach(id=>{
+      const b=document.getElementById(id); if(!b) return;
+      b.disabled=on;
+      b.innerHTML = on
+        ? `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>${label||'Building…'}</span>`
+        : '<i data-lucide="film" class="w-3.5 h-3.5"></i><span>EXPORT GIF</span>';
+    });
+    if(window.lucide) lucide.createIcons();
+  }
+
+  async function exportGIF(){
+    if(!S.file){ alert('Upload a file and apply a preset first.'); return; }
+    if(!S.layers.filter(l=>l.visible).length){ alert('Apply at least one preset first.'); return; }
+
+    const wrap = document.getElementById('graphic-wrapper');
+    if(!wrap){ alert('Nothing to export.'); return; }
+
+    _setGifLoading(true,'Loading…');
+
+    // Remember UI state so we can restore it after capture
+    const prevPlaying = S.playing;
+    const prevTime    = S.time;
+    if(prevPlaying){ S.playing=false; }   // pause; we drive frames manually
+
+    try{
+      await _ensureLibs();
+
+      const [wStr,hStr] = (S.size||'400x400').split('x');
+      const cw = parseInt(wStr)||400, ch = parseInt(hStr)||400;
+
+      const total = (typeof getTotalDur==='function') ? getTotalDur() : (S.compDur||S.duration||3);
+      const FPS = 25;
+      const N   = Math.max(2, Math.ceil(total*FPS));
+
+      // background colour for the GIF (gif.js has no alpha)
+      let bgHex = '#ffffff';
+      if(S.bg==='dark') bgHex='#000000';
+      else if(S.bg==='light') bgHex='#fafaf9';
+      else if(S.bg==='custom'){ const el=document.getElementById('bg-custom-color'); if(el) bgHex=el.value; }
+
+      const gif = new GIF({
+        workers: 2,
+        quality: 10,
+        width: cw,
+        height: ch,
+        workerScript: _GIF_WORKER,
+        background: bgHex,
+        transparent: null
+      });
+
+      const delayMs = Math.round(1000/FPS);
+
+      // Capture each frame: set S.time, re-render DOM (negative-delay seek), snapshot
+      for(let i=0;i<N;i++){
+        const t = (i/(N-1))*total;
+        S.time = t;
+        renderGraphic();                    // seeks every layer to time t, paused
+        // give the browser a tick to apply styles & lay out
+        await new Promise(r=>requestAnimationFrame(()=>r()));
+
+        const dataUrl = await htmlToImage.toPng(wrap, {
+          width: cw,
+          height: ch,
+          pixelRatio: 1,
+          backgroundColor: bgHex,
+          cacheBust: true,
+          style: { transform:'none', margin:'0' }  // capture upright, ignore zoom
+        });
+
+        const img = await new Promise((res,rej)=>{
+          const im=new Image(); im.onload=()=>res(im); im.onerror=rej; im.src=dataUrl;
+        });
+        gif.addFrame(img,{delay:delayMs,copy:true});
+
+        _setGifLoading(true,`Frame ${i+1}/${N}`);
+      }
+
+      await new Promise((resolve,reject)=>{
+        gif.on('finished',(blob)=>{
+          const url=URL.createObjectURL(blob);
+          const a=document.createElement('a');
+          a.href=url;
+          a.download=(S.file&&S.file.name?S.file.name.replace(/\.[^.]+$/,''):'vibe-on-motion')+'.gif';
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          resolve();
+        });
+        gif.on('abort',()=>reject(new Error('GIF render aborted')));
+        gif.render();
+      });
+
+    }catch(err){
+      console.error(err);
+      alert('GIF export failed: '+err.message);
+    }finally{
+      // restore UI state
+      S.time = prevTime;
+      S.playing = prevPlaying;
+      renderGraphic();
+      _setGifLoading(false);
+    }
+  }
+
 
   // ═══════════════════════════════════════════════════════════════════════════
   // REFRESH ALL
@@ -1963,207 +1940,6 @@
       });
     }
   }
-
-  // Simple Video Export with Browser Compatibility
-  async function recordAndExportVideo() {
-    const graphicWrapper = document.getElementById('graphic-wrapper');
-    if (!graphicWrapper || !S.file) {
-      alert('❌ Upload an image and apply animation first');
-      return;
-    }
-
-    try {
-      alert('🎬 Recording animation...');
-      
-      S.playing = false;
-      S.time = 0;
-      refreshAll();
-      
-      const canvas = document.createElement('canvas');
-      canvas.width = 400;
-      canvas.height = 400;
-      const stream = canvas.captureStream(30);
-      
-      // Find supported MIME type
-      let mimeType = 'video/webm';
-      const supportedTypes = [
-        'video/webm',
-        'video/webm;codecs=vp9',
-        'video/webm;codecs=vp8',
-        'video/mp4',
-        'video/mp4;codecs=h264'
-      ];
-      
-      for (const type of supportedTypes) {
-        if (MediaRecorder.isTypeSupported(type)) {
-          mimeType = type;
-          break;
-        }
-      }
-      
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: mimeType
-      });
-      
-      const chunks = [];
-      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-      mediaRecorder.onstop = () => {
-        const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-        const blob = new Blob(chunks, { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'animation.' + ext;
-        a.click();
-        URL.revokeObjectURL(url);
-        alert('✅ Video downloaded: animation.' + ext);
-      };
-      
-      mediaRecorder.start();
-      S.playing = true;
-      
-      setTimeout(() => {
-        S.playing = false;
-        mediaRecorder.stop();
-      }, S.compDur * 1000);
-      
-    } catch (err) {
-      alert('❌ Error: ' + err.message + '\n\nTry using CSS export instead.');
-    }
-  }
-
-  // CSS Preview Modal Function
-  function showCSSPreviewModal() {
-    const modal = document.createElement('div');
-    modal.id = 'css-preview-modal';
-    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;';
-    const cssCode = 'CSS Animation Code Here - Generated from your design';
-    modal.innerHTML = `
-      <div style="background:white;border-radius:12px;padding:32px;max-width:800px;width:90%;max-height:80vh;overflow-y:auto;">
-        <h2 style="font-size:24px;font-weight:700;margin-bottom:16px;">CSS Animation Code</h2>
-        <p style="font-size:14px;color:#666;margin-bottom:16px;">Review your CSS code. Copy and paste into your project's stylesheet.</p>
-        <div id="css-code-display" style="background:#f5f5f5;border:1px solid #ddd;border-radius:8px;padding:16px;font-family:monospace;font-size:12px;max-height:400px;overflow-y:auto;margin-bottom:16px;white-space:pre-wrap;word-break:break-word;">@keyframes custom-animation {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-.animated-element {
-  animation: custom-animation 1.5s ease-out forwards;
-}</div>
-        <div style="display:flex;gap:8px;">
-          <button onclick="copyCSSCode()" style="padding:10px 20px;background:#FE7143;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:500;">📋 Copy Code</button>
-          <button onclick="downloadCSSHTML()" style="padding:10px 20px;background:#FE7143;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:500;">⬇️ Download HTML</button>
-          <button onclick="closeCSSModal()" style="padding:10px 20px;background:#f0f0f0;color:#333;border:none;border-radius:6px;cursor:pointer;font-weight:500;margin-left:auto;">✕ Close</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-  }
-  
-  function copyCSSCode() {
-    const codeDisplay = document.getElementById('css-code-display');
-    const text = codeDisplay.textContent;
-    navigator.clipboard.writeText(text).then(() => {
-      alert('✅ CSS code copied to clipboard!');
-    });
-  }
-  
-  function downloadCSSHTML() {
-    const codeDisplay = document.getElementById('css-code-display');
-    const css = codeDisplay.textContent;
-    const html = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Animation</title>
-  <style>
-${css.split('\n').map(l => '    ' + l).join('\n')}
-  </style>
-</head>
-<body>
-  <div class="animated-element" style="width:100px;height:100px;background:#FE7143;"></div>
-</body>
-</html>`;
-    const blob = new Blob([html], {type: 'text/html'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'animation.html';
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-  
-  function closeCSSModal() {
-    const modal = document.getElementById('css-preview-modal');
-    if(modal) modal.remove();
-  }
-
-  // CSS Preview Modal Function
-  function showCSSPreviewModal() {
-    const modal = document.createElement('div');
-    modal.id = 'css-preview-modal';
-    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;';
-    const cssCode = 'CSS Animation Code Here - Generated from your design';
-    modal.innerHTML = `
-      <div style="background:white;border-radius:12px;padding:32px;max-width:800px;width:90%;max-height:80vh;overflow-y:auto;">
-        <h2 style="font-size:24px;font-weight:700;margin-bottom:16px;">CSS Animation Code</h2>
-        <p style="font-size:14px;color:#666;margin-bottom:16px;">Review your CSS code. Copy and paste into your project's stylesheet.</p>
-        <div id="css-code-display" style="background:#f5f5f5;border:1px solid #ddd;border-radius:8px;padding:16px;font-family:monospace;font-size:12px;max-height:400px;overflow-y:auto;margin-bottom:16px;white-space:pre-wrap;word-break:break-word;">@keyframes custom-animation {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-.animated-element {
-  animation: custom-animation 1.5s ease-out forwards;
-}</div>
-        <div style="display:flex;gap:8px;">
-          <button onclick="copyCSSCode()" style="padding:10px 20px;background:#FE7143;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:500;">📋 Copy Code</button>
-          <button onclick="downloadCSSHTML()" style="padding:10px 20px;background:#FE7143;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:500;">⬇️ Download HTML</button>
-          <button onclick="closeCSSModal()" style="padding:10px 20px;background:#f0f0f0;color:#333;border:none;border-radius:6px;cursor:pointer;font-weight:500;margin-left:auto;">✕ Close</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-  }
-  
-  function copyCSSCode() {
-    const codeDisplay = document.getElementById('css-code-display');
-    const text = codeDisplay.textContent;
-    navigator.clipboard.writeText(text).then(() => {
-      alert('✅ CSS code copied to clipboard!');
-    });
-  }
-  
-  function downloadCSSHTML() {
-    const codeDisplay = document.getElementById('css-code-display');
-    const css = codeDisplay.textContent;
-    const html = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Animation</title>
-  <style>
-${css.split('\n').map(l => '    ' + l).join('\n')}
-  </style>
-</head>
-<body>
-  <div class="animated-element" style="width:100px;height:100px;background:#FE7143;"></div>
-</body>
-</html>`;
-    const blob = new Blob([html], {type: 'text/html'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'animation.html';
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-  
-  function closeCSSModal() {
-    const modal = document.getElementById('css-preview-modal');
-    if(modal) modal.remove();
-  }
-
   if(document.readyState==='complete'||document.readyState==='interactive') init();
   else window.addEventListener('DOMContentLoaded', init);
   </script>
