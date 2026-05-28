@@ -118,6 +118,11 @@
     @keyframes kf-prev-move-l { 0% {transform:translateX(10px); opacity:0;} 100% {transform:translateX(0); opacity:1;} }
     @keyframes kf-prev-move-t { 0% {transform:translateY(10px); opacity:0;} 100% {transform:translateY(0); opacity:1;} }
     @keyframes kf-prev-move-b { 0% {transform:translateY(-10px); opacity:0;} 100% {transform:translateY(0); opacity:1;} }
+    /* Blur preset previews: use opacity instead of filter:blur for visibility */
+    @keyframes kf-prev-blur { 0% {opacity:0.3;} 50% {opacity:1;} 100% {opacity:0.3;} }
+    @keyframes kf-prev-blur-slide { 0% {opacity:0.3; transform:translateX(-5px);} 50% {opacity:1; transform:translateX(0);} 100% {opacity:0.3; transform:translateX(0);} }
+    @keyframes kf-prev-blur-scale { 0% {opacity:0.3; transform:scale(0.85);} 50% {opacity:1; transform:scale(1);} 100% {opacity:0.3; transform:scale(1);} }
+    @keyframes kf-prev-soft-blur { 0% {opacity:0.4;} 100% {opacity:1;} }
     
     /* Playful */
     @keyframes kf-elastic-pop  { 0%{transform:scale(0)} 50%{transform:scale(1.2)} 75%{transform:scale(.92)} 100%{transform:scale(1)} }
@@ -181,6 +186,11 @@
     .preset-card.move-in-left:hover .card-dot { animation: kf-prev-move-l 1s infinite; }
     .preset-card.move-top:hover .card-dot { animation: kf-prev-move-t 1s infinite; }
     .preset-card.move-bottom:hover .card-dot { animation: kf-prev-move-b 1s infinite; }
+    /* Blur preview: use opacity instead of blur so it's visible */
+    .preset-card.blur:hover .card-dot { animation: kf-prev-blur 1.2s ease-in-out infinite; }
+    .preset-card.blur-slide:hover .card-dot { animation: kf-prev-blur-slide 1.2s ease-in-out infinite; }
+    .preset-card.blur-scale:hover .card-dot { animation: kf-prev-blur-scale 1.2s ease-in-out infinite; }
+    .preset-card.soft-blur:hover .card-dot { animation: kf-prev-soft-blur 1.2s ease-in-out infinite; }
     /* Applied state */
     .preset-card.applied { border-color:#FE7143; background:#FFF8F5; }
     .preset-card.applied .card-label { color:#FE7143; }
