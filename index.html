@@ -500,7 +500,7 @@
       group.presets.forEach(p => {
         const isApplied = S.layers.some(l => l.presetId === p.id);
         const div = document.createElement('div');
-        div.className = `preset-card preset-id-${p.id} flex flex-col justify-between border border-black p-2 h-24 cursor-pointer select-none transition-colors ${isApplied ? 'applied' : 'bg-white hover:bg-stone-50'} ${!hasFile ? 'opacity-40 cursor-not-allowed' : ''}`;
+        div.className = `preset-card preset-id-${p.id} ${p.id} flex flex-col justify-between border border-black p-2 h-24 cursor-pointer select-none transition-colors ${isApplied ? 'applied' : 'bg-white hover:bg-stone-50'} ${!hasFile ? 'opacity-40 cursor-not-allowed' : ''}`;
         div.style.setProperty('--prev-anim', `${p.kf} 1.4s ease-in-out infinite`);
 
         if (hasFile) {
