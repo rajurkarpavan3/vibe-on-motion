@@ -21,6 +21,52 @@
     html, body { height: 100%; overflow: hidden; }
     body { font-family: 'Inter', sans-serif; background-color: #FAF9F6; color: #000; height: 100vh; }
     .font-outfit { font-family: 'Outfit', sans-serif; }
+    .desktop-only-screen {
+      display:none;
+      min-height:100vh;
+      padding:32px;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      background:#FAF9F6;
+      color:#000;
+    }
+    .desktop-only-content { max-width:380px; }
+    .desktop-only-logo {
+      width:96px;
+      height:auto;
+      margin:0 auto 20px;
+      display:block;
+      object-fit:contain;
+    }
+    .desktop-only-brand {
+      margin-bottom:18px;
+      font-family:'Outfit', sans-serif;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+    }
+    .desktop-only-screen h1 {
+      margin:0 0 12px;
+      font-family:'Outfit', sans-serif;
+      font-size:32px;
+      line-height:1;
+      font-weight:900;
+      letter-spacing:0;
+      text-transform:uppercase;
+    }
+    .desktop-only-screen p {
+      margin:0;
+      font-size:14px;
+      line-height:1.6;
+      color:#57534e;
+    }
+    @media (max-width: 1023px) {
+      body > header,
+      body > main { display:none !important; }
+      .desktop-only-screen { display:flex; }
+    }
 
     /* ── Keyframes ────────────────────────────────────────────────────────── */
     /* Fade group */
@@ -203,6 +249,14 @@
   </style>
 </head>
 <body class="antialiased h-screen overflow-hidden flex flex-col bg-[#FAF9F6] text-black">
+  <div class="desktop-only-screen" aria-live="polite">
+    <div class="desktop-only-content">
+      <img src="VOM_favicon.png" alt="VIBE ON MOTION" class="desktop-only-logo" onerror="this.style.display='none'">
+      <div class="desktop-only-brand">VIBE ON MOTION</div>
+      <h1>Use desktop for the full experience</h1>
+      <p>This animation workspace needs a wider screen to show the canvas, timeline, presets, and controls properly.</p>
+    </div>
+  </div>
 
   <!-- ── Top Bar ───────────────────────────────────────────────────────────── -->
   <header class="grid grid-cols-12 border-b border-stone-800 bg-black sticky top-0 z-50" style="height:56px">
