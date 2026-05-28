@@ -139,15 +139,13 @@
     @keyframes kf-damage-shake { 0%,100%{transform:translate(0,0) rotate(0deg)} 15%{transform:translate(-6px,2px) rotate(-2deg)} 30%{transform:translate(6px,-2px) rotate(2deg)} 45%{transform:translate(-4px,1px) rotate(-1deg)} 60%{transform:translate(4px,-1px) rotate(1deg)} }
     @keyframes kf-energy       { 0%{transform:scale(.9);filter:brightness(1) saturate(1)} 50%{transform:scale(1.05);filter:brightness(1.5) saturate(2)} 100%{transform:scale(1);filter:brightness(1) saturate(1)} }
 
-    /* Stroke / Trim Paths: animate each path element independently */
-    @keyframes kf-trim-paths   { 0%{stroke-dashoffset:var(--path-len, 2000);} 100%{stroke-dashoffset:0;} }
+    /* Stroke / Trim Paths: dasharray set per-element, no auto-animation (JS drives it via stroke-dashoffset) */
     .layer-trim-paths svg path, .layer-trim-paths svg line, .layer-trim-paths svg polyline, .layer-trim-paths svg polygon, .layer-trim-paths svg rect, .layer-trim-paths svg circle, .layer-trim-paths svg ellipse {
       stroke-dasharray: var(--path-len, 2000) !important;
       fill: transparent !important;
       stroke-width: var(--stroke-w, 2px) !important;
       stroke-linecap: var(--stroke-cap, round) !important;
       stroke: var(--stroke-color, #FE7143) !important;
-      animation: kf-trim-paths var(--trim-dur, 2s) var(--trim-ease, linear) var(--trim-delay, 0s) 1 normal forwards !important;
     }
 
     /* ── Utilities ──────────────────────────────────────────────────────────── */
@@ -630,6 +628,12 @@
       const stScale = (l.params && l.params.layerScale !== undefined) ? l.params.layerScale : 1;
       const stRot   = (l.params && l.params.layerRot !== undefined) ? l.params.layerRot : 0;
       
+      // For trim-paths, animations run directly on SVG elements, not on the layer div.
+      // So disable the div animation to avoid conflicts.
+      if (l.presetId === 'trim-paths') {
+        animStr = 'none';
+      }
+      
       const extraClass = l.presetId === 'trim-paths' ? 'layer-trim-paths' : '';
       let defsInject = '';
       if (l.presetId === 'trim-paths' && (l.params?.['stroke-color-mode'] || 'solid') === 'gradient') {
@@ -678,17 +682,13 @@
     if (l.presetId === 'trim-paths') {
       set('--stroke-w', `${p['stroke-width'] ?? 2}px`);
       set('--stroke-cap', p['stroke-cap'] ?? 'round');
-      set('--trim-dur', `${l.duration || 2}s`);
-      set('--trim-ease', l.easing || 'linear');
-      set('--trim-delay', `${l.delay || 0}s`);
       if ((p['stroke-color-mode'] || 'solid') === 'gradient') {
         set('--stroke-color', `url(#grad-${l.id})`);
       } else {
         set('--stroke-color', p['stroke-c1'] || '#FE7143');
       }
-      // Measure each stroke's real path length and set it as a CSS custom property.
-      // This way each stroke animates: dashoffset from [length]→0 over the layer duration.
-      // Longer strokes move faster, shorter ones slower, but all finish at the same time.
+      // Measure each stroke's real path length and drive stroke-dashoffset based on timeline progress.
+      // This respects user scrubbing (S.time) instead of auto-playing the keyframe.
       try {
         const wrap = document.getElementById('graphic-wrapper');
         if (wrap) {
@@ -704,8 +704,22 @@
               else if (tag === 'ellipse') { const rx=+el.getAttribute('rx')||0, ry=+el.getAttribute('ry')||0; len = Math.PI*(3*(rx+ry)-Math.sqrt((3*rx+ry)*(rx+3*ry))); }
             }
             if (!len || !isFinite(len)) len = 1000;
-            // Round up slightly so the final pixel renders (avoid off-by-one where offset=1 still hides the last px)
-            el.style.setProperty('--path-len', Math.ceil(len));
+            len = Math.ceil(len);
+            el.style.setProperty('--path-len', len);
+            
+            // Calculate progress: where are we in this layer's time window?
+            const elapsed = S.time - l.delay;
+            let prog = 0; // 0 = start, 1 = end
+            if (elapsed >= 0 && elapsed <= l.duration) {
+              prog = elapsed / l.duration;
+            } else if (elapsed > l.duration) {
+              prog = 1; // past the end, hold at fully drawn
+            }
+            // If direction is 'out', reverse the progress
+            if (l.direction === 'out') prog = 1 - prog;
+            // dashoffset = full length at start, 0 at end
+            const offset = len * (1 - prog);
+            el.style.strokeDashoffset = offset;
           });
         }
       } catch(e) { /* ignore */ }
