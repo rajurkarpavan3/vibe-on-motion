@@ -139,7 +139,7 @@
     @keyframes kf-damage-shake { 0%,100%{transform:translate(0,0) rotate(0deg)} 15%{transform:translate(-6px,2px) rotate(-2deg)} 30%{transform:translate(6px,-2px) rotate(2deg)} 45%{transform:translate(-4px,1px) rotate(-1deg)} 60%{transform:translate(4px,-1px) rotate(1deg)} }
     @keyframes kf-energy       { 0%{transform:scale(.9);filter:brightness(1) saturate(1)} 50%{transform:scale(1.05);filter:brightness(1.5) saturate(2)} 100%{transform:scale(1);filter:brightness(1) saturate(1)} }
 
-    /* Stroke — uses --path-len set per-element from getTotalLength() */
+    /* Stroke / Trim Paths: animate each path element independently */
     @keyframes kf-trim-paths   { 0%{stroke-dashoffset:var(--path-len, 2000);} 100%{stroke-dashoffset:0;} }
     .layer-trim-paths svg path, .layer-trim-paths svg line, .layer-trim-paths svg polyline, .layer-trim-paths svg polygon, .layer-trim-paths svg rect, .layer-trim-paths svg circle, .layer-trim-paths svg ellipse {
       stroke-dasharray: var(--path-len, 2000) !important;
@@ -147,6 +147,7 @@
       stroke-width: var(--stroke-w, 2px) !important;
       stroke-linecap: var(--stroke-cap, round) !important;
       stroke: var(--stroke-color, #FE7143) !important;
+      animation: kf-trim-paths var(--trim-dur, 2s) var(--trim-ease, linear) var(--trim-delay, 0s) 1 normal forwards !important;
     }
 
     /* ── Utilities ──────────────────────────────────────────────────────────── */
@@ -677,23 +678,25 @@
     if (l.presetId === 'trim-paths') {
       set('--stroke-w', `${p['stroke-width'] ?? 2}px`);
       set('--stroke-cap', p['stroke-cap'] ?? 'round');
+      set('--trim-dur', `${l.duration || 2}s`);
+      set('--trim-ease', l.easing || 'linear');
+      set('--trim-delay', `${l.delay || 0}s`);
       if ((p['stroke-color-mode'] || 'solid') === 'gradient') {
         set('--stroke-color', `url(#grad-${l.id})`);
       } else {
         set('--stroke-color', p['stroke-c1'] || '#FE7143');
       }
-      // Measure real path length per element so the trim animates over the layer's duration.
-      // --path-len must be set on the LAYER DIV (animation runs there + keyframe reads var),
-      // and also on each child element for stroke-dasharray.
+      // Measure each stroke's real path length and set it as a CSS custom property.
+      // This way each stroke animates: dashoffset from [length]→0 over the layer duration.
+      // Longer strokes move faster, shorter ones slower, but all finish at the same time.
       try {
         const wrap = document.getElementById('graphic-wrapper');
-        const layerEl = wrap ? wrap.querySelector(`.layer-${l.id}, [data-layer-id="${l.id}"], .layer-trim-paths`) : null;
         if (wrap) {
           const els = wrap.querySelectorAll('svg path, svg line, svg polyline, svg polygon, svg rect, svg circle, svg ellipse');
-          let maxLen = 0;
           els.forEach(el => {
             let len = 0;
             try { if (typeof el.getTotalLength === 'function') len = el.getTotalLength(); } catch(_) { len = 0; }
+            // Fallbacks for shapes where getTotalLength may report 0 or error
             if (!len || !isFinite(len)) {
               const tag = el.tagName.toLowerCase();
               if (tag === 'rect') { const w=+el.getAttribute('width')||0, h=+el.getAttribute('height')||0; len = 2*(w+h); }
@@ -701,11 +704,9 @@
               else if (tag === 'ellipse') { const rx=+el.getAttribute('rx')||0, ry=+el.getAttribute('ry')||0; len = Math.PI*(3*(rx+ry)-Math.sqrt((3*rx+ry)*(rx+3*ry))); }
             }
             if (!len || !isFinite(len)) len = 1000;
-            const rounded = Math.ceil(len + 1);
-            el.style.setProperty('--path-len', rounded);
-            if (rounded > maxLen) maxLen = rounded;
+            // Round up slightly so the final pixel renders (avoid off-by-one where offset=1 still hides the last px)
+            el.style.setProperty('--path-len', Math.ceil(len));
           });
-          if (maxLen && layerEl) layerEl.style.setProperty('--path-len', maxLen);
         }
       } catch(e) { /* ignore */ }
     }
