@@ -846,15 +846,15 @@
       background:transparent !important;
     }
     .theme-arcade input[type="range"] {
-      background:linear-gradient(to right,var(--theme-accent) var(--rp,0%),#262626 var(--rp,0%)) !important;
+      background:linear-gradient(to right,#4A4A4A var(--rp,0%),#262626 var(--rp,0%)) !important;
     }
     .theme-arcade input[type="range"]::-webkit-slider-thumb {
-      background:var(--theme-accent);
-      box-shadow:0 0 0 4px rgba(255,176,0,.16);
+      background:#666666;
+      box-shadow:none;
     }
     .theme-arcade input[type="range"]::-moz-range-thumb {
-      background:var(--theme-accent);
-      box-shadow:0 0 0 4px rgba(255,176,0,.16);
+      background:#666666;
+      box-shadow:none;
     }
     .theme-arcade .panel-resizer,
     .theme-arcade .timeline-resizer,
@@ -883,16 +883,16 @@
       color:var(--theme-text) !important;
     }
     .theme-arcade .preset-card.applied {
-      background:rgba(255,176,0,.14) !important;
-      border-color:var(--theme-accent) !important;
-      box-shadow:0 0 0 1px rgba(255,176,0,.22);
+      background:rgba(255,255,255,.08) !important;
+      border-color:rgba(255,255,255,.3) !important;
+      box-shadow:0 0 0 1px rgba(255,255,255,.1);
     }
     .theme-arcade .preset-card .card-label {
       color:var(--theme-muted) !important;
     }
     .theme-arcade .preset-card.applied .card-label,
     .theme-arcade .preset-card.applied button {
-      color:var(--theme-accent) !important;
+      color:#FFFFFF !important;
     }
     .theme-arcade .preset-card .card-dot {
       background:var(--theme-soft) !important;
@@ -904,7 +904,7 @@
       border-color:#FFFFFF !important;
     }
     .theme-arcade .preset-card.applied .card-dot {
-      background:var(--theme-accent) !important;
+      background:#FFFFFF !important;
     }
     .theme-arcade #presets-count {
       background:var(--theme-card) !important;
@@ -1161,15 +1161,15 @@
       background:var(--theme-card-hover) !important;
     }
     .theme-arcade .right-layer-row[class*="bg-[#FFF8F5]"] {
-      background:rgba(255,176,0,.14) !important;
-      border-color:var(--theme-accent) !important;
-      color:var(--theme-accent) !important;
+      background:rgba(255,255,255,.06) !important;
+      border-color:rgba(255,255,255,.25) !important;
+      color:#FFFFFF !important;
     }
     .theme-arcade .right-layer-row.multi-selected {
-      background:rgba(255,176,0,.14) !important;
-      border-color:var(--theme-accent) !important;
-      color:var(--theme-accent) !important;
-      box-shadow:inset 0 0 0 1px rgba(255,176,0,.16);
+      background:rgba(255,255,255,.06) !important;
+      border-color:rgba(255,255,255,.2) !important;
+      color:#FFFFFF !important;
+      box-shadow:none;
     }
     .theme-arcade .right-layer-list.force-scroll {
       scrollbar-color:var(--theme-border-strong) transparent;
@@ -1193,6 +1193,7 @@
       border-color:var(--theme-border) !important;
       border-radius:14px;
       box-shadow:0 24px 80px rgba(0,0,0,.5);
+      z-index:99999 !important;
     }
     .theme-arcade .layer-context-menu button,
     .theme-arcade .export-modal .vom-cta {
@@ -1299,7 +1300,7 @@
   </div>
 
   <!-- ── Top Bar ───────────────────────────────────────────────────────────── -->
-  <header class="workspace-header bg-black sticky top-0 z-50" style="height:56px">
+  <header class="workspace-header bg-black sticky top-0 z-[9999]" style="height:56px">
     <div class="flex items-center h-14 overflow-hidden">
       <div class="flex items-center justify-center pl-5 pr-1 h-14">
         <img src="VOM_favicon.png" alt="VOM" style="height:30px;width:auto;object-fit:contain;" onerror="this.style.display='none'">
@@ -1311,7 +1312,7 @@
     <div class="h-14 min-w-0"></div>
     <div class="flex items-center h-14 min-w-0 gap-2 px-2">
       <input type="file" id="json-import" accept=".json" class="hidden">
-      <button onclick="document.getElementById('json-import').click()" class="vom-cta flex-1 flex items-center justify-center space-x-2 px-3 text-[10px] font-bold bg-black text-white hover:bg-brand-orange hover:text-white border-r border-stone-800 transition-colors" title="Load a saved project JSON">
+      <button onclick="document.getElementById('json-import').click()" class="vom-cta flex-1 flex items-center justify-center space-x-2 px-3 text-[10px] font-bold bg-[#1A1A1A] text-[#AAA] hover:bg-[#2A2A2A] hover:text-white border-r border-[#333] transition-colors" title="Load a saved project JSON">
         <i data-lucide="folder-open" class="w-3.5 h-3.5"></i><span class="hidden lg:inline">LOAD PROJECT</span>
       </button>
       <input type="file" id="file-upload" accept="image/*,.svg" multiple class="hidden">
@@ -1345,7 +1346,7 @@
     <!-- Center: Canvas + Timeline -->
     <section id="center-panel" class="workspace-center flex flex-col bg-[#FAF9F6] overflow-hidden">
       <!-- Canvas toolbar -->
-      <div id="canvas-toolbar" class="flex items-stretch border-b border-black bg-white shrink-0" style="height:40px">
+      <div id="canvas-toolbar" class="flex items-stretch border-b border-black bg-white shrink-0 relative" style="height:40px;z-index:9998">
         <div class="relative flex items-center px-2" id="shape-controls">
           <button onclick="toggleShapeDrop(event)" id="shape-btn" aria-expanded="false" class="vom-cta flex items-center space-x-2 px-4 text-[10px] font-bold transition-colors h-8 uppercase">
             <span>ADD</span>
@@ -1384,7 +1385,7 @@
           <button onclick="toggleCustomBgDrop(event)" id="bg-menu-btn" aria-expanded="false" class="vom-cta flex items-center space-x-2 px-4 text-[10px] font-bold transition-colors h-8 uppercase">
             <span>BACKGROUND</span>
             <span id="bg-menu-lbl" class="text-white">LIGHT</span>
-            <span class="text-stone-400 text-xs leading-none">⌄</span>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="opacity:0.5;flex-shrink:0"><path d="M1 3L5 7L9 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <div id="bg-custom-drop" class="absolute left-2 top-full mt-2 bg-white border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] z-50 hidden p-2 w-[220px]" onclick="event.stopPropagation()">
             <button onclick="pickBg('grid',event)"        id="bg-grid"        data-bg-option class="vom-menu-row w-full text-left px-3 py-2 text-[10px] font-bold transition-colors bg-white text-stone-500 hover:bg-stone-100 uppercase">Grid</button>
@@ -1393,7 +1394,7 @@
             <button onclick="pickBg('dark',event)"        id="bg-dark"        data-bg-option class="vom-menu-row w-full text-left px-3 py-2 text-[10px] font-bold transition-colors bg-white text-stone-500 hover:bg-stone-100 uppercase">Dark</button>
             <div class="mt-2 border-t border-black pt-2">
               <div class="flex items-center justify-between mb-2">
-                <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Custom Color</label>
+                <label class="text-[10px] font-bold uppercase tracking-wider" style="color:#888">Custom</label>
                 <div class="vom-segmented grid-cols-2">
                   <button type="button" id="bg-solid-mode" onclick="setCustomBgMode('custom',event)" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors">Solid</button>
                   <button type="button" id="bg-gradient-mode" onclick="setCustomBgMode('gradient',event)" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors">Gradient</button>
@@ -1402,11 +1403,11 @@
               <div class="space-y-2">
                 <div class="flex items-center justify-between">
                   <input type="color" id="bg-custom-color" value="#FFFFFF" oninput="setCustomBgColor(this.value)" onchange="setCustomBgColor(this.value)" class="w-8 h-8 border border-black p-0 cursor-pointer shrink-0">
-                  <input type="text" id="bg-custom-hex" value="#FFFFFF" oninput="setCustomBgColor(this.value)" onchange="setCustomBgColor(this.value)" class="w-[132px] text-xs font-mono border border-black px-2 py-1.5 outline-none focus:border-brand-orange uppercase">
+                  <input type="text" id="bg-custom-hex" value="#FFFFFF" oninput="setCustomBgColor(this.value)" onchange="setCustomBgColor(this.value)" class="w-[132px] text-xs font-mono border border-black px-2 py-1.5 outline-none focus:border-[#555] uppercase">
                 </div>
                 <div id="bg-gradient-row" class="hidden flex items-center justify-between">
                   <input type="color" id="bg-gradient-color" value="#FFB000" oninput="setGradientBgColor(this.value)" onchange="setGradientBgColor(this.value)" class="w-8 h-8 border border-black p-0 cursor-pointer shrink-0">
-                  <input type="text" id="bg-gradient-hex" value="#FFB000" oninput="setGradientBgColor(this.value)" onchange="setGradientBgColor(this.value)" class="w-[132px] text-xs font-mono border border-black px-2 py-1.5 outline-none focus:border-brand-orange uppercase">
+                  <input type="text" id="bg-gradient-hex" value="#FFB000" oninput="setGradientBgColor(this.value)" onchange="setGradientBgColor(this.value)" class="w-[132px] text-xs font-mono border border-black px-2 py-1.5 outline-none focus:border-[#555] uppercase">
                 </div>
               </div>
             </div>
@@ -1416,7 +1417,7 @@
           <button id="size-btn" onclick="toggleSizeDrop(event)" aria-expanded="false" class="vom-cta flex items-center space-x-2 px-4 text-[10px] font-bold transition-colors h-8 uppercase">
             <span>SIZE</span>
             <span id="size-lbl" class="text-white">400×400</span>
-            <span class="text-stone-400 text-xs leading-none">⌄</span>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="opacity:0.5;flex-shrink:0"><path d="M1 3L5 7L9 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <div id="size-drop" class="vom-menu-list absolute right-2 top-full mt-2 w-52 bg-white border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] z-50 hidden">
             <button onclick="pickSize('200x200',event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase">200 × 200</button>
@@ -1463,7 +1464,7 @@
               <input type="number" id="comp-dur-val" value="5.0" step="0.5" min="0.5" max="60"
                 onchange="updateCompDur(this.value)"
                 oninput="updateCompDur(this.value)"
-                class="native-spin w-12 text-black font-bold bg-transparent border-b border-stone-300 outline-none focus:border-brand-orange text-center p-0 h-4">
+                class="native-spin w-12 text-black font-bold bg-transparent border-b border-stone-300 outline-none focus:border-[#555] text-center p-0 h-4">
               <span>s</span>
             </span>
           </div>
@@ -1852,6 +1853,7 @@
       if (!a.strokeMode) a.strokeMode = 'solid';
       if (a.strokeWidth === undefined) a.strokeWidth = 0;
       if (!a.strokeJoin) a.strokeJoin = 'round';
+      if (!a.strokeDash) a.strokeDash = 'solid';
     });
     S.layers.forEach(l => {
       if (!l.assetId && S.activeAssetId) l.assetId = S.activeAssetId;
@@ -2075,7 +2077,15 @@
       if (xi > -1) d = d.substring(xi);
       return d;
     }
-    return `<img src="${asset.data}" alt="Graphic" style="width:100%;height:100%;object-fit:contain;display:block;">`;
+    // Image (jpg/png/gif/webp) — apply border/stroke if set
+    const bw = parseFloat(asset.borderWidth) || 0;
+    const bc = asset.borderColor || '#FFFFFF';
+    const bt = asset.borderType || 'solid';
+    const br = asset.borderRadius !== undefined ? asset.borderRadius : 0;
+    const borderStyle = bw > 0
+      ? `border:${bw}px ${bt} ${bc};box-sizing:border-box;border-radius:${br}px;`
+      : `border-radius:${br}px;`;
+    return `<img src="${asset.data}" alt="Graphic" style="width:100%;height:100%;object-fit:contain;display:block;${borderStyle}">`;
   }
 
   function buildTextHTML(asset) {
@@ -2133,6 +2143,7 @@
 
   function shapePaint(asset, kind, fallbackA, fallbackB, defs) {
     const mode = asset[`${kind}Mode`] || 'solid';
+    if (mode === 'none') return 'none';
     const c1 = safeShapeColor(asset[kind], fallbackA);
     const c2 = safeShapeColor(asset[`${kind}2`], fallbackB);
     if (mode === 'gradient') {
@@ -2195,10 +2206,14 @@
     const defs = [];
     const fill = shapePaint(asset, 'fill', '#1F1F1F', '#FFB000', defs);
     const stroke = shapePaint(asset, 'stroke', '#FFFFFF', '#FFB000', defs);
-    const sw = Math.max(0, Math.min(24, parseFloat(asset.strokeWidth) || 0));
+    const sw = stroke === 'none' ? 0 : Math.max(0, Math.min(24, parseFloat(asset.strokeWidth) || 0));
     const radius = Math.max(0, Math.min(50, parseFloat(asset.radius) || 0));
     const strokeJoin = ['round','miter','bevel'].includes(asset.strokeJoin) ? asset.strokeJoin : 'round';
-    const common = `fill="${fill}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="${strokeJoin}" stroke-linecap="${strokeJoin === 'round' ? 'round' : 'butt'}" vector-effect="non-scaling-stroke"`;
+    const strokeDash = asset.strokeDash || 'solid';
+    const dashArray = strokeDash === 'dashed' ? `${sw * 3} ${sw * 2}` :
+                      strokeDash === 'dotted' ? `${sw * 0.5} ${sw * 2}` : 'none';
+    const dashAttr = dashArray !== 'none' ? `stroke-dasharray="${dashArray}" stroke-linecap="round"` : '';
+    const common = `fill="${fill}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="${strokeJoin}" stroke-linecap="${strokeJoin === 'round' ? 'round' : 'butt'}" ${dashAttr} vector-effect="non-scaling-stroke"`;
     let shape = '';
     if (asset.shapeType === 'circle') {
       shape = `<ellipse cx="50" cy="50" rx="44" ry="44" ${common}/>`;
@@ -2247,7 +2262,11 @@
           kf = 'kf-mask-' + l.params.maskDir;
         }
         const iters = '1';
-        const dir = l.direction === 'out' ? 'reverse' : 'normal';
+        const preset = getPreset(l.presetId);
+        const isLoop = preset && preset.loop;
+        // Loop presets: direction handled via CSS vars (e.g. negative --rot-deg), always play 'normal'
+        // Non-loop presets: 'out' uses CSS animation-direction:reverse to play keyframes backwards
+        const dir = (!isLoop && l.direction === 'out') ? 'reverse' : 'normal';
         const fill = 'forwards';
         const ps = S.playing ? 'running' : 'paused';
 
@@ -2306,7 +2325,11 @@
     const p = l.params || {};
     const set = (k,v) => el.style.setProperty(k, v);
     if (p.blurAmt    !== undefined) set('--blur-px',    `${p.blurAmt}px`);
-    if (p.rotDeg     !== undefined) { set('--rot-deg', `${p.rotDeg}deg`); set('--spin-deg', `-${p.rotDeg}deg`); }
+    if (p.rotDeg     !== undefined) {
+      const deg = l.direction === 'out' ? -Math.abs(p.rotDeg) : Math.abs(p.rotDeg);
+      set('--rot-deg', `${deg}deg`);
+      set('--spin-deg', `-${deg}deg`);
+    }
     if (p.popScale   !== undefined) set('--pop-scale',  p.popScale);
     if (p.floatDist  !== undefined) set('--float-y',    `-${p.floatDist}px`);
     if (p.bounceH    !== undefined) set('--bounce-y',   `-${p.bounceH}px`);
@@ -2788,19 +2811,26 @@
       const modeKey = `${kind}Mode`;
       const colorBKey = `${kind}2`;
       const mode = v(modeKey, 'solid');
+      const isNone     = mode === 'none';
       const isGradient = mode === 'gradient';
+      const isSolid    = !isNone && !isGradient;
       return `<div class="space-y-1.5">
         <div class="flex items-center justify-between gap-2">
-          <span class="text-xs text-stone-600">${label}</span>
-          <div class="vom-segmented grid-cols-2">
-            <button onclick="setShapeDirect('${modeKey}','solid')" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${!isGradient?'is-selected':''}">Solid</button>
-            <button onclick="setShapeDirect('${modeKey}','gradient')" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${isGradient?'is-selected':''}">Gradient</button>
+          <span class="text-xs" style="color:#888">${label}</span>
+          <div class="vom-segmented grid-cols-3">
+            <button onclick="setShapeDirect('${modeKey}','none')"     class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${isNone?'is-selected':''}">None</button>
+            <button onclick="setShapeDirect('${modeKey}','solid')"    class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${isSolid?'is-selected':''}">Solid</button>
+            <button onclick="setShapeDirect('${modeKey}','gradient')" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${isGradient?'is-selected':''}">Grad</button>
           </div>
         </div>
-        <div class="flex gap-2">
-          <input type="color" value="${safeShapeColor(asset[kind],fallbackA)}" onchange="setShapeDirect('${kind}',this.value)" class="flex-1 h-9 border border-black cursor-pointer">
-          ${isGradient?`<input type="color" value="${safeShapeColor(asset[colorBKey],fallbackB)}" onchange="setShapeDirect('${colorBKey}',this.value)" class="flex-1 h-9 border border-black cursor-pointer">`:''}
-        </div>
+        ${!isNone ? `<div class="flex gap-2">
+          <input type="color" value="${safeShapeColor(asset[kind],fallbackA)}" onchange="setShapeDirect('${kind}',this.value)" class="flex-1 h-9 border border-[#2A2A2A] cursor-pointer" style="background:transparent">
+          ${isGradient?`<input type="color" value="${safeShapeColor(asset[colorBKey],fallbackB)}" onchange="setShapeDirect('${colorBKey}',this.value)" class="flex-1 h-9 border border-[#2A2A2A] cursor-pointer" style="background:transparent">`:''}
+        </div>` : `<div class="w-full h-9 border border-[#333] relative overflow-hidden" style="background:#1a1a1a">
+          <svg width="100%" height="100%" viewBox="0 0 100 36" preserveAspectRatio="none" style="position:absolute;top:0;left:0">
+            <line x1="0" y1="0" x2="100" y2="36" stroke="#cc2222" stroke-width="1.5"/>
+          </svg>
+        </div>`}
       </div>`;
     };
     const sw = parseFloat(v('strokeWidth', 0));
@@ -2827,21 +2857,25 @@
             oninput="setShapeProp('points',this.value,3,12);document.getElementById('shape-points-val').value=this.value"
             class="w-full" style="--rp:${Math.round((((asset.points||5)-3)/(12-3))*100)}%">
         </div>` : ''}
-        <div class="space-y-1">
+        <div class="space-y-1" style="${v('strokeMode','solid') === 'none' ? 'display:none' : ''}">
           <div class="flex justify-between items-center">
             <span class="text-xs text-stone-600">Stroke Weight</span>
             <input id="shape-strokeWidth-val" type="text" value="${sw}" onchange="setShapeProp('strokeWidth',this.value,0,24)" class="w-10 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
           </div>
           ${slider('strokeWidth',0,24,1,0,`setShapeProp('strokeWidth',this.value,0,24)`,`setShapeSlider('strokeWidth',this.value,'shape-strokeWidth-val')`)}
         </div>
-        <div class="space-y-1.5">
-          <span class="text-xs text-stone-600">Stroke Style</span>
+        <div class="space-y-1.5" style="${v('strokeMode','solid') === 'none' ? 'display:none' : ''}">
+          <span class="text-xs text-stone-600">Stroke Type</span>
           <div class="vom-segmented grid-cols-3">
-            ${[
-              ['round','Round'],
-              ['miter','Sharp'],
-              ['bevel','Bevel']
-            ].map(([value,label]) => `<button onclick="setShapeDirect('strokeJoin','${value}')" class="vom-segment py-1.5 text-[10px] font-bold transition-colors ${(asset.strokeJoin || 'round') === value ? 'is-selected' : ''} uppercase">${label}</button>`).join('')}
+            ${[['solid','Solid'],['dashed','Dashed'],['dotted','Dotted']].map(([val,lbl]) =>
+              `<button onclick="setShapeDirect('strokeDash','${val}')" class="vom-segment py-1.5 text-[10px] font-bold transition-colors ${(v('strokeDash','solid'))===val?'is-selected':''} uppercase">${lbl}</button>`).join('')}
+          </div>
+        </div>
+        <div class="space-y-1.5" style="${v('strokeMode','solid') === 'none' ? 'display:none' : ''}">
+          <span class="text-xs text-stone-600">Stroke Join</span>
+          <div class="vom-segmented grid-cols-3">
+            ${[['round','Round'],['miter','Sharp'],['bevel','Bevel']].map(([val,lbl]) =>
+              `<button onclick="setShapeDirect('strokeJoin','${val}')" class="vom-segment py-1.5 text-[10px] font-bold transition-colors ${(asset.strokeJoin||'round')===val?'is-selected':''} uppercase">${lbl}</button>`).join('')}
           </div>
         </div>
         ${asset.shapeType === 'star' ? `<div class="space-y-1">
@@ -2944,12 +2978,12 @@
 
       <div class="space-y-1">
         <span class="text-xs text-stone-600">Content</span>
-        <textarea rows="2" onchange="setTextProp('content',this.value)" oninput="setTextContent(this.value)" class="w-full text-xs border border-black p-2 outline-none focus:border-brand-orange resize-none font-mono" style="color-scheme:light">${asset.content || ''}</textarea>
+        <textarea rows="2" onchange="setTextProp('content',this.value)" oninput="setTextContent(this.value)" class="w-full text-xs border border-black p-2 outline-none focus:border-[#555] resize-none font-mono" style="color-scheme:light">${asset.content || ''}</textarea>
       </div>
 
       <div class="space-y-1">
         <span class="text-xs text-stone-600">Font</span>
-        <select onchange="setTextProp('fontFamily',this.value)" class="w-full text-[11px] border border-black p-1.5 outline-none focus:border-brand-orange bg-white" style="color-scheme:light">
+        <select onchange="setTextProp('fontFamily',this.value)" class="w-full text-[11px] border border-black p-1.5 outline-none focus:border-[#555] bg-white" style="color-scheme:light">
           ${fonts.map(f => `<option value="${f}" ${f === currentFont ? 'selected' : ''}>${f}</option>`).join('')}
         </select>
       </div>
@@ -2957,7 +2991,7 @@
       <div class="grid grid-cols-2 gap-2">
         <div class="space-y-1">
           <span class="text-xs text-stone-600">Size</span>
-          <input type="number" min="8" max="300" step="1" value="${asset.fontSize || 48}" onchange="setTextSize(this.value)" oninput="setTextSize(this.value)" class="w-full text-center font-mono text-[11px] border border-black focus:outline-none py-1 focus:border-brand-orange" style="color-scheme:light">
+          <input type="number" min="8" max="300" step="1" value="${asset.fontSize || 48}" onchange="setTextSize(this.value)" oninput="setTextSize(this.value)" class="w-full text-center font-mono text-[11px] border border-black focus:outline-none py-1 focus:border-[#555]" style="color-scheme:light">
         </div>
         <div class="space-y-1">
           <span class="text-xs text-stone-600">Weight</span>
@@ -2986,11 +3020,11 @@
       <div class="grid grid-cols-2 gap-2">
         <div class="space-y-1">
           <span class="text-xs text-stone-600">Letter spacing</span>
-          <input type="number" min="-10" max="40" step="0.5" value="${asset.letterSpacing ?? 0}" onchange="setTextProp('letterSpacing',parseFloat(this.value))" class="native-spin w-full text-center font-mono text-[11px] border border-black focus:outline-none py-1 focus:border-brand-orange" style="color-scheme:light">
+          <input type="number" min="-10" max="40" step="0.5" value="${asset.letterSpacing ?? 0}" onchange="setTextProp('letterSpacing',parseFloat(this.value))" class="native-spin w-full text-center font-mono text-[11px] border border-black focus:outline-none py-1 focus:border-[#555]" style="color-scheme:light">
         </div>
         <div class="space-y-1">
           <span class="text-xs text-stone-600">Line height</span>
-          <input type="number" min="0.5" max="4" step="0.1" value="${asset.lineHeight ?? 1.2}" onchange="setTextProp('lineHeight',parseFloat(this.value))" class="native-spin w-full text-center font-mono text-[11px] border border-black focus:outline-none py-1 focus:border-brand-orange" style="color-scheme:light">
+          <input type="number" min="0.5" max="4" step="0.1" value="${asset.lineHeight ?? 1.2}" onchange="setTextProp('lineHeight',parseFloat(this.value))" class="native-spin w-full text-center font-mono text-[11px] border border-black focus:outline-none py-1 focus:border-[#555]" style="color-scheme:light">
         </div>
       </div>
 
@@ -3004,12 +3038,12 @@
         </div>
         <div class="flex items-center gap-2">
           <input type="color" value="${asset.textColor||'#1F1F1F'}" onchange="setTextProp('textColor',this.value)" class="w-10 h-8 border border-black cursor-pointer p-0">
-          <input type="text" value="${asset.textColor||'#1F1F1F'}" onchange="setTextProp('textColor',this.value)" class="flex-1 text-xs font-mono border border-black px-2 py-1.5 outline-none focus:border-brand-orange uppercase" style="color-scheme:light">
+          <input type="text" value="${asset.textColor||'#1F1F1F'}" onchange="setTextProp('textColor',this.value)" class="flex-1 text-xs font-mono border border-black px-2 py-1.5 outline-none focus:border-[#555] uppercase" style="color-scheme:light">
         </div>
         ${asset.colorMode==='gradient'?`
         <div class="flex items-center gap-2">
           <input type="color" value="${asset.textColor2||'#FFB000'}" onchange="setTextProp('textColor2',this.value)" class="w-10 h-8 border border-black cursor-pointer p-0">
-          <input type="text" value="${asset.textColor2||'#FFB000'}" onchange="setTextProp('textColor2',this.value)" class="flex-1 text-xs font-mono border border-black px-2 py-1.5 outline-none focus:border-brand-orange uppercase" style="color-scheme:light">
+          <input type="text" value="${asset.textColor2||'#FFB000'}" onchange="setTextProp('textColor2',this.value)" class="flex-1 text-xs font-mono border border-black px-2 py-1.5 outline-none focus:border-[#555] uppercase" style="color-scheme:light">
         </div>
         <div class="space-y-1">
           <div class="flex justify-between text-[9px] text-stone-400"><span>Angle</span><span id="txt-grad-angle-val">${asset.gradientAngle??90}°</span></div>
@@ -3028,7 +3062,7 @@
           <button type="button" class="tf-step-btn left" onpointerdown="holdTFStep(event,'${id}',-1)" aria-label="Decrease ${label}">‹</button>
           <input id="${id}" type="number" min="${min}" max="${max}" step="1" value="${Number.isFinite(parseFloat(val)) ? Math.round(parseFloat(val)) : 0}"
             onchange="${onchange}"
-            class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-brand-orange bg-transparent text-inherit">
+            class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-[#555] bg-transparent text-inherit">
           <button type="button" class="tf-step-btn right" onpointerdown="holdTFStep(event,'${id}',1)" aria-label="Increase ${label}">›</button>
         </div>
       </div>`;
@@ -3041,7 +3075,7 @@
           <button type="button" class="tf-step-btn left" onpointerdown="holdTFStep(event,'tf-w',-1)" aria-label="Decrease width">‹</button>
           <input id="tf-w" type="number" min="${isShape?20:10}" max="2000" step="1" value="${Math.round(isShape ? (asset.w||150) : (asset.w||320))}"
             onchange="setTFSize('w',this.value)"
-            class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-brand-orange bg-transparent text-inherit">
+            class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-[#555] bg-transparent text-inherit">
           <button type="button" class="tf-step-btn right" onpointerdown="holdTFStep(event,'tf-w',1)" aria-label="Increase width">›</button>
         </div>
       </div>`;
@@ -3051,7 +3085,7 @@
           <button type="button" class="tf-step-btn left" onpointerdown="holdTFStep(event,'tf-h',-1)" aria-label="Decrease height">‹</button>
           <input id="tf-h" type="number" min="${isShape?20:10}" max="2000" step="1" value="${Math.round(isShape ? (asset.h||150) : (asset.h||80))}"
             onchange="setTFSize('h',this.value)"
-            class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-brand-orange bg-transparent text-inherit">
+            class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-[#555] bg-transparent text-inherit">
           <button type="button" class="tf-step-btn right" onpointerdown="holdTFStep(event,'tf-h',1)" aria-label="Increase height">›</button>
         </div>
       </div>`;
@@ -3070,11 +3104,38 @@
         ${lockBtn}
         <div class="flex-1">${hField}</div>
       </div>` : ''}
-      ${isShape ? `<div class="grid grid-cols-2 gap-2">
-        ${numField('tf-rot','Rotate °', asset.rotation||0, `setShapeProp('rotation',this.value,-360,360)`, -360, 360)}
-        ${asset.shapeType === 'circle'
-          ? `<div class="opacity-40 pointer-events-none">${numField('tf-rad','Radius', 50, ``, 0, 50)}</div>`
-          : numField('tf-rad','Radius', asset.radius||0, `setShapeProp('radius',this.value,0,50)`, 0, 50)}
+      ${isShape ? `
+      <div class="space-y-2">
+        <div class="space-y-0.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[9px] text-stone-400 uppercase font-bold">Rotate °</span>
+            <div class="tf-num-wrap" style="width:80px">
+              <button type="button" class="tf-step-btn left" onpointerdown="holdTFStep(event,'tf-rot',-1)">‹</button>
+              <input id="tf-rot" type="number" min="-360" max="360" step="1" value="${Math.round(asset.rotation||0)}"
+                onchange="setShapeProp('rotation',this.value,-360,360);document.getElementById('tf-rot-sl').value=this.value;document.getElementById('tf-rot-sl').style.setProperty('--rp',Math.round((parseFloat(this.value)+360)/720*100)+'%')"
+                class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-[#555] bg-transparent text-inherit">
+              <button type="button" class="tf-step-btn right" onpointerdown="holdTFStep(event,'tf-rot',1)">›</button>
+            </div>
+          </div>
+          <input id="tf-rot-sl" type="range" min="-360" max="360" step="1" value="${asset.rotation||0}"
+            oninput="setShapeProp('rotation',this.value,-360,360);document.getElementById('tf-rot').value=Math.round(this.value);this.style.setProperty('--rp',Math.round((parseFloat(this.value)+360)/720*100)+'%')"
+            class="w-full" style="--rp:${Math.round(((asset.rotation||0)+360)/720*100)}%">
+        </div>
+        <div class="${asset.shapeType === 'circle' ? 'opacity-40 pointer-events-none' : ''} space-y-0.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[9px] text-stone-400 uppercase font-bold">Radius</span>
+            <div class="tf-num-wrap" style="width:80px">
+              <button type="button" class="tf-step-btn left" onpointerdown="holdTFStep(event,'tf-rad',-1)">‹</button>
+              <input id="tf-rad" type="number" min="0" max="50" step="1" value="${asset.shapeType==='circle' ? 50 : Math.round(asset.radius||0)}"
+                onchange="setShapeProp('radius',this.value,0,50);document.getElementById('tf-rad-sl').value=this.value;document.getElementById('tf-rad-sl').style.setProperty('--rp',Math.round(parseFloat(this.value)/50*100)+'%')"
+                class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-[#555] bg-transparent text-inherit">
+              <button type="button" class="tf-step-btn right" onpointerdown="holdTFStep(event,'tf-rad',1)">›</button>
+            </div>
+          </div>
+          <input id="tf-rad-sl" type="range" min="0" max="50" step="1" value="${asset.shapeType==='circle' ? 50 : (asset.radius||0)}"
+            oninput="setShapeProp('radius',this.value,0,50);document.getElementById('tf-rad').value=Math.round(this.value);this.style.setProperty('--rp',Math.round(parseFloat(this.value)/50*100)+'%')"
+            class="w-full" style="--rp:${Math.round((asset.shapeType==='circle' ? 50 : (asset.radius||0))/50*100)}%">
+        </div>
       </div>` : ''}`;
 
     return `
@@ -3142,6 +3203,74 @@
     </div>`;
   }
 
+  function imageControlsHTML(asset) {
+    if (!asset) return '';
+    const isImg = asset.type !== 'shape' && asset.type !== 'text';
+    if (!isImg) return '';
+    const v = (k, d) => asset[k] ?? d;
+    const bw = parseFloat(v('borderWidth', 0));
+    const pct = (val, min, max) => Math.round(((val - min) / (max - min)) * 100);
+    const slider = (id, min, max, step, val, oninput) =>
+      `<input id="${id}" type="range" min="${min}" max="${max}" step="${step}" value="${val}"
+        oninput="${oninput};this.style.setProperty('--rp',Math.round((parseFloat(this.value)-${min})/(${max}-${min})*100)+'%')"
+        class="w-full" style="--rp:${pct(val, min, max)}%">`;
+
+    return `
+    <div class="border-t border-black">
+      <div class="py-2.5 px-4 text-[10px] font-bold uppercase tracking-wider" style="color:#888">Border</div>
+      <div class="space-y-3 pb-3 px-4">
+        <!-- Border color -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs" style="color:#888">Color</span>
+          </div>
+          <input type="color" value="${v('borderColor','#FFFFFF')}"
+            onchange="setImageProp('borderColor',this.value)"
+            class="w-full h-9 border border-[#2A2A2A] cursor-pointer" style="background:transparent">
+        </div>
+        <!-- Border weight -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-xs" style="color:#888">Weight</span>
+            <input id="img-bw-val" type="text" value="${bw}"
+              onchange="setImageProp('borderWidth',parseFloat(this.value)||0)"
+              class="w-10 text-center font-mono text-[11px] border border-[#2A2A2A] focus:outline-none py-0.5 bg-transparent text-inherit">
+          </div>
+          ${slider('img-bw-sl', 0, 24, 0.5, bw,
+            `setImageProp('borderWidth',parseFloat(this.value));document.getElementById('img-bw-val').value=parseFloat(this.value).toFixed(1)`)}
+        </div>
+        <!-- Border radius -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-xs" style="color:#888">Radius</span>
+            <input id="img-br-val" type="text" value="${v('borderRadius',0)}"
+              onchange="setImageProp('borderRadius',parseFloat(this.value)||0)"
+              class="w-10 text-center font-mono text-[11px] border border-[#2A2A2A] focus:outline-none py-0.5 bg-transparent text-inherit">
+          </div>
+          ${slider('img-br-sl', 0, 200, 1, v('borderRadius', 0),
+            `setImageProp('borderRadius',parseFloat(this.value));document.getElementById('img-br-val').value=this.value`)}
+        </div>
+        <!-- Border style -->
+        <div class="space-y-1.5">
+          <span class="text-xs" style="color:#888">Style</span>
+          <div class="vom-segmented grid-cols-3">
+            ${['Solid','Dashed','Dotted'].map(s => `<button onclick="setImageProp('borderType','${s.toLowerCase()}')"
+              class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${v('borderType','solid')===s.toLowerCase()?'is-selected':''}">${s}</button>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function setImageProp(key, val) {
+    const asset = currentAsset();
+    if (!asset) return;
+    pushUndo('Image property');
+    asset[key] = val;
+    renderGraphic();
+    buildRightPanel();
+  }
+
   function buildRightPanel() {
     if (window.__renamingAsset) return;
     const rp = document.getElementById('right-panel');
@@ -3154,6 +3283,7 @@
     const textControls  = textControlsHTML(activeAsset);
     const transformControls = transformControlsHTML(activeAsset);
     const alignControls = alignmentControlsHTML();
+    const imageControls = imageControlsHTML(activeAsset);
     const layerListNeedsScroll = S.assets.length > 4;
     const layerListClass = `right-layer-list space-y-1.5${layerListNeedsScroll ? ' force-scroll is-scrolling' : ''}`;
     const layerListStyle = layerListNeedsScroll ? 'style="height:186px;max-height:186px;overflow-y:scroll;scrollbar-gutter:stable;"' : '';
@@ -3187,7 +3317,7 @@
       </div>`;
 
     // Design panel content
-    const designContent = `${transformControls}${shapeControls}${textControls}`;
+    const designContent = `${transformControls}${shapeControls}${textControls}${imageControls}`;
 
     if (!layer) {
       rp.innerHTML = `
@@ -3330,13 +3460,13 @@
     if (tab === 'animate') {
       dPanel.style.display = 'none';
       aPanel.style.display = '';
-      if (dTab) { dTab.style.background = 'white'; dTab.style.color = '#a8a29e'; }
-      if (aTab) { aTab.style.background = '#FFB000'; aTab.style.color = 'white'; }
+      if (dTab) { dTab.style.background = 'transparent'; dTab.style.color = '#555'; }
+      if (aTab) { aTab.style.background = '#2A2A2A'; aTab.style.color = '#FFF'; }
     } else {
       aPanel.style.display = 'none';
       dPanel.style.display = '';
-      if (aTab) { aTab.style.background = 'white'; aTab.style.color = '#a8a29e'; }
-      if (dTab) { dTab.style.background = '#FFB000'; dTab.style.color = 'white'; }
+      if (aTab) { aTab.style.background = 'transparent'; aTab.style.color = '#555'; }
+      if (dTab) { dTab.style.background = '#2A2A2A'; dTab.style.color = '#FFF'; }
     }
   }
 
@@ -4335,6 +4465,7 @@
       strokeMode:'solid',
       strokeWidth:0,
       strokeJoin:'round',
+      strokeDash:'solid',
     };
     if (shapeType === 'circle') base.radius = 50;
     S.assets.push(base);
@@ -5304,7 +5435,7 @@
       const isLoop = preset ? preset.loop : false;
       const vars = [];
       if (p.blurAmt     !== undefined) vars.push(`  --blur-px: ${p.blurAmt}px;`);
-      if (p.rotDeg      !== undefined) { vars.push(`  --rot-deg: ${p.rotDeg}deg;`); }
+      if (p.rotDeg      !== undefined) { const deg = l.direction==='out' ? -Math.abs(p.rotDeg) : Math.abs(p.rotDeg); vars.push(`  --rot-deg: ${deg}deg;`); }
       if (p.floatDist   !== undefined) vars.push(`  --float-y: -${p.floatDist}px;`);
       if (p.bounceH     !== undefined) vars.push(`  --bounce-y: -${p.bounceH}px;`);
       if (p.pulseScale  !== undefined) vars.push(`  --pulse-scale: ${p.pulseScale};`);
@@ -5336,7 +5467,7 @@
 
       lines.push(`.vom-layer-${i+1} {`);
       if (vars.length) lines.push(...vars);
-      lines.push(`  animation: ${kf} ${l.duration}s ${l.easing} ${l.delay}s ${isLoop ? 'infinite' : '1'} ${l.direction === 'out' ? 'reverse' : 'normal'} forwards;`);
+      lines.push(`  animation: ${kf} ${l.duration}s ${l.easing} ${l.delay}s ${isLoop ? 'infinite' : '1'} ${(!isLoop && l.direction === 'out') ? 'reverse' : 'normal'} forwards;`);
       lines.push('}');
       lines.push('');
     });
@@ -5774,6 +5905,27 @@
       }
       if (!e.ctrlKey && !e.metaKey && !e.altKey && (key === 'delete' || key === 'backspace')) {
         if (deleteSelectedArtboardObject()) e.preventDefault();
+      }
+
+      // Layer stacking shortcuts: ] = up, [ = down, + Shift = to front/back
+      if ((e.ctrlKey || e.metaKey) && (key === ']' || key === '[')) {
+        e.preventDefault();
+        const asset = currentAsset();
+        if (!asset) return;
+        const idx = S.assets.findIndex(a => a.id === asset.id);
+        if (idx === -1) return;
+        const last = S.assets.length - 1;
+        pushUndo('Layer order');
+        if (key === ']') {
+          // ] = move toward front (lower index = higher z-index)
+          if (e.shiftKey) reorderAssetByIndex(idx, 0);                       // Bring to Front
+          else            reorderAssetByIndex(idx, Math.max(0, idx - 1));    // Move up one
+        } else {
+          // [ = move toward back (higher index = lower z-index)
+          if (e.shiftKey) reorderAssetByIndex(idx, last);                    // Send to Back
+          else            reorderAssetByIndex(idx, Math.min(last, idx + 1)); // Move down one
+        }
+        refreshAll();
       }
     });
     window.addEventListener('pointerup', endContinuousUndo);
