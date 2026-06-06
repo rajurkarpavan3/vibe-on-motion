@@ -325,12 +325,13 @@
     input[type="range"]::-moz-range-thumb { width:12px; height:12px; border-radius:50%; background:#000; border:none; }
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button {
-      opacity:1;
-      -webkit-appearance:auto;
-      cursor:pointer;
+      -webkit-appearance:none;
+      appearance:none;
+      margin:0;
     }
     input[type="number"] {
       color-scheme:light;
+      -moz-appearance:textfield;
     }
     /* Scrollbars: hidden until scrolling, then soft and thin */
     * {
@@ -406,6 +407,55 @@
       touch-action:none;
     }
     .asset-wrapper.dragging { cursor:grabbing; }
+    .asset-wrapper[data-text-asset]:hover { cursor:text; }
+    /* Subtle number inputs in transform panel */
+    .tf-num-wrap {
+      position:relative;
+      display:flex;
+      align-items:center;
+    }
+    .tf-num-input {
+      color-scheme: dark;
+      padding-left:28px !important;
+      padding-right:28px !important;
+    }
+    .tf-num-input::-webkit-inner-spin-button,
+    .tf-num-input::-webkit-outer-spin-button {
+      -webkit-appearance:none;
+      appearance:none;
+      margin:0;
+    }
+    .tf-step-btn {
+      position:absolute;
+      top:0;
+      bottom:0;
+      width:26px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:0 !important;
+      background:transparent !important;
+      color:#EDEDED !important;
+      font-size:13px;
+      line-height:1;
+      z-index:2;
+      box-shadow:none !important;
+    }
+    .tf-step-btn:hover {
+      color:#F6F6F6 !important;
+      background:transparent !important;
+    }
+    .tf-step-btn.left { left:0; }
+    .tf-step-btn.right { right:0; }
+    #toolbar-align-btns button {
+      width:32px !important;
+      height:32px !important;
+    }
+    #toolbar-align-btns svg {
+      width:15px !important;
+      height:15px !important;
+    }
+    }
     .asset-wrapper img,
     .asset-wrapper svg:not(.gradient-defs-svg) {
       pointer-events:none;
@@ -444,16 +494,12 @@
     .right-layer-list {
       max-height:186px;
       overflow-y:auto;
-      padding-right:8px;
+      padding-right:0;
     }
     .right-layer-list.force-scroll {
       overflow-y:scroll !important;
       scrollbar-gutter:stable;
       scrollbar-color:#6a6a6a #1f1f1f;
-      background-image:linear-gradient(#6a6a6a,#6a6a6a),linear-gradient(#1f1f1f,#1f1f1f);
-      background-repeat:no-repeat;
-      background-size:4px 42px,4px 100%;
-      background-position:right 1px top 8px,right 1px top;
     }
     .right-layer-list.force-scroll::-webkit-scrollbar {
       width:6px;
@@ -478,12 +524,33 @@
       outline-offset: -2px;
       background: rgba(255,176,0,0.08) !important;
     }
-    .timeline-row.multi-selected {
-      background: #2a1f00 !important;
-      border-left-color: #FFB000 !important;
+    .right-layer-box {
+      border:1px solid #3A3A3A;
+      border-radius:10px;
+      padding:8px;
+      background:#101010;
+    }
+    .rp-tab {
+      border-radius:0 !important;
+      background:#202020 !important;
+      color:#D6D3D1 !important;
+      border:0 !important;
+    }
+    .rp-tab.is-active {
+      background:#FFB000 !important;
+      color:#050505 !important;
+    }
+    .rp-tab + .rp-tab {
+      border-left:1px solid #2B2B2B !important;
+    }
+    .timeline-row.multi-selected,
+    .timeline-track-row.multi-selected {
+      background:#202020 !important;
+      color:#fff !important;
+      box-shadow:inset 0 0 0 1px rgba(255,176,0,.18);
     }
     .multi-select-banner {
-      display:none;
+      display:none !important;
       align-items:center;
       justify-content:space-between;
       padding:6px 12px;
@@ -495,7 +562,7 @@
       text-transform:uppercase;
       shrink:0;
     }
-    .multi-select-banner.active { display:flex; }
+    .multi-select-banner.active { display:none !important; }
     /* Layer selected row */
     .timeline-row,
     .timeline-track-row {
@@ -869,7 +936,7 @@
     .vom-segment.filter-option-selected {
       background:#fff;
       color:#000;
-      box-shadow:0 0 0 1px rgba(0,0,0,.12);
+      box-shadow:none !important;
     }
     .vom-choice-grid {
       display:grid;
@@ -887,7 +954,7 @@
       background:#000;
       color:#fff;
       border-color:#000 !important;
-      box-shadow:inset 0 0 0 1px rgba(255,255,255,.12) !important;
+      box-shadow:none !important;
     }
     .vom-menu-list {
       padding:6px;
@@ -919,7 +986,7 @@
       background:#242424 !important;
       color:var(--theme-text) !important;
       border-color:transparent !important;
-      box-shadow:inset 0 0 0 1px #4C4C4C !important;
+      box-shadow:none !important;
     }
     .theme-arcade .vom-choice-btn {
       background:transparent !important;
@@ -934,8 +1001,16 @@
     .theme-arcade .vom-choice-btn.is-selected {
       background:#242424 !important;
       color:var(--theme-text) !important;
-      border-color:#5A5A5A !important;
-      box-shadow:inset 0 0 0 1px #4C4C4C !important;
+      border-color:#666 !important;
+      outline:0 !important;
+      box-shadow:none !important;
+    }
+    .theme-arcade .vom-choice-btn:focus,
+    .theme-arcade .vom-choice-btn:focus-visible,
+    .theme-arcade .vom-segment:focus,
+    .theme-arcade .vom-segment:focus-visible {
+      outline:0 !important;
+      box-shadow:none !important;
     }
     .theme-arcade .vom-menu-row {
       background:transparent !important;
@@ -1034,12 +1109,21 @@
       color:var(--theme-text) !important;
       box-shadow:inset 0 0 0 1px rgba(255,176,0,.18);
     }
+    .theme-arcade .timeline-row.multi-selected {
+      background:#202020 !important;
+      color:var(--theme-text) !important;
+      box-shadow:inset 0 0 0 1px rgba(255,176,0,.18);
+    }
     .theme-arcade .timeline-track-row {
       background:#080808 !important;
     }
     .theme-arcade .timeline-track-row.selected {
       background:#151515 !important;
       box-shadow:inset 3px 0 0 var(--theme-accent);
+    }
+    .theme-arcade .timeline-track-row.multi-selected {
+      background:#151515 !important;
+      box-shadow:inset 3px 0 0 var(--theme-accent), inset 0 0 0 1px rgba(255,176,0,.16);
     }
     .theme-arcade .timeline-track-row:hover,
     .theme-arcade .timeline-track-row.bg-stone-800 {
@@ -1069,6 +1153,12 @@
       background:rgba(255,176,0,.14) !important;
       border-color:var(--theme-accent) !important;
       color:var(--theme-accent) !important;
+    }
+    .theme-arcade .right-layer-row.multi-selected {
+      background:rgba(255,176,0,.14) !important;
+      border-color:var(--theme-accent) !important;
+      color:var(--theme-accent) !important;
+      box-shadow:inset 0 0 0 1px rgba(255,176,0,.16);
     }
     .theme-arcade .right-layer-list.force-scroll {
       scrollbar-color:var(--theme-border-strong) transparent;
@@ -1247,38 +1337,37 @@
       <div id="canvas-toolbar" class="flex items-stretch border-b border-black bg-white shrink-0" style="height:40px">
         <div class="relative flex items-center px-2" id="shape-controls">
           <button onclick="toggleShapeDrop(event)" id="shape-btn" aria-expanded="false" class="vom-cta flex items-center space-x-2 px-4 text-[10px] font-bold transition-colors h-8 uppercase">
-            <span>Shapes</span>
+            <span>ADD</span>
             <i data-lucide="plus" class="w-3 h-3"></i>
           </button>
-          <div id="shape-drop" class="vom-menu-list absolute left-2 top-full mt-2 w-48 bg-white border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] z-50 hidden" onclick="event.stopPropagation()">
-            <button onclick="addShapeAsset('square',event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase">Square</button>
-            <button onclick="addShapeAsset('circle',event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase">Circle</button>
-            <button onclick="addShapeAsset('triangle',event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase">Triangle</button>
-            <button onclick="addShapeAsset('star',event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase">Star</button>
+          <div id="shape-drop" class="vom-menu-list absolute left-2 top-full mt-2 w-52 bg-white border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] z-50 hidden" onclick="event.stopPropagation()">
+            <button onclick="addTextAsset(event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase flex items-center gap-3">
+              <i data-lucide="type" class="w-4 h-4 shrink-0"></i><span>Text</span>
+            </button>
+            <button onclick="addShapeAsset('square',event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase flex items-center gap-3">
+              <i data-lucide="square" class="w-4 h-4 shrink-0"></i><span>Square</span>
+            </button>
+            <button onclick="addShapeAsset('circle',event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase flex items-center gap-3">
+              <i data-lucide="circle" class="w-4 h-4 shrink-0"></i><span>Circle</span>
+            </button>
+            <button onclick="addShapeAsset('triangle',event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase flex items-center gap-3">
+              <i data-lucide="triangle" class="w-4 h-4 shrink-0"></i><span>Triangle</span>
+            </button>
+            <button onclick="addShapeAsset('star',event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase flex items-center gap-3">
+              <i data-lucide="star" class="w-4 h-4 shrink-0"></i><span>Star</span>
+            </button>
           </div>
         </div>
-
-        <!-- Alignment controls -->
-        <div class="flex items-center px-2 gap-0" id="align-controls">
-          <button onclick="alignAsset('left')"    title="Align Left"                class="align-btn w-7 h-7 flex items-center justify-center hover:bg-stone-100 transition-colors">
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="3" width="2" height="10" rx="0"/><rect x="4" y="5" width="7" height="3" rx="0"/><rect x="4" y="9" width="10" height="3" rx="0"/></svg>
-          </button>
-          <button onclick="alignAsset('centerH')" title="Align Center Horizontally" class="align-btn w-7 h-7 flex items-center justify-center hover:bg-stone-100 transition-colors">
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="7" y="1" width="2" height="14" rx="0"/><rect x="3" y="4" width="10" height="3" rx="0"/><rect x="1" y="9" width="14" height="3" rx="0"/></svg>
-          </button>
-          <button onclick="alignAsset('right')"   title="Align Right"               class="align-btn w-7 h-7 flex items-center justify-center hover:bg-stone-100 transition-colors">
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="13" y="3" width="2" height="10" rx="0"/><rect x="5" y="5" width="7" height="3" rx="0"/><rect x="2" y="9" width="10" height="3" rx="0"/></svg>
-          </button>
-          <button onclick="alignAsset('top')"     title="Align Top"                 class="align-btn w-7 h-7 flex items-center justify-center hover:bg-stone-100 transition-colors">
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="1" width="10" height="2" rx="0"/><rect x="5" y="4" width="3" height="7" rx="0"/><rect x="9" y="4" width="3" height="10" rx="0"/></svg>
-          </button>
-          <button onclick="alignAsset('centerV')" title="Align Center Vertically"   class="align-btn w-7 h-7 flex items-center justify-center hover:bg-stone-100 transition-colors">
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="7" width="14" height="2" rx="0"/><rect x="4" y="3" width="3" height="10" rx="0"/><rect x="9" y="1" width="3" height="14" rx="0"/></svg>
-          </button>
-          <button onclick="alignAsset('bottom')"  title="Align Bottom"              class="align-btn w-7 h-7 flex items-center justify-center hover:bg-stone-100 transition-colors">
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="13" width="10" height="2" rx="0"/><rect x="5" y="2" width="3" height="10" rx="0"/><rect x="9" y="5" width="3" height="7" rx="0"/></svg>
-          </button>
+        <!-- Align icons next to ADD -->
+        <div class="flex items-center gap-0.5 px-2" id="toolbar-align-btns">
+          <button onclick="alignAsset('left')"    title="Align Left"     class="w-7 h-7 flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-100 transition-colors rounded"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="3" width="2" height="10"/><rect x="4" y="5" width="7" height="3"/><rect x="4" y="9" width="10" height="3"/></svg></button>
+          <button onclick="alignAsset('centerH')" title="Center H"       class="w-7 h-7 flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-100 transition-colors rounded"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="7" y="1" width="2" height="14"/><rect x="3" y="4" width="10" height="3"/><rect x="1" y="9" width="14" height="3"/></svg></button>
+          <button onclick="alignAsset('right')"   title="Align Right"    class="w-7 h-7 flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-100 transition-colors rounded"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="13" y="3" width="2" height="10"/><rect x="5" y="5" width="7" height="3"/><rect x="2" y="9" width="10" height="3"/></svg></button>
+          <button onclick="alignAsset('top')"     title="Align Top"      class="w-7 h-7 flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-100 transition-colors rounded"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="1" width="10" height="2"/><rect x="5" y="4" width="3" height="7"/><rect x="9" y="4" width="3" height="10"/></svg></button>
+          <button onclick="alignAsset('centerV')" title="Center V"       class="w-7 h-7 flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-100 transition-colors rounded"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="7" width="14" height="2"/><rect x="4" y="3" width="3" height="10"/><rect x="9" y="1" width="3" height="14"/></svg></button>
+          <button onclick="alignAsset('bottom')"  title="Align Bottom"   class="w-7 h-7 flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-100 transition-colors rounded"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="13" width="10" height="2"/><rect x="5" y="2" width="3" height="10"/><rect x="9" y="5" width="3" height="7"/></svg></button>
         </div>
+
 
         <div class="relative flex items-center ml-auto px-2" id="bg-toggles">
           <button onclick="toggleCustomBgDrop(event)" id="bg-menu-btn" aria-expanded="false" class="vom-cta flex items-center space-x-2 px-4 text-[10px] font-bold transition-colors h-8 uppercase">
@@ -1718,6 +1807,24 @@
     }
     if ((!S.activeAssetId || !getAsset(S.activeAssetId)) && S.assets[0]) S.activeAssetId = S.assets[0].id;
     S.assets.forEach(a => {
+      if (a.type === 'text') {
+        if (!a.content)      a.content = 'Your Text';
+        if (!a.fontFamily)   a.fontFamily = 'Inter';
+        if (!a.fontSize)     a.fontSize = 48;
+        if (!a.fontWeight)   a.fontWeight = '700';
+        if (!a.fontStyle)    a.fontStyle = 'normal';
+        if (!a.textColor)    a.textColor = '#1F1F1F';
+        if (!a.textColor2)   a.textColor2 = '#FFB000';
+        if (!a.colorMode)    a.colorMode = 'solid';
+        if (a.gradientAngle === undefined) a.gradientAngle = 90;
+        if (!a.textAlign)    a.textAlign = 'center';
+        if (a.letterSpacing === undefined) a.letterSpacing = 0;
+        if (a.lineHeight    === undefined) a.lineHeight = 1.2;
+        if (!a.w) a.w = 320;
+        if (!a.h) a.h = 80;
+        loadGoogleFont(a.fontFamily);
+        return;
+      }
       if (a.type !== 'shape') return;
       if (!['square','circle','triangle','star'].includes(a.shapeType)) a.shapeType = 'square';
       if (!a.w) a.w = 150;
@@ -1732,6 +1839,7 @@
       if (!a.stroke2) a.stroke2 = '#FFB000';
       if (!a.strokeMode) a.strokeMode = 'solid';
       if (a.strokeWidth === undefined) a.strokeWidth = 0;
+      if (!a.strokeJoin) a.strokeJoin = 'round';
     });
     S.layers.forEach(l => {
       if (!l.assetId && S.activeAssetId) l.assetId = S.activeAssetId;
@@ -1948,6 +2056,7 @@
 
   function buildAssetHTML(asset) {
     if (asset.type === 'shape') return buildShapeHTML(asset);
+    if (asset.type === 'text')  return buildTextHTML(asset);
     if (asset.type === 'svg') {
       let d = asset.data;
       const xi = d.indexOf('<svg');
@@ -1955,6 +2064,30 @@
       return d;
     }
     return `<img src="${asset.data}" alt="Graphic" style="width:100%;height:100%;object-fit:contain;display:block;">`;
+  }
+
+  function buildTextHTML(asset) {
+    const font    = asset.fontFamily || 'Inter';
+    const size    = asset.fontSize   || 48;
+    const weight  = asset.fontWeight || '700';
+    const align   = asset.textAlign  || 'center';
+    const content = asset.content    || 'Text';
+    const italic  = asset.fontStyle === 'italic' ? 'italic' : 'normal';
+    const ls      = asset.letterSpacing !== undefined ? asset.letterSpacing : 0;
+    const lh      = asset.lineHeight    !== undefined ? asset.lineHeight    : 1.2;
+    const justify = align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center';
+
+    let colorStyle = '';
+    if (asset.colorMode === 'gradient') {
+      const c1    = asset.textColor  || '#1F1F1F';
+      const c2    = asset.textColor2 || '#FFB000';
+      const angle = asset.gradientAngle !== undefined ? asset.gradientAngle : 90;
+      colorStyle  = `background:linear-gradient(${angle}deg,${c1},${c2});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;`;
+    } else {
+      colorStyle = `color:${asset.textColor || '#1F1F1F'};`;
+    }
+
+    return `<div style="font-family:'${font}',sans-serif;font-size:${size}px;font-weight:${weight};font-style:${italic};${colorStyle}text-align:${align};letter-spacing:${ls}px;line-height:${lh};white-space:pre-wrap;word-break:break-word;width:100%;height:100%;display:flex;align-items:center;justify-content:${justify};padding:4px;">${content}</div>`;
   }
 
   function safeShapeColor(value, fallback) {
@@ -2012,10 +2145,11 @@
     return d + 'Z';
   }
 
-  function starPoints(count=5) {
+  function starPoints(count=5, innerRatio=0.45) {
     const spikes = Math.max(3, Math.min(12, Math.round(parseFloat(count) || 5)));
     const pts = [];
-    const cx = 50, cy = 50, outer = 44, inner = 20;
+    const cx = 50, cy = 50, outer = 44;
+    const inner = Math.max(5, Math.min(43, outer * (parseFloat(innerRatio) || 0.45)));
     for (let i = 0; i < spikes * 2; i++) {
       const r = i % 2 === 0 ? outer : inner;
       const a = -Math.PI / 2 + (i * Math.PI / spikes);
@@ -2030,14 +2164,15 @@
     const stroke = shapePaint(asset, 'stroke', '#FFFFFF', '#FFB000', defs);
     const sw = Math.max(0, Math.min(24, parseFloat(asset.strokeWidth) || 0));
     const radius = Math.max(0, Math.min(50, parseFloat(asset.radius) || 0));
-    const common = `fill="${fill}" stroke="${stroke}" stroke-width="${sw}" vector-effect="non-scaling-stroke"`;
+    const strokeJoin = ['round','miter','bevel'].includes(asset.strokeJoin) ? asset.strokeJoin : 'round';
+    const common = `fill="${fill}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="${strokeJoin}" stroke-linecap="${strokeJoin === 'round' ? 'round' : 'butt'}" vector-effect="non-scaling-stroke"`;
     let shape = '';
     if (asset.shapeType === 'circle') {
       shape = `<ellipse cx="50" cy="50" rx="44" ry="44" ${common}/>`;
     } else if (asset.shapeType === 'triangle') {
       shape = `<path d="${roundedPolygonPath([[50,8],[94,92],[6,92]], radius)}" ${common}/>`;
     } else if (asset.shapeType === 'star') {
-      shape = `<path d="${roundedPolygonPath(starPoints(asset.points), radius)}" ${common}/>`;
+      shape = `<path d="${roundedPolygonPath(starPoints(asset.points, asset.innerRadius ?? 0.45), radius)}" ${common}/>`;
     } else {
       shape = `<rect x="8" y="8" width="84" height="84" rx="${radius}" ry="${radius}" ${common}/>`;
     }
@@ -2115,7 +2250,7 @@
         const inner = `<div class="${extraClass}" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;animation:${animStr};animation-play-state:${ps};">${defsInject}${html}</div>`;
         html = `<div data-layer-id="${l.id}" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;transform:scale(${stScale}) rotate(${stRot}deg);">${inner}</div>`;
       }
-      stageHTML += `<div class="asset-wrapper ${asset.id === S.activeAssetId ? 'selected' : ''}" data-asset-id="${asset.id}" style="${assetPositionStyle(asset)}">${html}</div>`;
+      stageHTML += `<div class="asset-wrapper ${asset.id === S.activeAssetId ? 'selected' : ''}" data-asset-id="${asset.id}" ${asset.type==='text'?'data-text-asset="1"':''} style="${assetPositionStyle(asset)}">${html}</div>`;
     });
 
     w.innerHTML = stageHTML;
@@ -2444,18 +2579,21 @@
     };
 
     const selectedAssetId = getSelectedTimelineAssetId();
+    const multi = isMultiSelect();
+    const selectedIds = new Set(multi ? getSelectedIds() : []);
     S.assets.forEach((asset, i) => {
       const effects = S.layers.filter(l => l.assetId === asset.id);
       const isSel = asset.id === selectedAssetId;
+      const isMultiSel = multi && selectedIds.has(asset.id);
       const rowH = Math.max(40, effects.length ? (effects.length * 34 + 8) : 40);
 
       // Header
       const h = document.createElement('div');
-      h.className = `flex items-center px-2 space-x-1.5 cursor-pointer select-none ${isSel ? 'bg-stone-900 text-white' : 'bg-stone-50 text-black hover:bg-stone-100'} timeline-row ${isSel ? 'selected' : ''}`;
+      h.className = `flex items-center px-2 space-x-1.5 cursor-pointer select-none ${isSel || isMultiSel ? 'bg-stone-900 text-white' : 'bg-stone-50 text-black hover:bg-stone-100'} timeline-row ${isSel ? 'selected' : ''} ${isMultiSel ? 'multi-selected' : ''}`;
       h.dataset.assetId = asset.id;
       h.style.height = rowH + 'px';
       h.style.flex = `0 0 ${rowH}px`;
-      h.style.borderLeft = `3px solid ${isSel ? 'var(--theme-accent, #FFB000)' : 'transparent'}`;
+      h.style.borderLeft = `3px solid ${isSel || isMultiSel ? 'var(--theme-accent, #FFB000)' : 'transparent'}`;
       h.onclick = e => selectAssetRow(asset.id, e);
       
       // Make row draggable — normal drag = reorder, Alt+drag = duplicate asset
@@ -2515,7 +2653,7 @@
           <i data-lucide="${asset.visible !== false?'eye':'eye-off'}" class="w-3 h-3"></i>
         </button>
         <span class="text-[9px] font-bold truncate flex-1 asset-name-label" data-asset-id="${asset.id}">${asset.name}</span>
-        <span class="text-[8px] font-mono ${isSel ? 'text-stone-300' : 'text-stone-400'}">${effects.length}</span>
+        <span class="text-[8px] font-mono ${isSel || isMultiSel ? 'text-stone-300' : 'text-stone-400'}">${effects.length}</span>
         <button onclick="event.stopPropagation();removeAsset('${asset.id}')" class="shrink-0 text-stone-400 hover:text-red-500 transition-colors">
           <i data-lucide="x" class="w-3 h-3"></i>
         </button>`;
@@ -2524,7 +2662,7 @@
 
       // Track row
       const r = document.createElement('div');
-      r.className = `timeline-track-row relative cursor-pointer ${isSel ? 'bg-stone-800 selected' : 'bg-stone-100 hover:bg-stone-200'}`;
+      r.className = `timeline-track-row relative cursor-pointer ${isSel || isMultiSel ? 'bg-stone-800' : 'bg-stone-100 hover:bg-stone-200'} ${isSel ? 'selected' : ''} ${isMultiSel ? 'multi-selected' : ''}`;
       r.dataset.assetId = asset.id;
       r.style.width = W + 'px';
       r.style.height = rowH + 'px';
@@ -2569,22 +2707,28 @@
 
   function syncTimelineSelection() {
     const selectedAssetId = getSelectedTimelineAssetId();
+    const multi = isMultiSelect();
+    const selectedIds = new Set(multi ? getSelectedIds() : []);
     document.querySelectorAll('#tl-headers .timeline-row').forEach(row => {
       const selected = row.dataset.assetId === selectedAssetId;
+      const multiSelected = multi && selectedIds.has(row.dataset.assetId);
       row.classList.toggle('selected', selected);
-      row.classList.toggle('bg-stone-900', selected);
-      row.classList.toggle('text-white', selected);
-      row.classList.toggle('bg-stone-50', !selected);
-      row.classList.toggle('text-black', !selected);
-      row.classList.toggle('hover:bg-stone-100', !selected);
-      row.style.borderLeft = `3px solid ${selected ? 'var(--theme-accent, #FFB000)' : 'transparent'}`;
+      row.classList.toggle('multi-selected', multiSelected);
+      row.classList.toggle('bg-stone-900', selected || multiSelected);
+      row.classList.toggle('text-white', selected || multiSelected);
+      row.classList.toggle('bg-stone-50', !(selected || multiSelected));
+      row.classList.toggle('text-black', !(selected || multiSelected));
+      row.classList.toggle('hover:bg-stone-100', !(selected || multiSelected));
+      row.style.borderLeft = `3px solid ${selected || multiSelected ? 'var(--theme-accent, #FFB000)' : 'transparent'}`;
     });
     document.querySelectorAll('#tl-rows .timeline-track-row').forEach(row => {
       const selected = row.dataset.assetId === selectedAssetId;
+      const multiSelected = multi && selectedIds.has(row.dataset.assetId);
       row.classList.toggle('selected', selected);
-      row.classList.toggle('bg-stone-800', selected);
-      row.classList.toggle('bg-stone-100', !selected);
-      row.classList.toggle('hover:bg-stone-200', !selected);
+      row.classList.toggle('multi-selected', multiSelected);
+      row.classList.toggle('bg-stone-800', selected || multiSelected);
+      row.classList.toggle('bg-stone-100', !(selected || multiSelected));
+      row.classList.toggle('hover:bg-stone-200', !(selected || multiSelected));
     });
   }
 
@@ -2602,16 +2746,10 @@
   function shapeControlsHTML(asset) {
     if (!asset || asset.type !== 'shape') return '';
     const v = (key, fallback) => asset[key] ?? fallback;
-    const radiusDisabled = asset.shapeType === 'circle';
-    const row = (key, label, min, max, step, fallback) => {
+    const slider = (key, min, max, step, fallback, onchange, oninput) => {
       const value = parseFloat(v(key, fallback));
-      return `<div class="space-y-1">
-        <div class="flex justify-between items-center">
-          <span class="text-xs text-stone-600">${label}</span>
-          <input id="shape-${key}-val" type="text" value="${Number.isFinite(value) ? value.toFixed(key === 'rotation' ? 0 : 0) : fallback}" onchange="setShapeProp('${key}',this.value,${min},${max})" class="w-14 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
-        </div>
-        <input id="shape-${key}-sl" type="range" min="${min}" max="${max}" step="${step}" value="${Number.isFinite(value) ? value : fallback}" oninput="setShapeSlider('${key}',this.value,'shape-${key}-val')" class="w-full" style="--rp:${pct(Number.isFinite(value) ? value : fallback,min,max)}%">
-      </div>`;
+      const p = Math.max(0, Math.min(100, Math.round(((value-min)/(max-min))*100)));
+      return `<input id="shape-${key}-sl" type="range" min="${min}" max="${max}" step="${step}" value="${Number.isFinite(value)?value:fallback}" oninput="${oninput}" class="w-full" style="--rp:${p}%">`;
     };
     const paintControls = (kind, label, fallbackA, fallbackB) => {
       const modeKey = `${kind}Mode`;
@@ -2622,32 +2760,116 @@
         <div class="flex items-center justify-between gap-2">
           <span class="text-xs text-stone-600">${label}</span>
           <div class="vom-segmented grid-cols-2">
-            <button onclick="setShapeDirect('${modeKey}','solid')" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${!isGradient ? 'is-selected' : ''}">Solid</button>
-            <button onclick="setShapeDirect('${modeKey}','gradient')" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${isGradient ? 'is-selected' : ''}">Gradient</button>
+            <button onclick="setShapeDirect('${modeKey}','solid')" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${!isGradient?'is-selected':''}">Solid</button>
+            <button onclick="setShapeDirect('${modeKey}','gradient')" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${isGradient?'is-selected':''}">Gradient</button>
           </div>
         </div>
         <div class="flex gap-2">
-          <input type="color" value="${safeShapeColor(asset[kind], fallbackA)}" onchange="setShapeDirect('${kind}',this.value)" class="flex-1 h-9 border border-black cursor-pointer">
-          ${isGradient ? `<input type="color" value="${safeShapeColor(asset[colorBKey], fallbackB)}" onchange="setShapeDirect('${colorBKey}',this.value)" class="flex-1 h-9 border border-black cursor-pointer">` : ''}
+          <input type="color" value="${safeShapeColor(asset[kind],fallbackA)}" onchange="setShapeDirect('${kind}',this.value)" class="flex-1 h-9 border border-black cursor-pointer">
+          ${isGradient?`<input type="color" value="${safeShapeColor(asset[colorBKey],fallbackB)}" onchange="setShapeDirect('${colorBKey}',this.value)" class="flex-1 h-9 border border-black cursor-pointer">`:''}
         </div>
       </div>`;
     };
-    return `<div class="border-t border-black pt-4 space-y-3">
-      <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Shape</label>
-      <div class="vom-choice-grid">
-        ${['square','circle','triangle','star'].map(type => `<button onclick="setShapeKind('${type}')" class="vom-choice-btn py-3 text-[9px] font-bold transition-colors ${asset.shapeType===type?'is-selected':''} uppercase">${type}</button>`).join('')}
+    const sw = parseFloat(v('strokeWidth', 0));
+    return `
+    <div class="border-t border-black">
+      <div class="py-2.5 px-4 text-[10px] font-bold uppercase tracking-wider text-stone-500">
+        Shape
       </div>
-      ${paintControls('fill','Fill','#1F1F1F','#FFB000')}
-      ${paintControls('stroke','Stroke','#FFFFFF','#FFB000')}
-      ${row('w','Width',20,500,1,150)}
-      ${row('h','Height',20,500,1,150)}
-      ${row('rotation','Rotate (deg)',-360,360,1,0)}
-      ${asset.shapeType === 'star' ? row('points','Star points',3,12,1,5) : ''}
-      <div class="${radiusDisabled ? 'opacity-40 pointer-events-none' : ''}">
-        ${row('radius','Radius',0,50,1,0)}
+      <div class="space-y-3 pb-3 px-4">
+        <div class="vom-choice-grid">
+          ${['square','circle','triangle','star'].map(type=>`<button onclick="setShapeKind('${type}')" class="vom-choice-btn py-3 text-[9px] font-bold transition-colors ${asset.shapeType===type?'is-selected':''} uppercase">${type}</button>`).join('')}
+        </div>
+        ${paintControls('fill','Fill','#1F1F1F','#FFB000')}
+        ${paintControls('stroke','Stroke Color','#FFFFFF','#FFB000')}
+        ${asset.shapeType === 'star' ? `
+        <div class="space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-stone-600">Points (Spikes)</span>
+            <input id="shape-points-val" type="number" min="3" max="12" step="1" value="${asset.points||5}"
+              onchange="setShapeProp('points',this.value,3,12);document.getElementById('shape-points-sl').value=this.value"
+              class="w-10 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+          </div>
+          <input id="shape-points-sl" type="range" min="3" max="12" step="1" value="${asset.points||5}"
+            oninput="setShapeProp('points',this.value,3,12);document.getElementById('shape-points-val').value=this.value"
+            class="w-full" style="--rp:${Math.round((((asset.points||5)-3)/(12-3))*100)}%">
+        </div>` : ''}
+        <div class="space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-stone-600">Stroke Weight</span>
+            <input id="shape-strokeWidth-val" type="text" value="${sw}" onchange="setShapeProp('strokeWidth',this.value,0,24)" class="w-10 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+          </div>
+          ${slider('strokeWidth',0,24,1,0,`setShapeProp('strokeWidth',this.value,0,24)`,`setShapeSlider('strokeWidth',this.value,'shape-strokeWidth-val')`)}
+        </div>
+        <div class="space-y-1.5">
+          <span class="text-xs text-stone-600">Stroke Style</span>
+          <div class="vom-segmented grid-cols-3">
+            ${[
+              ['round','Round'],
+              ['miter','Sharp'],
+              ['bevel','Bevel']
+            ].map(([value,label]) => `<button onclick="setShapeDirect('strokeJoin','${value}')" class="vom-segment py-1.5 text-[10px] font-bold transition-colors ${(asset.strokeJoin || 'round') === value ? 'is-selected' : ''} uppercase">${label}</button>`).join('')}
+          </div>
+        </div>
+        ${asset.shapeType === 'star' ? `<div class="space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-stone-600">Inner Radius</span>
+            <input id="shape-innerRadius-val" type="text" value="${Math.round((v('innerRadius',0.45))*100)}%" onchange="setShapeDirect('innerRadius',parseFloat(this.value)/100)" class="w-12 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+          </div>
+          <input id="shape-innerRadius-sl" type="range" min="5" max="95" step="1" value="${Math.round((v('innerRadius',0.45))*100)}"
+            oninput="setShapeDirect('innerRadius',this.value/100);document.getElementById('shape-innerRadius-val').value=this.value+'%'"
+            class="w-full" style="--rp:${Math.round((v('innerRadius',0.45))*100)}%">
+        </div>` : ''}
       </div>
-      ${row('strokeWidth','Stroke',0,24,1,0)}
     </div>`;
+  }
+
+  function setAssetXY(axis, val) {
+    const asset = currentAsset();
+    if (!asset || !Number.isFinite(val)) return;
+    pushUndo('Move');
+    asset[axis] = val;
+    clampAssetPosition(asset);
+    applyGraphicPosition();
+    renderGraphic();
+  }
+
+  function stepTFInput(id, dir) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const step = parseFloat(el.step) || 1;
+    const min = Number.isFinite(parseFloat(el.min)) ? parseFloat(el.min) : -Infinity;
+    const max = Number.isFinite(parseFloat(el.max)) ? parseFloat(el.max) : Infinity;
+    const cur = parseFloat(el.value) || 0;
+    const next = Math.max(min, Math.min(max, cur + (dir * step)));
+    el.value = Math.round(next);
+    el.dispatchEvent(new Event('input', { bubbles:true }));
+    el.dispatchEvent(new Event('change', { bubbles:true }));
+  }
+
+  function holdTFStep(event, id, dir) {
+    event.preventDefault();
+    event.stopPropagation();
+    let delay = 260;
+    let timer = null;
+    let running = true;
+    const run = () => {
+      if (!running) return;
+      stepTFInput(id, dir);
+      delay = Math.max(45, delay * 0.78);
+      timer = window.setTimeout(run, delay);
+    };
+    const stop = () => {
+      running = false;
+      if (timer) window.clearTimeout(timer);
+      window.removeEventListener('pointerup', stop);
+      window.removeEventListener('pointercancel', stop);
+      window.removeEventListener('blur', stop);
+    };
+    run();
+    window.addEventListener('pointerup', stop, { once:true });
+    window.addEventListener('pointercancel', stop, { once:true });
+    window.addEventListener('blur', stop, { once:true });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -2674,6 +2896,225 @@
     requestAnimationFrame(apply);
   }
 
+  function textControlsHTML(asset) {
+    if (!asset || asset.type !== 'text') return '';
+    const fonts = GOOGLE_FONTS;
+    const currentFont = asset.fontFamily || 'Inter';
+    const currentWeight = asset.fontWeight || '700';
+    const currentAlign = asset.textAlign || 'center';
+    const currentStyle = asset.fontStyle || 'normal';
+    const weights = [['300','Light'],['400','Regular'],['500','Medium'],['600','SemiBold'],['700','Bold'],['800','ExtraBold'],['900','Black']];
+    const aligns = [['left','Left'],['center','Center'],['right','Right']];
+    return `
+    <div class="space-y-3 border border-black p-3 bg-white">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block">Text</span>
+
+      <!-- Content -->
+      <div class="space-y-1">
+        <span class="text-xs text-stone-600">Content</span>
+        <textarea rows="2" onchange="setTextProp('content',this.value)" oninput="setTextContent(this.value)" class="w-full text-xs border border-black p-2 outline-none focus:border-brand-orange resize-none font-mono" style="color-scheme:light">${asset.content || ''}</textarea>
+      </div>
+
+      <!-- Font family -->
+      <div class="space-y-1">
+        <span class="text-xs text-stone-600">Font</span>
+        <select onchange="setTextProp('fontFamily',this.value)" class="w-full text-[11px] border border-black p-1.5 outline-none focus:border-brand-orange bg-white" style="color-scheme:light">
+          ${fonts.map(f => `<option value="${f}" ${f === currentFont ? 'selected' : ''}>${f}</option>`).join('')}
+        </select>
+      </div>
+
+      <!-- Size + Weight -->
+      <div class="grid grid-cols-2 gap-2">
+        <div class="space-y-1">
+          <span class="text-xs text-stone-600">Size</span>
+          <input type="number" min="8" max="300" step="1" value="${asset.fontSize || 48}" onchange="setTextSize(this.value)" oninput="setTextSize(this.value)" class="w-full text-center font-mono text-[11px] border border-black focus:outline-none py-1 focus:border-brand-orange" style="color-scheme:light">
+        </div>
+        <div class="space-y-1">
+          <span class="text-xs text-stone-600">Weight</span>
+          <select onchange="setTextProp('fontWeight',this.value)" class="w-full text-[11px] border border-black p-1 outline-none bg-white" style="color-scheme:light">
+            ${weights.map(([v,l]) => `<option value="${v}" ${v === currentWeight ? 'selected' : ''}>${l}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+
+      <!-- Color -->
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-stone-600">Color</span>
+          <div class="vom-segmented grid-cols-2" style="width:120px">
+            <button onclick="setTextProp('colorMode','solid')" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${(asset.colorMode||'solid')==='solid'?'is-selected':''}">Solid</button>
+            <button onclick="setTextProp('colorMode','gradient')" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${asset.colorMode==='gradient'?'is-selected':''}">Gradient</button>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="color" value="${asset.textColor||'#1F1F1F'}" onchange="setTextProp('textColor',this.value)" class="w-10 h-8 border border-black cursor-pointer p-0">
+          <input type="text" value="${asset.textColor||'#1F1F1F'}" onchange="setTextProp('textColor',this.value)" class="flex-1 text-xs font-mono border border-black px-2 py-1.5 outline-none focus:border-brand-orange uppercase" style="color-scheme:light">
+        </div>
+        ${asset.colorMode==='gradient'?`
+        <div class="flex items-center gap-2">
+          <input type="color" value="${asset.textColor2||'#FFB000'}" onchange="setTextProp('textColor2',this.value)" class="w-10 h-8 border border-black cursor-pointer p-0">
+          <input type="text" value="${asset.textColor2||'#FFB000'}" onchange="setTextProp('textColor2',this.value)" class="flex-1 text-xs font-mono border border-black px-2 py-1.5 outline-none focus:border-brand-orange uppercase" style="color-scheme:light">
+        </div>
+        <div class="space-y-1">
+          <div class="flex justify-between text-[9px] text-stone-400"><span>Angle</span><span id="txt-grad-angle-val">${asset.gradientAngle??90}°</span></div>
+          <input type="range" min="0" max="360" step="1" value="${asset.gradientAngle??90}" oninput="setTextProp('gradientAngle',parseInt(this.value));document.getElementById('txt-grad-angle-val').textContent=this.value+'°'" class="w-full" style="--rp:${((asset.gradientAngle??90)/360*100).toFixed(0)}%">
+        </div>`:''}</div>
+
+      <!-- Align + Style -->
+      <div class="grid grid-cols-2 gap-2">
+        <div class="space-y-1">
+          <span class="text-xs text-stone-600">Align</span>
+          <div class="flex border border-black overflow-hidden">
+            ${aligns.map(([v,l]) => `<button onclick="setTextProp('textAlign','${v}')" class="flex-1 py-1.5 text-[9px] font-bold transition-colors ${currentAlign === v ? 'bg-black text-white' : 'bg-white hover:bg-stone-100'}">${l}</button>`).join('')}
+          </div>
+        </div>
+        <div class="space-y-1">
+          <span class="text-xs text-stone-600">Style</span>
+          <div class="flex border border-black overflow-hidden">
+            <button onclick="setTextProp('fontStyle','normal')" class="flex-1 py-1.5 text-[9px] font-bold transition-colors ${currentStyle === 'normal' ? 'bg-black text-white' : 'bg-white hover:bg-stone-100'}">Regular</button>
+            <button onclick="setTextProp('fontStyle','italic')" class="flex-1 py-1.5 text-[9px] font-bold italic transition-colors ${currentStyle === 'italic' ? 'bg-black text-white' : 'bg-white hover:bg-stone-100'}">Italic</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Letter spacing + Line height -->
+      <div class="grid grid-cols-2 gap-2">
+        <div class="space-y-1">
+          <span class="text-xs text-stone-600">Letter spacing</span>
+          <input type="number" min="-10" max="40" step="0.5" value="${asset.letterSpacing ?? 0}" onchange="setTextProp('letterSpacing',parseFloat(this.value))" class="w-full text-center font-mono text-[11px] border border-black focus:outline-none py-1 focus:border-brand-orange" style="color-scheme:light">
+        </div>
+        <div class="space-y-1">
+          <span class="text-xs text-stone-600">Line height</span>
+          <input type="number" min="0.5" max="4" step="0.1" value="${asset.lineHeight ?? 1.2}" onchange="setTextProp('lineHeight',parseFloat(this.value))" class="w-full text-center font-mono text-[11px] border border-black focus:outline-none py-1 focus:border-brand-orange" style="color-scheme:light">
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function transformControlsHTML(asset) {
+    if (!asset) return '';
+    const isShape = asset.type === 'shape';
+    const numField = (id, label, val, onchange, min, max) =>
+      `<div class="space-y-0.5">
+        <span class="text-[9px] text-stone-400 uppercase font-bold block">${label}</span>
+        <div class="tf-num-wrap">
+          <button type="button" class="tf-step-btn left" onpointerdown="holdTFStep(event,'${id}',-1)" aria-label="Decrease ${label}">‹</button>
+          <input id="${id}" type="number" min="${min}" max="${max}" step="1" value="${Number.isFinite(parseFloat(val)) ? Math.round(parseFloat(val)) : 0}"
+            onchange="${onchange}"
+            class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-brand-orange bg-transparent text-inherit">
+          <button type="button" class="tf-step-btn right" onpointerdown="holdTFStep(event,'${id}',1)" aria-label="Increase ${label}">›</button>
+        </div>
+      </div>`;
+
+    // W/H with lock button
+    const whLocked = `window._tfLock`;
+    const wField = `<div class="space-y-0.5">
+        <span class="text-[9px] text-stone-400 uppercase font-bold block">W</span>
+        <div class="tf-num-wrap">
+          <button type="button" class="tf-step-btn left" onpointerdown="holdTFStep(event,'tf-w',-1)" aria-label="Decrease width">‹</button>
+          <input id="tf-w" type="number" min="${isShape?20:10}" max="2000" step="1" value="${Math.round(isShape ? (asset.w||150) : (asset.w||320))}"
+            onchange="setTFSize('w',this.value)"
+            class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-brand-orange bg-transparent text-inherit">
+          <button type="button" class="tf-step-btn right" onpointerdown="holdTFStep(event,'tf-w',1)" aria-label="Increase width">›</button>
+        </div>
+      </div>`;
+    const hField = `<div class="space-y-0.5">
+        <span class="text-[9px] text-stone-400 uppercase font-bold block">H</span>
+        <div class="tf-num-wrap">
+          <button type="button" class="tf-step-btn left" onpointerdown="holdTFStep(event,'tf-h',-1)" aria-label="Decrease height">‹</button>
+          <input id="tf-h" type="number" min="${isShape?20:10}" max="2000" step="1" value="${Math.round(isShape ? (asset.h||150) : (asset.h||80))}"
+            onchange="setTFSize('h',this.value)"
+            class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-brand-orange bg-transparent text-inherit">
+          <button type="button" class="tf-step-btn right" onpointerdown="holdTFStep(event,'tf-h',1)" aria-label="Increase height">›</button>
+        </div>
+      </div>`;
+    const lockBtn = `<button onclick="window._tfLock=!window._tfLock;this.classList.toggle('text-brand-orange',window._tfLock);this.classList.toggle('text-stone-500',!window._tfLock)" title="Link W and H"
+        class="self-end mb-1.5 px-1 transition-colors ${window._tfLock ? 'text-brand-orange' : 'text-stone-500'}">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </button>`;
+
+    const fields = `
+      <div class="grid grid-cols-2 gap-2 pt-2">
+        ${numField('tf-x','X', asset.x||0, `setAssetXY('x',parseFloat(this.value))`, -2000, 2000)}
+        ${numField('tf-y','Y', asset.y||0, `setAssetXY('y',parseFloat(this.value))`, -2000, 2000)}
+      </div>
+      ${(isShape || (asset.w && asset.h)) ? `<div class="flex items-start gap-1">
+        <div class="flex-1">${wField}</div>
+        ${lockBtn}
+        <div class="flex-1">${hField}</div>
+      </div>` : ''}
+      ${isShape ? `<div class="grid grid-cols-2 gap-2">
+        ${numField('tf-rot','Rotate °', asset.rotation||0, `setShapeProp('rotation',this.value,-360,360)`, -360, 360)}
+        ${asset.shapeType === 'circle'
+          ? `<div class="opacity-40 pointer-events-none">${numField('tf-rad','Radius', 50, ``, 0, 50)}</div>`
+          : numField('tf-rad','Radius', asset.radius||0, `setShapeProp('radius',this.value,0,50)`, 0, 50)}
+      </div>` : ''}`;
+
+    return `
+    <div class="border-t border-black">
+      <div class="py-2.5 px-4 text-[10px] font-bold uppercase tracking-wider text-stone-500">
+        Transform
+      </div>
+      <div class="space-y-2 pb-3 px-4">${fields}</div>
+    </div>`;
+  }
+
+  // W/H size setter that respects aspect lock
+  function setTFSize(axis, val) {
+    const asset = currentAsset();
+    if (!asset) return;
+    const v = Math.max(10, Math.min(2000, parseFloat(val) || 10));
+    if (window._tfLock && asset.w && asset.h) {
+      const ratio = asset.w / asset.h;
+      if (axis === 'w') {
+        asset.w = v;
+        asset.h = Math.round(v / ratio);
+        const hEl = document.getElementById('tf-h');
+        if (hEl) hEl.value = asset.h;
+      } else {
+        asset.h = v;
+        asset.w = Math.round(v * ratio);
+        const wEl = document.getElementById('tf-w');
+        if (wEl) wEl.value = asset.w;
+      }
+    } else {
+      asset[axis] = v;
+    }
+    if (asset.type === 'shape') {
+      if (axis === 'w') setShapeProp('w', asset.w, 20, 2000);
+      else setShapeProp('h', asset.h, 20, 2000);
+    } else {
+      setTextProp(axis, v);
+    }
+    renderGraphic();
+  }
+
+  function alignmentControlsHTML() {
+    if (!hasAssets()) return '';
+    const btn = (dir, title, svgPath) =>
+      `<button onclick="alignAsset('${dir}')" title="${title}" class="flex-1 h-8 flex items-center justify-center hover:bg-stone-100 border-r border-black last:border-r-0 transition-colors text-stone-600 hover:text-black">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">${svgPath}</svg>
+      </button>`;
+    return `
+    <div class="border-t border-black">
+      <button onclick="this.nextElementSibling.classList.toggle('hidden');this.querySelector('.al-arrow').style.transform=this.nextElementSibling.classList.contains('hidden')?'rotate(0deg)':'rotate(180deg)'"
+        class="w-full flex items-center justify-between py-2.5 px-4 text-[10px] font-bold uppercase tracking-wider text-stone-500 hover:text-black transition-colors">
+        <span>Align to Canvas</span>
+        <svg class="al-arrow w-3.5 h-3.5 transition-transform" viewBox="0 0 16 16" fill="currentColor" style="transform:rotate(180deg)"><path d="M8 10.5L2.5 5h11L8 10.5z"/></svg>
+      </button>
+      <div class="pb-3 px-4">
+        <div class="flex border border-black overflow-hidden">
+          ${btn('left','Align Left','<rect x="1" y="3" width="2" height="10" rx="0"/><rect x="4" y="5" width="7" height="3" rx="0"/><rect x="4" y="9" width="10" height="3" rx="0"/>')}
+          ${btn('centerH','Center H','<rect x="7" y="1" width="2" height="14" rx="0"/><rect x="3" y="4" width="10" height="3" rx="0"/><rect x="1" y="9" width="14" height="3" rx="0"/>')}
+          ${btn('right','Align Right','<rect x="13" y="3" width="2" height="10" rx="0"/><rect x="5" y="5" width="7" height="3" rx="0"/><rect x="2" y="9" width="10" height="3" rx="0"/>')}
+          ${btn('top','Align Top','<rect x="3" y="1" width="10" height="2" rx="0"/><rect x="5" y="4" width="3" height="7" rx="0"/><rect x="9" y="4" width="3" height="10" rx="0"/>')}
+          ${btn('centerV','Center V','<rect x="1" y="7" width="14" height="2" rx="0"/><rect x="4" y="3" width="3" height="10" rx="0"/><rect x="9" y="1" width="3" height="14" rx="0"/>')}
+          ${btn('bottom','Align Bottom','<rect x="3" y="13" width="10" height="2" rx="0"/><rect x="5" y="2" width="3" height="10" rx="0"/><rect x="9" y="5" width="3" height="7" rx="0"/>')}
+        </div>
+      </div>
+    </div>`;
+  }
+
   function buildRightPanel() {
     if (window.__renamingAsset) return;
     const rp = document.getElementById('right-panel');
@@ -2683,14 +3124,18 @@
     const layer = getSelLayer();
     const activeAsset = currentAsset();
     const shapeControls = shapeControlsHTML(activeAsset);
+    const textControls  = textControlsHTML(activeAsset);
+    const transformControls = transformControlsHTML(activeAsset);
+    const alignControls = alignmentControlsHTML();
     const layerListNeedsScroll = S.assets.length > 4;
     const layerListClass = `right-layer-list space-y-1.5${layerListNeedsScroll ? ' force-scroll is-scrolling' : ''}`;
     const layerListStyle = layerListNeedsScroll ? 'style="height:186px;max-height:186px;overflow-y:scroll;scrollbar-gutter:stable;"' : '';
+    const rightMultiIds = new Set(isMultiSelect() ? getSelectedIds() : []);
     const assetRows = hasAssets() ? S.assets.map(a => {
-      const active = a.id === S.activeAssetId;
+      const active = a.id === S.activeAssetId || rightMultiIds.has(a.id);
       const count = S.layers.filter(l => l.assetId === a.id).length;
       const visible = a.visible !== false;
-      return `<div oncontextmenu="event.preventDefault();event.stopPropagation();showLayerRowContextMenu(event,'${a.id}')" onclick="selectAssetRow('${a.id}',event)" draggable="true" ondragstart="startAssetDrag(event,'${a.id}')" ondragover="overAssetDrag(event)" ondragleave="leaveAssetDrag(event)" ondrop="dropAssetDrag(event,'${a.id}')" ondragend="endAssetDrag(event)" class="right-layer-row flex items-center justify-between gap-2 px-3 py-2 border border-black cursor-pointer ${active ? 'bg-[#FFF8F5] text-brand-orange border-brand-orange' : 'bg-white text-black hover:bg-stone-50'} ${visible ? '' : 'opacity-50'}">
+      return `<div oncontextmenu="event.preventDefault();event.stopPropagation();showLayerRowContextMenu(event,'${a.id}')" onclick="selectAssetRow('${a.id}',event)" draggable="true" ondragstart="startAssetDrag(event,'${a.id}')" ondragover="overAssetDrag(event)" ondragleave="leaveAssetDrag(event)" ondrop="dropAssetDrag(event,'${a.id}')" ondragend="endAssetDrag(event)" class="right-layer-row flex items-center justify-between gap-2 px-3 py-2 border border-black cursor-pointer ${active ? 'bg-[#FFF8F5] text-brand-orange border-brand-orange' : 'bg-white text-black hover:bg-stone-50'} ${rightMultiIds.has(a.id) ? 'multi-selected' : ''} ${visible ? '' : 'opacity-50'}">
         <div class="flex items-center gap-2 min-w-0 flex-1">
           <i data-lucide="grip-vertical" class="w-3 h-3 ${active ? 'text-brand-orange' : 'text-stone-400'} shrink-0"></i>
           <button onclick="event.stopPropagation();toggleAssetVis('${a.id}')" class="${active ? 'text-brand-orange hover:text-black' : 'text-stone-500 hover:text-brand-orange'} shrink-0" title="${visible ? 'Hide layer' : 'Show layer'}"><i data-lucide="${visible ? 'eye' : 'eye-off'}" class="w-3 h-3"></i></button>
@@ -2703,23 +3148,44 @@
       </div>`;
     }).join('') : '';
 
+    const alignBtns = ''; // moved to toolbar
+
+    // Tabs
+    const isDesign  = (window._rpTab !== 'animate');
+    const isAnimate = (window._rpTab === 'animate');
+    const tabBar = `
+      <div class="grid grid-cols-2 shrink-0 border-t border-b border-stone-800">
+        <button onclick="rpTab('design')"  id="rp-tab-design"  class="rp-tab ${isDesign ? 'is-active' : ''} py-3 text-[11px] font-black uppercase tracking-widest transition-all">Design</button>
+        <button onclick="rpTab('animate')" id="rp-tab-animate" class="rp-tab ${isAnimate ? 'is-active' : ''} py-3 text-[11px] font-black uppercase tracking-widest transition-all">Animate</button>
+      </div>`;
+
+    // Design panel content
+    const designContent = `${transformControls}${shapeControls}${textControls}`;
+
     if (!layer) {
       rp.innerHTML = `
         <div class="flex items-center justify-between px-4 border-b border-black bg-white shrink-0" style="height:40px">
           <span class="text-xs font-bold uppercase font-outfit tracking-wider text-black">Controls</span>
         </div>
-        <div class="flex-1 overflow-y-auto p-4 space-y-4" data-rp-scroll>
-          <div class="space-y-2">
-            <div class="flex items-center">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Layers</span>
+        ${alignBtns}
+        <div class="flex-1 overflow-y-auto" data-rp-scroll>
+          <div class="p-4 pb-3 space-y-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block">Layers</span>
+            <div class="right-layer-box">
+              ${hasAssets() ? `<div class="${layerListClass}" ${layerListStyle}>${assetRows}</div>` : `
+                <div class="w-full flex items-center justify-center p-6 text-stone-400">
+                  <span class="text-[10px] font-bold uppercase tracking-widest">No layers</span>
+                </div>`}
             </div>
-            ${hasAssets() ? `<div class="${layerListClass}" ${layerListStyle}>${assetRows}</div>` : `
-              <div class="w-full flex items-center justify-center border border-dashed border-stone-300 p-6 text-stone-400">
-                <span class="text-[10px] font-bold uppercase tracking-widest">No layer</span>
-              </div>`}
           </div>
-          ${shapeControls}
-          ${hasAssets() ? '<p class="text-xs text-stone-400">Select an asset, then choose a preset from the left panel.</p>' : ''}
+          ${tabBar}
+          ${window._rpTab === 'animate'
+            ? `<div id="rp-panel-animate" class="p-4 space-y-4">
+                <p class="text-xs text-stone-400">Select a preset on the timeline to edit its animation settings.</p>
+              </div>`
+            : `<div id="rp-panel-design">
+                ${designContent}
+              </div>`}
         </div>
         ${exportRowHTML()}`;
       lucide.createIcons();
@@ -2734,28 +3200,12 @@
     const preset = getPreset(layer.presetId);
     const selectedLayerColor = getLayerTimelineColor(layer);
 
-    rp.innerHTML = `
-      <div class="flex items-center justify-between border-b border-black shrink-0 bg-white px-4 relative" style="height:40px">
-        <span class="text-xs font-bold uppercase font-outfit tracking-wider text-black">Controls</span>
-      </div>
-
-      <div class="flex-1 overflow-y-auto p-4 space-y-5" data-rp-scroll>
-
-        <div class="space-y-2">
-          <div class="flex items-center">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Layers</span>
-          </div>
-          <div class="${layerListClass}" ${layerListStyle}>${assetRows}</div>
+    // Animate panel content (preset controls)
+    const animateContent = `
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 shrink-0 rounded-sm" style="background:${selectedLayerColor}"></span>
+          <span class="text-[10px] font-bold uppercase tracking-widest text-stone-500 font-outfit truncate">${layer.name}</span>
         </div>
-
-        ${shapeControls}
-
-        <div class="border-t border-black pt-4 flex items-center gap-2">
-          <span class="w-2.5 h-2.5 shrink-0" style="background:${selectedLayerColor}"></span>
-          <span class="text-[10px] font-bold uppercase tracking-widest text-stone-500 font-outfit">Editing: ${layer.name}</span>
-        </div>
-
-        <!-- Easing -->
         <div class="space-y-1.5 relative" id="easing-wrap">
           <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Easing</label>
           <button onclick="toggleEasingDrop(event)" class="w-full text-left text-xs font-semibold px-3 py-2 bg-white border border-black flex items-center justify-between">
@@ -2766,21 +3216,14 @@
             ${EASINGS.map(([v,l], idx) => `<button onclick="pickEasingByIdx(${idx},event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase">${l}</button>`).join('')}
           </div>
         </div>
-
-        <!-- Direction -->
         <div class="space-y-1.5">
           <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Direction</label>
           <div class="vom-segmented grid-cols-2">
-            ${['in','out'].map((d,i) => `
-              <button onclick="setLP('direction','${d}')" class="vom-segment py-1.5 text-[10px] font-bold transition-colors ${layer.direction===d?'is-selected':''}">${d==='in'?'In':'Out'}</button>`).join('')}
+            ${['in','out'].map(d => `<button onclick="setLP('direction','${d}')" class="vom-segment py-1.5 text-[10px] font-bold transition-colors ${layer.direction===d?'is-selected':''}">${d==='in'?'In':'Out'}</button>`).join('')}
           </div>
         </div>
-
-        <!-- Timing -->
         <div class="space-y-3">
           <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Timing</label>
-
-          <!-- Duration -->
           <div class="space-y-1">
             <div class="flex justify-between items-center">
               <span class="text-xs text-stone-600">Duration (s)</span>
@@ -2789,8 +3232,6 @@
             <input id="rp-duration-slider" type="range" min="0.1" max="10" step="0.05" value="${layer.duration}" oninput="setLPSlider('duration',this.value,'rp-duration-val')" class="w-full" style="--rp:${pct(layer.duration,0.1,10)}%">
           </div>
         </div>
-
-        <!-- Global Transform -->
         <div class="border-t border-black pt-4 space-y-3">
           <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Global Transform</label>
           <div class="space-y-1">
@@ -2808,24 +3249,36 @@
             <input id="pc-layerRot-sl" type="range" min="-360" max="360" step="1" value="${layer.params?.layerRot ?? 0}" oninput="setPPSlider('layerRot',this.value,'pc-layerRot-val')" class="w-full" style="--rp:${pct(layer.params?.layerRot ?? 0,-360,360)}%">
           </div>
         </div>
-
         ${presetSpecificHTML(layer)}
-
-        <!-- Actions -->
-        <div class="border-t border-black pt-4 space-y-2">
-          <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Actions</label>
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="duplicateLayer('${layer.id}')" class="py-2 text-[10px] font-bold bg-white hover:bg-stone-100 border border-black uppercase tracking-wider transition flex items-center justify-center space-x-1.5">
-              <i data-lucide="copy" class="w-3 h-3"></i><span>Duplicate</span>
-            </button>
-            <button onclick="resetLayer('${layer.id}')" class="py-2 text-[10px] font-bold bg-white hover:bg-stone-100 border border-black uppercase tracking-wider transition flex items-center justify-center space-x-1.5">
+        <div class="border-t border-black pt-4">
+          <div>
+            <button onclick="resetLayer('${layer.id}')" class="w-full py-2 px-4 text-[10px] font-bold bg-white hover:bg-stone-100 border border-black uppercase tracking-wider transition flex items-center justify-center space-x-1.5">
               <i data-lucide="rotate-ccw" class="w-3 h-3"></i><span>Reset</span>
             </button>
           </div>
-        </div>
+        </div>`;
 
+    rp.innerHTML = `
+      <div class="flex items-center justify-between border-b border-black shrink-0 bg-white px-4" style="height:40px">
+        <span class="text-xs font-bold uppercase font-outfit tracking-wider text-black">Controls</span>
       </div>
-
+      ${alignBtns}
+      <div class="flex-1 overflow-y-auto" data-rp-scroll>
+        <div class="p-4 pb-3 space-y-2">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block">Layers</span>
+          <div class="right-layer-box">
+            <div class="${layerListClass}" ${layerListStyle}>${assetRows}</div>
+          </div>
+        </div>
+        ${tabBar}
+        ${window._rpTab === 'animate'
+          ? `<div id="rp-panel-animate" class="p-4 space-y-4">
+              ${animateContent}
+            </div>`
+          : `<div id="rp-panel-design">
+              ${designContent}
+            </div>`}
+      </div>
       ${exportRowHTML()}`;
 
     lucide.createIcons();
@@ -2834,6 +3287,30 @@
       const id = row.querySelector('.asset-name-label')?.dataset.assetId;
       if (id) row.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); showLayerRowContextMenu(e, id); });
     });
+  }
+
+  function rpSwitchTab(tab) {}
+
+  function rpTab(tab) {
+    window._rpTab = tab;
+    buildRightPanel();
+    return;
+    const dPanel = document.getElementById('rp-panel-design');
+    const aPanel = document.getElementById('rp-panel-animate');
+    const dTab   = document.getElementById('rp-tab-design');
+    const aTab   = document.getElementById('rp-tab-animate');
+    if (!dPanel || !aPanel) { buildRightPanel(); return; }
+    if (tab === 'animate') {
+      dPanel.style.display = 'none';
+      aPanel.style.display = '';
+      if (dTab) { dTab.style.background = 'white'; dTab.style.color = '#a8a29e'; }
+      if (aTab) { aTab.style.background = '#FFB000'; aTab.style.color = 'white'; }
+    } else {
+      aPanel.style.display = 'none';
+      dPanel.style.display = '';
+      if (aTab) { aTab.style.background = 'white'; aTab.style.color = '#a8a29e'; }
+      if (dTab) { dTab.style.background = '#FFB000'; dTab.style.color = 'white'; }
+    }
   }
 
   function presetSpecificHTML(layer) {
@@ -3099,13 +3576,11 @@
       toggleMultiSelectAsset(id);
       return;
     }
-    // Normal click → clear multi-select, select single
+    // Normal click → clear multi-select, select single, clear preset selection
     S.selectedAssetIds = [];
     S.activeAssetId = asset.id;
     S.file = asset;
-    if (!S.sel || !S.layers.some(l => l.id === S.sel && l.assetId === asset.id)) {
-      S.sel = S.layers.find(l => l.assetId === asset.id)?.id || null;
-    }
+    S.sel = null; // clear preset selection — user clicked layer row not a preset
     buildPresets();
     renderGraphic();
     buildTimeline();
@@ -3119,6 +3594,7 @@
     S.activeAssetId = layer.assetId || S.activeAssetId;
     S.file = currentAsset();
     S.sel = layer.id;
+    window._rpTab = 'animate'; // auto-switch to animate tab
     buildPresets();
     renderGraphic();
     if (opts.timeline !== false) buildTimeline();
@@ -3700,6 +4176,88 @@
     refreshAll();
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TEXT ASSET
+  // ═══════════════════════════════════════════════════════════════════════════
+  const GOOGLE_FONTS = [
+    'Inter','Outfit','Roboto','Open Sans','Montserrat','Lato','Poppins','Raleway',
+    'Oswald','Merriweather','Playfair Display','Source Sans 3','Nunito','Ubuntu',
+    'PT Sans','Noto Sans','Work Sans','Mulish','Quicksand','DM Sans',
+    'Space Grotesk','Space Mono','Syne','Cabinet Grotesk','Clash Display',
+    'Bebas Neue','Anton','Barlow','Karla','Manrope','Plus Jakarta Sans',
+    'IBM Plex Mono','JetBrains Mono','Fira Code','Courier Prime',
+    'Cormorant Garamond','EB Garamond','Lora','Crimson Text','Libre Baskerville',
+  ];
+
+  const _loadedFonts = new Set(['Inter','Outfit']);
+  function loadGoogleFont(family) {
+    if (_loadedFonts.has(family)) return;
+    _loadedFonts.add(family);
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@300;400;500;600;700;800;900&display=swap`;
+    document.head.appendChild(link);
+  }
+
+  function addTextAsset(e) {
+    if (e) e.stopPropagation();
+    pushUndo('Add text');
+    const n = S.assets.length;
+    const offset = Math.min(96, n * 24);
+    const asset = {
+      id: newAssetId(),
+      type: 'text',
+      name: 'Text',
+      content: 'Your Text',
+      fontFamily: 'Inter',
+      fontSize: 48,
+      fontWeight: '700',
+      fontStyle: 'normal',
+      textColor: '#1F1F1F',
+      textAlign: 'center',
+      letterSpacing: 0,
+      lineHeight: 1.2,
+      w: 320,
+      h: 80,
+      x: offset,
+      y: offset,
+      visible: true,
+    };
+    S.assets.push(asset);
+    S.activeAssetId = asset.id;
+    S.file = asset;
+    S.sel = null;
+    document.getElementById('shape-drop')?.classList.add('hidden');
+    document.getElementById('shape-btn')?.setAttribute('aria-expanded', 'false');
+    refreshAll();
+  }
+
+  function setTextProp(key, val) {
+    const asset = currentAsset();
+    if (!asset || asset.type !== 'text') return;
+    pushUndo('Text property');
+    asset[key] = val;
+    if (key === 'fontFamily') loadGoogleFont(val);
+    renderGraphic();
+    buildRightPanel();
+  }
+
+  function setTextContent(val) {
+    const asset = currentAsset();
+    if (!asset || asset.type !== 'text') return;
+    asset.content = val;
+    renderGraphic();
+  }
+
+  function setTextSize(val) {
+    const asset = currentAsset();
+    if (!asset || asset.type !== 'text') return;
+    const v = Math.max(8, Math.min(300, parseFloat(val) || 48));
+    if (asset.fontSize === v) return;
+    asset.fontSize = v;
+    renderGraphic();
+  }
+
   function addShapeAsset(shapeType='square', e) {
     if (e) e.stopPropagation();
     if (!['square','circle','triangle','star'].includes(shapeType)) shapeType = 'square';
@@ -3727,6 +4285,7 @@
       stroke2:'#FFB000',
       strokeMode:'solid',
       strokeWidth:0,
+      strokeJoin:'round',
     };
     if (shapeType === 'circle') base.radius = 50;
     S.assets.push(base);
@@ -3800,6 +4359,69 @@
     });
   }
 
+  function startInlineTextEdit(wrapperEl, asset) {
+    // Find the inner text div
+    const textDiv = wrapperEl.querySelector('div');
+    if (!textDiv || wrapperEl.dataset.editing) return;
+    wrapperEl.dataset.editing = '1';
+
+    const original = asset.content || '';
+
+    // Make it contenteditable in-place
+    textDiv.contentEditable = 'true';
+    textDiv.style.outline = '2px dashed #FFB000';
+    textDiv.style.cursor = 'text';
+    textDiv.style.userSelect = 'text';
+    textDiv.style.webkitUserSelect = 'text';
+    // Remove gradient clip so text is visible while editing
+    if (asset.colorMode === 'gradient') {
+      textDiv.style.webkitTextFillColor = asset.textColor || '#1F1F1F';
+      textDiv.style.background = 'none';
+    }
+    textDiv.focus();
+
+    // Place cursor at end
+    const range = document.createRange();
+    range.selectNodeContents(textDiv);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(range);
+
+    const commit = () => {
+      if (!wrapperEl.dataset.editing) return;
+      delete wrapperEl.dataset.editing;
+      textDiv.contentEditable = 'false';
+      textDiv.style.outline = '';
+      textDiv.style.cursor = '';
+      textDiv.style.userSelect = '';
+      textDiv.style.webkitUserSelect = '';
+      const newContent = textDiv.innerText || textDiv.textContent || '';
+      if (newContent !== original) {
+        pushUndo('Edit text');
+        asset.content = newContent;
+      }
+      renderGraphic();
+      buildRightPanel();
+    };
+
+    textDiv.addEventListener('blur', commit, { once: true });
+    textDiv.addEventListener('keydown', e => {
+      e.stopPropagation();
+      // Shift+Enter = newline (default), plain Enter = commit
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        textDiv.blur();
+      }
+      if (e.key === 'Escape') {
+        textDiv.innerText = original;
+        textDiv.blur();
+      }
+    });
+    // Prevent drag from firing while editing
+    textDiv.addEventListener('pointerdown', e => e.stopPropagation());
+  }
+
   function initObjectDrag() {
     const target = document.getElementById('canvas-target');
     const wrap = document.getElementById('graphic-wrapper');
@@ -3859,6 +4481,17 @@
 
       drag = null;
     };
+
+    // Double-click on text asset → inline edit directly on artboard
+    wrap.addEventListener('dblclick', e => {
+      const el = e.target.closest('.asset-wrapper');
+      if (!el) return;
+      const asset = getAsset(el.dataset.assetId);
+      if (!asset || asset.type !== 'text') return;
+      e.preventDefault();
+      e.stopPropagation();
+      startInlineTextEdit(el, asset);
+    });
 
     wrap.addEventListener('pointerdown', e => {
       const el = e.target.closest('.asset-wrapper');
@@ -5116,6 +5749,30 @@
     initTimelineResize();
     initTimelineColumnResize();
     initSoftScrollbars();
+
+    // Wheel to scrub number inputs in transform panel
+    document.addEventListener('wheel', e => {
+      const wrap = e.target.closest?.('.tf-num-wrap');
+      const el = e.target.classList?.contains('tf-num-input')
+        ? e.target
+        : wrap?.querySelector('.tf-num-input');
+      if (!el) return;
+      e.preventDefault();
+      const step = parseFloat(el.step) || 1;
+      const parsedMin = parseFloat(el.min);
+      const parsedMax = parseFloat(el.max);
+      const min  = Number.isFinite(parsedMin) ? parsedMin : -Infinity;
+      const max  = Number.isFinite(parsedMax) ? parsedMax : Infinity;
+      const cur  = parseFloat(el.value) || 0;
+      const horizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+      const direction = horizontal
+        ? (e.deltaX > 0 ? 1 : -1)
+        : (e.deltaY < 0 ? 1 : -1);
+      const next = Math.max(min, Math.min(max, cur + direction * step));
+      el.value = Math.round(next);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }, { passive: false });
     initUndoKeyboard();
 
     // Close dropdowns on outside click
