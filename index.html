@@ -333,6 +333,17 @@
       color-scheme:light;
       -moz-appearance:textfield;
     }
+    input[type="number"].native-spin {
+      -moz-appearance:auto;
+      color-scheme:dark;
+    }
+    input[type="number"].native-spin::-webkit-inner-spin-button,
+    input[type="number"].native-spin::-webkit-outer-spin-button {
+      -webkit-appearance:auto;
+      appearance:auto;
+      opacity:1;
+      margin-left:4px;
+    }
     /* Scrollbars: hidden until scrolling, then soft and thin */
     * {
       scrollbar-width:thin;
@@ -1290,15 +1301,15 @@
   <!-- ── Top Bar ───────────────────────────────────────────────────────────── -->
   <header class="workspace-header bg-black sticky top-0 z-50" style="height:56px">
     <div class="flex items-center h-14 overflow-hidden">
-      <div class="flex items-center justify-center px-5 h-14">
-        <img src="vom_logo.png" alt="VOM" style="height:30px;width:auto;object-fit:contain;" onerror="this.style.display='none'">
+      <div class="flex items-center justify-center pl-5 pr-1 h-14">
+        <img src="VOM_favicon.png" alt="VOM" style="height:30px;width:auto;object-fit:contain;" onerror="this.style.display='none'">
       </div>
-      <div class="flex items-center px-4 h-14 min-w-0 overflow-hidden">
-        <span class="font-outfit font-black tracking-widest text-[10px] text-white uppercase whitespace-nowrap">VIBE ON MOTION</span>
+      <div class="flex items-center pl-0 pr-4 h-14 min-w-0 overflow-hidden">
+        <span class="brand-wordmark font-outfit font-black tracking-widest text-[10px] text-white uppercase whitespace-nowrap">VIBE ON MOTION</span>
       </div>
     </div>
     <div class="h-14 min-w-0"></div>
-    <div class="flex items-stretch h-14 min-w-0">
+    <div class="flex items-center h-14 min-w-0 gap-2 px-2">
       <input type="file" id="json-import" accept=".json" class="hidden">
       <button onclick="document.getElementById('json-import').click()" class="vom-cta flex-1 flex items-center justify-center space-x-2 px-3 text-[10px] font-bold bg-black text-white hover:bg-brand-orange hover:text-white border-r border-stone-800 transition-colors" title="Load a saved project JSON">
         <i data-lucide="folder-open" class="w-3.5 h-3.5"></i><span class="hidden lg:inline">LOAD PROJECT</span>
@@ -1373,7 +1384,7 @@
           <button onclick="toggleCustomBgDrop(event)" id="bg-menu-btn" aria-expanded="false" class="vom-cta flex items-center space-x-2 px-4 text-[10px] font-bold transition-colors h-8 uppercase">
             <span>BACKGROUND</span>
             <span id="bg-menu-lbl" class="text-white">LIGHT</span>
-            <i data-lucide="chevron-down" class="w-3 h-3"></i>
+            <span class="text-stone-400 text-xs leading-none">⌄</span>
           </button>
           <div id="bg-custom-drop" class="absolute left-2 top-full mt-2 bg-white border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] z-50 hidden p-2 w-[220px]" onclick="event.stopPropagation()">
             <button onclick="pickBg('grid',event)"        id="bg-grid"        data-bg-option class="vom-menu-row w-full text-left px-3 py-2 text-[10px] font-bold transition-colors bg-white text-stone-500 hover:bg-stone-100 uppercase">Grid</button>
@@ -1405,7 +1416,7 @@
           <button id="size-btn" onclick="toggleSizeDrop(event)" aria-expanded="false" class="vom-cta flex items-center space-x-2 px-4 text-[10px] font-bold transition-colors h-8 uppercase">
             <span>SIZE</span>
             <span id="size-lbl" class="text-white">400×400</span>
-            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+            <span class="text-stone-400 text-xs leading-none">⌄</span>
           </button>
           <div id="size-drop" class="vom-menu-list absolute right-2 top-full mt-2 w-52 bg-white border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] z-50 hidden">
             <button onclick="pickSize('200x200',event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase">200 × 200</button>
@@ -1415,9 +1426,9 @@
             <div class="p-3 bg-stone-50 space-y-2" onclick="event.stopPropagation()">
               <span class="text-[9px] uppercase tracking-wider text-stone-400">Custom</span>
               <div class="flex items-center space-x-2">
-                <input id="cw" type="number" value="400" min="50" max="1000" onchange="applyCustomSize()" class="w-16 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+                <input id="cw" type="number" value="400" min="50" max="1000" onchange="applyCustomSize()" class="native-spin w-16 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
                 <span class="text-stone-400 font-bold">×</span>
-                <input id="ch" type="number" value="400" min="50" max="1000" onchange="applyCustomSize()" class="w-16 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+                <input id="ch" type="number" value="400" min="50" max="1000" onchange="applyCustomSize()" class="native-spin w-16 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
               </div>
             </div>
           </div>
@@ -1452,7 +1463,7 @@
               <input type="number" id="comp-dur-val" value="5.0" step="0.5" min="0.5" max="60"
                 onchange="updateCompDur(this.value)"
                 oninput="updateCompDur(this.value)"
-                class="w-12 text-black font-bold bg-transparent border-b border-stone-300 outline-none focus:border-brand-orange text-center p-0 h-4">
+                class="native-spin w-12 text-black font-bold bg-transparent border-b border-stone-300 outline-none focus:border-brand-orange text-center p-0 h-4">
               <span>s</span>
             </span>
           </div>
@@ -1822,6 +1833,7 @@
         if (a.lineHeight    === undefined) a.lineHeight = 1.2;
         if (!a.w) a.w = 320;
         if (!a.h) a.h = 80;
+        fitTextAssetHeight(a);
         loadGoogleFont(a.fontFamily);
         return;
       }
@@ -2082,12 +2094,33 @@
       const c1    = asset.textColor  || '#1F1F1F';
       const c2    = asset.textColor2 || '#FFB000';
       const angle = asset.gradientAngle !== undefined ? asset.gradientAngle : 90;
-      colorStyle  = `background:linear-gradient(${angle}deg,${c1},${c2});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;`;
+      colorStyle  = `background-image:linear-gradient(${angle}deg,${c1},${c2});background-size:100% 100%;background-repeat:no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;`;
     } else {
       colorStyle = `color:${asset.textColor || '#1F1F1F'};`;
     }
 
-    return `<div style="font-family:'${font}',sans-serif;font-size:${size}px;font-weight:${weight};font-style:${italic};${colorStyle}text-align:${align};letter-spacing:${ls}px;line-height:${lh};white-space:pre-wrap;word-break:break-word;width:100%;height:100%;display:flex;align-items:center;justify-content:${justify};padding:4px;">${content}</div>`;
+    return `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:${justify};padding:4px;overflow:hidden;text-align:${align};"><div data-text-content style="font-family:'${font}',sans-serif;font-size:${size}px;font-weight:${weight};font-style:${italic};${colorStyle}text-align:${align};letter-spacing:${ls}px;line-height:${lh};white-space:pre-wrap;word-break:break-word;max-width:100%;">${content}</div></div>`;
+  }
+
+  function estimateTextAssetHeight(asset) {
+    if (!asset || asset.type !== 'text') return 0;
+    const size = Math.max(8, Number(asset.fontSize) || 48);
+    const lineHeight = Math.max(0.5, Number(asset.lineHeight) || 1.2);
+    const letterSpacing = Number(asset.letterSpacing) || 0;
+    const width = Math.max(24, Number(asset.w) || 320);
+    const avgCharWidth = Math.max(4, size * 0.55 + Math.max(0, letterSpacing));
+    const charsPerLine = Math.max(1, Math.floor((width - 16) / avgCharWidth));
+    const textLines = String(asset.content || 'Text').split(/\r\n|\r|\n/);
+    const visualLines = textLines.reduce((sum, line) => {
+      return sum + Math.max(1, Math.ceil((line.length || 1) / charsPerLine));
+    }, 0);
+    return Math.ceil(visualLines * size * lineHeight + 18);
+  }
+
+  function fitTextAssetHeight(asset=currentAsset()) {
+    if (!asset || asset.type !== 'text') return;
+    const needed = estimateTextAssetHeight(asset);
+    if (needed && (!asset.h || asset.h < needed)) asset.h = needed;
   }
 
   function safeShapeColor(value, fallback) {
@@ -2909,13 +2942,11 @@
     <div class="space-y-3 border border-black p-3 bg-white">
       <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block">Text</span>
 
-      <!-- Content -->
       <div class="space-y-1">
         <span class="text-xs text-stone-600">Content</span>
         <textarea rows="2" onchange="setTextProp('content',this.value)" oninput="setTextContent(this.value)" class="w-full text-xs border border-black p-2 outline-none focus:border-brand-orange resize-none font-mono" style="color-scheme:light">${asset.content || ''}</textarea>
       </div>
 
-      <!-- Font family -->
       <div class="space-y-1">
         <span class="text-xs text-stone-600">Font</span>
         <select onchange="setTextProp('fontFamily',this.value)" class="w-full text-[11px] border border-black p-1.5 outline-none focus:border-brand-orange bg-white" style="color-scheme:light">
@@ -2923,7 +2954,6 @@
         </select>
       </div>
 
-      <!-- Size + Weight -->
       <div class="grid grid-cols-2 gap-2">
         <div class="space-y-1">
           <span class="text-xs text-stone-600">Size</span>
@@ -2937,7 +2967,33 @@
         </div>
       </div>
 
-      <!-- Color -->
+      <div class="grid grid-cols-2 gap-2">
+        <div class="space-y-1">
+          <span class="text-xs text-stone-600">Align</span>
+          <div class="vom-segmented grid-cols-3">
+            ${aligns.map(([v,l]) => `<button onclick="setTextProp('textAlign','${v}')" class="vom-segment py-1.5 text-[9px] font-bold transition-colors ${currentAlign === v ? 'is-selected' : ''}">${l}</button>`).join('')}
+          </div>
+        </div>
+        <div class="space-y-1">
+          <span class="text-xs text-stone-600">Style</span>
+          <div class="vom-segmented grid-cols-2">
+            <button onclick="setTextProp('fontStyle','normal')" class="vom-segment py-1.5 text-[9px] font-bold transition-colors ${currentStyle === 'normal' ? 'is-selected' : ''}">Regular</button>
+            <button onclick="setTextProp('fontStyle','italic')" class="vom-segment py-1.5 text-[9px] font-bold italic transition-colors ${currentStyle === 'italic' ? 'is-selected' : ''}">Italic</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div class="space-y-1">
+          <span class="text-xs text-stone-600">Letter spacing</span>
+          <input type="number" min="-10" max="40" step="0.5" value="${asset.letterSpacing ?? 0}" onchange="setTextProp('letterSpacing',parseFloat(this.value))" class="native-spin w-full text-center font-mono text-[11px] border border-black focus:outline-none py-1 focus:border-brand-orange" style="color-scheme:light">
+        </div>
+        <div class="space-y-1">
+          <span class="text-xs text-stone-600">Line height</span>
+          <input type="number" min="0.5" max="4" step="0.1" value="${asset.lineHeight ?? 1.2}" onchange="setTextProp('lineHeight',parseFloat(this.value))" class="native-spin w-full text-center font-mono text-[11px] border border-black focus:outline-none py-1 focus:border-brand-orange" style="color-scheme:light">
+        </div>
+      </div>
+
       <div class="space-y-1.5">
         <div class="flex items-center justify-between">
           <span class="text-xs text-stone-600">Color</span>
@@ -2959,35 +3015,6 @@
           <div class="flex justify-between text-[9px] text-stone-400"><span>Angle</span><span id="txt-grad-angle-val">${asset.gradientAngle??90}°</span></div>
           <input type="range" min="0" max="360" step="1" value="${asset.gradientAngle??90}" oninput="setTextProp('gradientAngle',parseInt(this.value));document.getElementById('txt-grad-angle-val').textContent=this.value+'°'" class="w-full" style="--rp:${((asset.gradientAngle??90)/360*100).toFixed(0)}%">
         </div>`:''}</div>
-
-      <!-- Align + Style -->
-      <div class="grid grid-cols-2 gap-2">
-        <div class="space-y-1">
-          <span class="text-xs text-stone-600">Align</span>
-          <div class="flex border border-black overflow-hidden">
-            ${aligns.map(([v,l]) => `<button onclick="setTextProp('textAlign','${v}')" class="flex-1 py-1.5 text-[9px] font-bold transition-colors ${currentAlign === v ? 'bg-black text-white' : 'bg-white hover:bg-stone-100'}">${l}</button>`).join('')}
-          </div>
-        </div>
-        <div class="space-y-1">
-          <span class="text-xs text-stone-600">Style</span>
-          <div class="flex border border-black overflow-hidden">
-            <button onclick="setTextProp('fontStyle','normal')" class="flex-1 py-1.5 text-[9px] font-bold transition-colors ${currentStyle === 'normal' ? 'bg-black text-white' : 'bg-white hover:bg-stone-100'}">Regular</button>
-            <button onclick="setTextProp('fontStyle','italic')" class="flex-1 py-1.5 text-[9px] font-bold italic transition-colors ${currentStyle === 'italic' ? 'bg-black text-white' : 'bg-white hover:bg-stone-100'}">Italic</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Letter spacing + Line height -->
-      <div class="grid grid-cols-2 gap-2">
-        <div class="space-y-1">
-          <span class="text-xs text-stone-600">Letter spacing</span>
-          <input type="number" min="-10" max="40" step="0.5" value="${asset.letterSpacing ?? 0}" onchange="setTextProp('letterSpacing',parseFloat(this.value))" class="w-full text-center font-mono text-[11px] border border-black focus:outline-none py-1 focus:border-brand-orange" style="color-scheme:light">
-        </div>
-        <div class="space-y-1">
-          <span class="text-xs text-stone-600">Line height</span>
-          <input type="number" min="0.5" max="4" step="0.1" value="${asset.lineHeight ?? 1.2}" onchange="setTextProp('lineHeight',parseFloat(this.value))" class="w-full text-center font-mono text-[11px] border border-black focus:outline-none py-1 focus:border-brand-orange" style="color-scheme:light">
-        </div>
-      </div>
     </div>`;
   }
 
@@ -4037,7 +4064,13 @@
   function toggleCustomBgDrop(e) {
     if (e) e.stopPropagation();
     const drop = document.getElementById('bg-custom-drop');
-    drop?.classList.toggle('hidden');
+    const willOpen = drop?.classList.contains('hidden');
+    document.getElementById('size-drop')?.classList.add('hidden');
+    document.getElementById('size-btn')?.setAttribute('aria-expanded', 'false');
+    document.getElementById('shape-drop')?.classList.add('hidden');
+    document.getElementById('shape-btn')?.setAttribute('aria-expanded', 'false');
+    if (willOpen) drop?.classList.remove('hidden');
+    else drop?.classList.add('hidden');
     document.getElementById('bg-menu-btn')?.setAttribute('aria-expanded', drop && !drop.classList.contains('hidden') ? 'true' : 'false');
   }
 
@@ -4127,7 +4160,13 @@
   function toggleSizeDrop(e) {
     if(e) e.stopPropagation();
     const drop = document.getElementById('size-drop');
-    drop?.classList.toggle('hidden');
+    const willOpen = drop?.classList.contains('hidden');
+    document.getElementById('bg-custom-drop')?.classList.add('hidden');
+    document.getElementById('bg-menu-btn')?.setAttribute('aria-expanded', 'false');
+    document.getElementById('shape-drop')?.classList.add('hidden');
+    document.getElementById('shape-btn')?.setAttribute('aria-expanded', 'false');
+    if (willOpen) drop?.classList.remove('hidden');
+    else drop?.classList.add('hidden');
     document.getElementById('size-btn')?.setAttribute('aria-expanded', drop && !drop.classList.contains('hidden') ? 'true' : 'false');
   }
   function pickSize(sz, e) {
@@ -4140,7 +4179,13 @@
   function toggleShapeDrop(e) {
     if(e) e.stopPropagation();
     const drop = document.getElementById('shape-drop');
-    drop?.classList.toggle('hidden');
+    const willOpen = drop?.classList.contains('hidden');
+    document.getElementById('bg-custom-drop')?.classList.add('hidden');
+    document.getElementById('bg-menu-btn')?.setAttribute('aria-expanded', 'false');
+    document.getElementById('size-drop')?.classList.add('hidden');
+    document.getElementById('size-btn')?.setAttribute('aria-expanded', 'false');
+    if (willOpen) drop?.classList.remove('hidden');
+    else drop?.classList.add('hidden');
     document.getElementById('shape-btn')?.setAttribute('aria-expanded', drop && !drop.classList.contains('hidden') ? 'true' : 'false');
   }
   function applyCustomSize() {
@@ -4223,6 +4268,7 @@
       y: offset,
       visible: true,
     };
+    fitTextAssetHeight(asset);
     S.assets.push(asset);
     S.activeAssetId = asset.id;
     S.file = asset;
@@ -4238,6 +4284,7 @@
     pushUndo('Text property');
     asset[key] = val;
     if (key === 'fontFamily') loadGoogleFont(val);
+    if (['content','fontFamily','fontSize','fontWeight','lineHeight','letterSpacing'].includes(key)) fitTextAssetHeight(asset);
     renderGraphic();
     buildRightPanel();
   }
@@ -4246,6 +4293,7 @@
     const asset = currentAsset();
     if (!asset || asset.type !== 'text') return;
     asset.content = val;
+    fitTextAssetHeight(asset);
     renderGraphic();
   }
 
@@ -4255,6 +4303,7 @@
     const v = Math.max(8, Math.min(300, parseFloat(val) || 48));
     if (asset.fontSize === v) return;
     asset.fontSize = v;
+    fitTextAssetHeight(asset);
     renderGraphic();
   }
 
@@ -4361,7 +4410,7 @@
 
   function startInlineTextEdit(wrapperEl, asset) {
     // Find the inner text div
-    const textDiv = wrapperEl.querySelector('div');
+    const textDiv = wrapperEl.querySelector('[data-text-content]') || wrapperEl.querySelector('div');
     if (!textDiv || wrapperEl.dataset.editing) return;
     wrapperEl.dataset.editing = '1';
 
@@ -5737,6 +5786,8 @@
   // INIT
   // ═══════════════════════════════════════════════════════════════════════════
   function init() {
+    document.body.classList.remove('theme-light');
+    document.body.classList.add('theme-arcade');
     refreshAll();
     setBg(S.bg);
     applySize(S.size);
