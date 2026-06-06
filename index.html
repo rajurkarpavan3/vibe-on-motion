@@ -473,6 +473,29 @@
     .right-layer-row {
       min-height:42px;
     }
+    .right-layer-row.multi-selected {
+      outline: 2px solid #FFB000 !important;
+      outline-offset: -2px;
+      background: rgba(255,176,0,0.08) !important;
+    }
+    .timeline-row.multi-selected {
+      background: #2a1f00 !important;
+      border-left-color: #FFB000 !important;
+    }
+    .multi-select-banner {
+      display:none;
+      align-items:center;
+      justify-content:space-between;
+      padding:6px 12px;
+      background:#FFB000;
+      color:#000;
+      font-size:9px;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      shrink:0;
+    }
+    .multi-select-banner.active { display:flex; }
     /* Layer selected row */
     .timeline-row,
     .timeline-track-row {
@@ -486,6 +509,12 @@
     .seg-resize-r, .seg-resize-l { position:absolute; top:0; bottom:0; width:6px; cursor:ew-resize; background:rgba(255,255,255,.35); z-index:20; }
     .seg-resize-r { right:0; }
     .seg-resize-l { left:0; }
+    /* Alt-drag duplicate visual cues */
+    body.alt-held .seg-block { cursor:copy; outline:1px dashed rgba(255,176,0,.5); }
+    body.alt-held .timeline-row { cursor:copy; }
+    body.alt-held .asset-wrapper { cursor:copy !important; }
+    .seg-dup-ghost { opacity:0.55; pointer-events:none; position:absolute; z-index:999; outline:2px dashed #FFB000; }
+    .seg-dup-badge { position:absolute; top:2px; right:4px; font-size:8px; font-weight:900; color:#000; background:#FFB000; padding:1px 4px; pointer-events:none; }
     .layer-context-menu {
       position:fixed;
       z-index:100000;
@@ -523,6 +552,74 @@
       font-weight:700;
       color:#a8a29e;
       text-transform:uppercase;
+    }
+    .layer-context-menu .menu-action {
+      width:100%;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:9px 10px;
+      font-size:10px;
+      font-weight:800;
+      text-transform:uppercase;
+      text-align:left;
+      color:#1c1917;
+      background:#f5f4f0;
+      border-bottom:1px solid #e5e7eb;
+    }
+    .layer-context-menu .menu-action:hover {
+      background:#FFB000;
+      color:#fff;
+    }
+    .layer-context-menu .menu-sep {
+      height:1px;
+      background:#e5e7eb;
+      margin:4px 0;
+    }
+    /* Segment (preset) right-click context menu */
+    .seg-context-menu {
+      position:fixed;
+      z-index:100000;
+      min-width:180px;
+      background:#111;
+      border:1px solid #333;
+      box-shadow:4px 4px 0 rgba(0,0,0,.8);
+      padding:4px;
+      display:none;
+      border-radius:2px;
+    }
+    .seg-context-menu.open { display:block; }
+    .seg-context-menu .scm-header {
+      padding:6px 10px 4px;
+      font-size:8px;
+      font-weight:900;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:#666;
+      border-bottom:1px solid #222;
+      margin-bottom:3px;
+    }
+    .seg-context-menu button {
+      width:100%;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      font-size:10px;
+      font-weight:700;
+      text-align:left;
+      color:#fff;
+      background:transparent;
+      border-radius:2px;
+      transition:background .1s;
+    }
+    .seg-context-menu button:hover { background:#222; }
+    .seg-context-menu button.scm-danger { color:#f87171; }
+    .seg-context-menu button.scm-danger:hover { background:#2a0a0a; color:#fca5a5; }
+    .seg-context-menu .scm-sep {
+      height:1px;
+      background:#222;
+      margin:3px 0;
     }
     .export-modal-backdrop {
       position:fixed;
@@ -867,6 +964,16 @@
       border-top:0 !important;
       border-bottom:0 !important;
     }
+    .theme-arcade #align-controls {
+      border-color:var(--theme-border) !important;
+    }
+    .theme-arcade #align-controls .align-btn {
+      color:var(--theme-muted) !important;
+    }
+    .theme-arcade #align-controls .align-btn:hover {
+      background:var(--theme-card-hover) !important;
+      color:var(--theme-text) !important;
+    }
     .theme-arcade #bg-toggles,
     .theme-arcade #size-controls {
       border-left:0 !important;
@@ -1123,6 +1230,11 @@
         <span class="text-xs font-bold uppercase font-outfit tracking-wider">Presets</span>
         <span class="text-[10px] font-bold font-mono bg-stone-900 text-stone-200 border border-stone-700 px-2 py-0.5" id="presets-count">— LIBRARY</span>
       </div>
+      <!-- Multi-select banner -->
+      <div id="multi-select-banner" class="multi-select-banner shrink-0">
+        <span id="multi-select-label">0 layers selected</span>
+        <button onclick="clearMultiSelect()" style="font-size:9px;font-weight:900;background:rgba(0,0,0,.15);border:none;padding:2px 7px;cursor:pointer;">✕ CLEAR</button>
+      </div>
       <!-- Scrollable preset grid -->
       <div class="flex-1 overflow-y-auto p-4 space-y-5" id="presets-container"></div>
     </section>
@@ -1145,6 +1257,29 @@
             <button onclick="addShapeAsset('star',event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase">Star</button>
           </div>
         </div>
+
+        <!-- Alignment controls -->
+        <div class="flex items-center px-2 gap-0" id="align-controls">
+          <button onclick="alignAsset('left')"    title="Align Left"                class="align-btn w-7 h-7 flex items-center justify-center hover:bg-stone-100 transition-colors">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="3" width="2" height="10" rx="0"/><rect x="4" y="5" width="7" height="3" rx="0"/><rect x="4" y="9" width="10" height="3" rx="0"/></svg>
+          </button>
+          <button onclick="alignAsset('centerH')" title="Align Center Horizontally" class="align-btn w-7 h-7 flex items-center justify-center hover:bg-stone-100 transition-colors">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="7" y="1" width="2" height="14" rx="0"/><rect x="3" y="4" width="10" height="3" rx="0"/><rect x="1" y="9" width="14" height="3" rx="0"/></svg>
+          </button>
+          <button onclick="alignAsset('right')"   title="Align Right"               class="align-btn w-7 h-7 flex items-center justify-center hover:bg-stone-100 transition-colors">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="13" y="3" width="2" height="10" rx="0"/><rect x="5" y="5" width="7" height="3" rx="0"/><rect x="2" y="9" width="10" height="3" rx="0"/></svg>
+          </button>
+          <button onclick="alignAsset('top')"     title="Align Top"                 class="align-btn w-7 h-7 flex items-center justify-center hover:bg-stone-100 transition-colors">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="1" width="10" height="2" rx="0"/><rect x="5" y="4" width="3" height="7" rx="0"/><rect x="9" y="4" width="3" height="10" rx="0"/></svg>
+          </button>
+          <button onclick="alignAsset('centerV')" title="Align Center Vertically"   class="align-btn w-7 h-7 flex items-center justify-center hover:bg-stone-100 transition-colors">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="7" width="14" height="2" rx="0"/><rect x="4" y="3" width="3" height="10" rx="0"/><rect x="9" y="1" width="3" height="14" rx="0"/></svg>
+          </button>
+          <button onclick="alignAsset('bottom')"  title="Align Bottom"              class="align-btn w-7 h-7 flex items-center justify-center hover:bg-stone-100 transition-colors">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="13" width="10" height="2" rx="0"/><rect x="5" y="2" width="3" height="10" rx="0"/><rect x="9" y="5" width="3" height="7" rx="0"/></svg>
+          </button>
+        </div>
+
         <div class="relative flex items-center ml-auto px-2" id="bg-toggles">
           <button onclick="toggleCustomBgDrop(event)" id="bg-menu-btn" aria-expanded="false" class="vom-cta flex items-center space-x-2 px-4 text-[10px] font-bold transition-colors h-8 uppercase">
             <span>BACKGROUND</span>
@@ -1225,7 +1360,10 @@
             <span class="text-[10px] font-mono text-stone-400">TIME: <span id="time-lbl" class="text-black font-bold">0.00s</span></span>
             <span class="text-[10px] font-mono text-stone-400 flex items-center space-x-1">
               <span>TOTAL:</span>
-              <input type="number" id="comp-dur-val" value="5.0" step="0.5" min="0.5" max="60" onchange="updateCompDur(this.value)" class="w-12 text-black font-bold bg-transparent border-b border-stone-300 outline-none focus:border-brand-orange text-center p-0 h-4">
+              <input type="number" id="comp-dur-val" value="5.0" step="0.5" min="0.5" max="60"
+                onchange="updateCompDur(this.value)"
+                oninput="updateCompDur(this.value)"
+                class="w-12 text-black font-bold bg-transparent border-b border-stone-300 outline-none focus:border-brand-orange text-center p-0 h-4">
               <span>s</span>
             </span>
           </div>
@@ -1238,9 +1376,9 @@
           </div>
           <div id="timeline-column-resizer" class="timeline-column-resizer" role="separator" aria-label="Resize timeline labels" aria-orientation="vertical" tabindex="0"></div>
           <div class="flex-1 flex flex-col overflow-hidden">
-            <div id="tl-ruler" class="relative bg-stone-50 border-b border-black shrink-0 overflow-hidden" style="height:24px"></div>
+            <div id="tl-ruler" class="relative bg-stone-50 border-b border-black shrink-0" style="height:24px;overflow:visible;"></div>
             <div class="flex-1 relative overflow-auto" id="tl-scroll" onscroll="document.getElementById('tl-headers').scrollTop=this.scrollTop; document.getElementById('tl-ruler').scrollLeft=this.scrollLeft;">
-              <div id="tl-playhead" class="absolute top-0 bottom-0 z-20 pointer-events-none bg-brand-orange" style="left:0;width:2px"></div>
+              <div id="tl-playhead" class="absolute top-0 z-20 pointer-events-none bg-brand-orange" style="left:0;width:2px;bottom:0"></div>
               <div id="tl-rows" class="flex flex-col divide-y divide-black"></div>
             </div>
           </div>
@@ -1357,6 +1495,7 @@
     file: null,            // legacy/current active asset reference
     assets: [],            // {id,type,data,name,x,y,visible}
     activeAssetId: null,
+    selectedAssetIds: [],  // multi-select: array of asset ids
     layers: [],            // array of layer objects
     sel: null,             // selected layer id
     bg: 'light',
@@ -1380,6 +1519,7 @@
     return JSON.stringify({
       assets: S.assets || [],
       activeAssetId: S.activeAssetId,
+      selectedAssetIds: S.selectedAssetIds || [],
       layers: S.layers || [],
       sel: S.sel,
       bg: S.bg,
@@ -1736,6 +1876,22 @@
   }
 
   function applyPreset(presetId) {
+    // Multi-select: apply to all selected assets
+    if (isMultiSelect()) {
+      const ids = getSelectedIds();
+      pushUndo('Apply preset to ' + ids.length + ' layers');
+      ids.forEach(assetId => {
+        const already = S.layers.find(l => l.assetId === assetId && l.presetId === presetId);
+        if (already) return;
+        const layer = mkLayer(presetId);
+        if (!layer) return;
+        layer.assetId = assetId;
+        S.layers.push(layer);
+      });
+      refreshAll();
+      return;
+    }
+    // Single asset
     const asset = currentAsset();
     if (!asset) return;
     const existing = S.layers.find(l => l.assetId === asset.id && l.presetId === presetId);
@@ -2069,6 +2225,7 @@
   }
 
   function buildTimeline() {
+    if (window.__renamingAsset) return;
     const headers = document.getElementById('tl-headers');
     const ruler   = document.getElementById('tl-ruler');
     const rows    = document.getElementById('tl-rows');
@@ -2092,6 +2249,40 @@
     }
     ruler.innerHTML = rHTML;
 
+    // Draggable end handle at right edge of ruler
+    const endHandle = document.createElement('div');
+    endHandle.id = 'tl-end-handle';
+    endHandle.title = 'Drag to change total duration';
+    endHandle.style.cssText = `position:absolute;right:0;top:0;bottom:0;width:8px;background:#e53e3e;cursor:ew-resize;z-index:30;display:flex;align-items:center;justify-content:center;`;
+    endHandle.innerHTML = `<div style="width:2px;height:12px;background:rgba(255,255,255,.7);border-radius:1px;pointer-events:none;"></div>`;
+    ruler.appendChild(endHandle);
+
+    endHandle.addEventListener('mousedown', e => {
+      e.preventDefault(); e.stopPropagation();
+      const startX = e.clientX;
+      const startDur = getTotalDur();
+      document.body.style.cursor = 'ew-resize';
+      const mm = ev => {
+        const delta = (ev.clientX - startX) / PX_PER_SEC;
+        const next = Math.max(0.5, Math.min(60, Math.round((startDur + delta) * 10) / 10));
+        if (next !== S.compDur) {
+          S.compDur = next;
+          const durEl = document.getElementById('comp-dur-val');
+          if (durEl) durEl.value = next.toFixed(1);
+          buildTimeline();
+          renderGraphic();
+        }
+      };
+      const mu = () => {
+        document.body.style.cursor = '';
+        window.removeEventListener('mousemove', mm);
+        window.removeEventListener('mouseup', mu);
+        endContinuousUndo();
+      };
+      window.addEventListener('mousemove', mm);
+      window.addEventListener('mouseup', mu);
+    });
+
     headers.innerHTML = '';
     rows.innerHTML = '';
 
@@ -2103,16 +2294,29 @@
 
     const snap = (v) => Math.round(v * 10) / 10;
     const attachSegmentHandlers = (seg, layer) => {
-      // Drag horizontally to move time, or vertically to drop onto another layer row.
+      // Drag horizontally to move time, vertically to move to another row.
+      // Alt+drag: duplicate the preset (horizontally = duplicate in place, vertically = duplicate to another row)
       let dx0=0, dy0=0, dl0=0;
       seg.addEventListener('mousedown', ev => {
         if (ev.target.classList.contains('seg-resize-l') || ev.target.classList.contains('seg-resize-r')) return;
         ev.preventDefault(); ev.stopPropagation();
         selectLayer(layer.id, { timeline:false });
         dx0=ev.clientX; dy0=ev.clientY; dl0=layer.delay;
+        const isDup = ev.altKey;
         let mode = null;
         let didPushTiming = false;
         let dropRow = null;
+        // For alt+drag: ghost clone shown on canvas
+        let ghost = null;
+        if (isDup) {
+          ghost = seg.cloneNode(true);
+          ghost.style.cssText += ';opacity:0.55;pointer-events:none;position:absolute;z-index:999;outline:2px dashed #FFB000;';
+          const badge = document.createElement('span');
+          badge.textContent = '+';
+          badge.style.cssText = 'position:absolute;top:2px;right:4px;font-size:9px;font-weight:900;color:#000;background:#FFB000;padding:1px 4px;border-radius:2px;pointer-events:none;';
+          ghost.appendChild(badge);
+          seg.parentElement.appendChild(ghost);
+        }
         const clearDrop = () => {
           if (dropRow) dropRow.classList.remove('preset-drop-target');
           dropRow = null;
@@ -2136,31 +2340,70 @@
           }
           if (mode === 'drop') {
             findDropRow(e);
+            if (ghost) { ghost.style.left = (snap(Math.max(0, dl0 + dx/PX_PER_SEC)) * PX_PER_SEC) + 'px'; }
             return;
           }
           if (mode === 'time') {
-            if (!didPushTiming) {
-              pushUndo('Move preset timing');
-              didPushTiming = true;
+            const newDelay = snap(Math.max(0, dl0 + dx/PX_PER_SEC));
+            if (isDup) {
+              // Ghost follows; original stays
+              if (ghost) ghost.style.left = (newDelay * PX_PER_SEC) + 'px';
+            } else {
+              if (!didPushTiming) { pushUndo('Move preset timing'); didPushTiming = true; }
+              layer.delay = newDelay;
+              seg.style.left = (layer.delay * PX_PER_SEC) + 'px';
+              syncRPDelayDisplay();
+              renderGraphic();
             }
-            layer.delay=snap(Math.max(0,dl0+dx/PX_PER_SEC));
-            seg.style.left=(layer.delay*PX_PER_SEC)+'px';
-            syncRPDelayDisplay();
-            renderGraphic();
           }
         };
         const mu = e => {
           window.removeEventListener('mousemove',mm);
           window.removeEventListener('mouseup',mu);
           seg.classList.remove('dragging-preset');
-          let moved = false;
-          if (mode === 'drop' && dropRow?.dataset.assetId) {
-            const rect = dropRow.getBoundingClientRect();
-            const insertAt = Math.max(0, Math.floor((e.clientY - rect.top - 4) / 34));
-            moved = movePresetToTimelineRow(layer.id, dropRow.dataset.assetId, insertAt);
+          if (ghost) ghost.remove();
+          const dx = e.clientX - dx0;
+          const dy = e.clientY - dy0;
+          const moved = Math.hypot(dx, dy) > 5;
+          if (isDup && moved) {
+            // Duplicate the layer
+            const srcLayer = S.layers.find(l => l.id === layer.id);
+            if (srcLayer) {
+              pushUndo('Duplicate preset');
+              const newLayer = JSON.parse(JSON.stringify(srcLayer));
+              newLayer.id = newLayerId() + Math.floor(Math.random() * 9999);
+              if (mode === 'drop' && dropRow?.dataset.assetId) {
+                newLayer.assetId = dropRow.dataset.assetId;
+                const rect = dropRow.getBoundingClientRect();
+                const insertAt = Math.max(0, Math.floor((e.clientY - rect.top - 4) / 34));
+                const targetLayers = S.layers.filter(l => l.assetId === newLayer.assetId);
+                const insertIdx = S.layers.findIndex(l => l.id === (targetLayers[Math.min(insertAt, targetLayers.length-1)]?.id));
+                if (insertIdx >= 0) S.layers.splice(insertIdx + 1, 0, newLayer);
+                else S.layers.push(newLayer);
+              } else {
+                // Horizontal dup: same asset, new delay position
+                newLayer.delay = snap(Math.max(0, dl0 + dx/PX_PER_SEC));
+                const li = (() => { let idx=-1; S.layers.forEach((l,i)=>{ if(l.id===srcLayer.id) idx=i; }); return idx; })();
+                S.layers.splice(li + 1, 0, newLayer);
+              }
+              S.sel = newLayer.id;
+              clearDrop();
+              refreshAll();
+            }
+            return;
           }
           clearDrop();
-          if (!moved) buildTimeline();
+          if (!isDup) {
+            let moved2 = false;
+            if (mode === 'drop' && dropRow?.dataset.assetId) {
+              const rect = dropRow.getBoundingClientRect();
+              const insertAt = Math.max(0, Math.floor((e.clientY - rect.top - 4) / 34));
+              moved2 = movePresetToTimelineRow(layer.id, dropRow.dataset.assetId, insertAt);
+            }
+            if (!moved2) buildTimeline();
+          } else {
+            buildTimeline(); // no move happened
+          }
         };
         window.addEventListener('mousemove',mm); window.addEventListener('mouseup',mu);
       });
@@ -2213,13 +2456,30 @@
       h.style.height = rowH + 'px';
       h.style.flex = `0 0 ${rowH}px`;
       h.style.borderLeft = `3px solid ${isSel ? 'var(--theme-accent, #FFB000)' : 'transparent'}`;
-      h.onclick = () => selectAssetRow(asset.id);
+      h.onclick = e => selectAssetRow(asset.id, e);
       
-      // Make row draggable
+      // Make row draggable — normal drag = reorder, Alt+drag = duplicate asset
       h.draggable = true;
       h.addEventListener('dragstart', e => {
-        e.dataTransfer.setData('text/plain', i);
-        h.style.opacity = '0.4';
+        if (e.altKey) {
+          e.dataTransfer.setData('vom-dup-asset-id', asset.id);
+          e.dataTransfer.setData('text/plain', 'dup:' + asset.id);
+          h.style.opacity = '0.55';
+          // Show "+" badge on drag image
+          const ghost = h.cloneNode(true);
+          ghost.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:' + h.offsetWidth + 'px;opacity:1;background:#1c1c1c;border:1px solid #FFB000;color:#FFB000;font-size:9px;font-weight:800;padding:8px 10px;display:flex;align-items:center;gap:6px;';
+          const badge = document.createElement('span');
+          badge.textContent = '+ DUPLICATE';
+          badge.style.cssText = 'background:#FFB000;color:#000;font-size:8px;font-weight:900;padding:2px 5px;border-radius:2px;margin-left:auto;';
+          ghost.appendChild(badge);
+          document.body.appendChild(ghost);
+          e.dataTransfer.setDragImage(ghost, 20, ghost.offsetHeight / 2);
+          setTimeout(() => ghost.remove(), 0);
+        } else {
+          e.dataTransfer.setData('text/plain', String(i));
+          e.dataTransfer.setData('vom-asset-idx', String(i));
+          h.style.opacity = '0.4';
+        }
       });
       h.addEventListener('dragover', e => {
         e.preventDefault();
@@ -2231,8 +2491,15 @@
       h.addEventListener('drop', e => {
         e.preventDefault();
         h.classList.remove('bg-stone-800');
-        const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
-        if (fromIdx !== i && !isNaN(fromIdx)) {
+        const dupId = e.dataTransfer.getData('vom-dup-asset-id');
+        if (dupId) {
+          // Alt+drag duplicate: activate the dragged asset, duplicate it
+          S.activeAssetId = dupId;
+          duplicateSelectedAsset();
+          return;
+        }
+        const fromIdx = parseInt(e.dataTransfer.getData('vom-asset-idx') || e.dataTransfer.getData('text/plain'));
+        if (!isNaN(fromIdx) && fromIdx !== i) {
           reorderAssetByIndex(fromIdx, i);
         }
       });
@@ -2247,12 +2514,13 @@
         <button onclick="event.stopPropagation();toggleAssetVis('${asset.id}')" class="shrink-0 ${asset.visible !== false?'':'opacity-40'}">
           <i data-lucide="${asset.visible !== false?'eye':'eye-off'}" class="w-3 h-3"></i>
         </button>
-        <span class="text-[9px] font-bold truncate flex-1">${asset.name}</span>
+        <span class="text-[9px] font-bold truncate flex-1 asset-name-label" data-asset-id="${asset.id}">${asset.name}</span>
         <span class="text-[8px] font-mono ${isSel ? 'text-stone-300' : 'text-stone-400'}">${effects.length}</span>
         <button onclick="event.stopPropagation();removeAsset('${asset.id}')" class="shrink-0 text-stone-400 hover:text-red-500 transition-colors">
           <i data-lucide="x" class="w-3 h-3"></i>
         </button>`;
       headers.appendChild(h);
+      h.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); showLayerRowContextMenu(e, asset.id); });
 
       // Track row
       const r = document.createElement('div');
@@ -2261,7 +2529,7 @@
       r.style.width = W + 'px';
       r.style.height = rowH + 'px';
       r.style.flex = `0 0 ${rowH}px`;
-      r.onclick = () => selectAssetRow(asset.id);
+      r.onclick = e => selectAssetRow(asset.id, e);
 
       if (!effects.length) {
         r.innerHTML = `<div class="absolute inset-0 flex items-center justify-center text-[10px] text-stone-400">Add a preset to this layer</div>`;
@@ -2278,6 +2546,7 @@
         seg.style.cssText = `left:${bLeft}px;width:${bW}px;top:${laneTop}px;height:${laneHeight}px;bottom:auto;background:${segColor}`;
         seg.innerHTML = `<div class="seg-resize-l"></div><span class="truncate z-10 relative pointer-events-none px-1">${layer.name}</span><div class="seg-resize-r"></div>`;
         attachSegmentHandlers(seg, layer);
+        seg.addEventListener('contextmenu', ev => { ev.preventDefault(); ev.stopPropagation(); showSegmentContextMenu(ev, layer); });
         r.appendChild(seg);
       });
       rows.appendChild(r);
@@ -2406,6 +2675,7 @@
   }
 
   function buildRightPanel() {
+    if (window.__renamingAsset) return;
     const rp = document.getElementById('right-panel');
     if (!rp) return;
     const scrollState = getRightPanelScrollState();
@@ -2420,11 +2690,11 @@
       const active = a.id === S.activeAssetId;
       const count = S.layers.filter(l => l.assetId === a.id).length;
       const visible = a.visible !== false;
-      return `<div onclick="setActiveAsset('${a.id}')" draggable="true" ondragstart="startAssetDrag(event,'${a.id}')" ondragover="overAssetDrag(event)" ondragleave="leaveAssetDrag(event)" ondrop="dropAssetDrag(event,'${a.id}')" ondragend="endAssetDrag(event)" class="right-layer-row flex items-center justify-between gap-2 px-3 py-2 border border-black cursor-pointer ${active ? 'bg-[#FFF8F5] text-brand-orange border-brand-orange' : 'bg-white text-black hover:bg-stone-50'} ${visible ? '' : 'opacity-50'}">
+      return `<div oncontextmenu="event.preventDefault();event.stopPropagation();showLayerRowContextMenu(event,'${a.id}')" onclick="selectAssetRow('${a.id}',event)" draggable="true" ondragstart="startAssetDrag(event,'${a.id}')" ondragover="overAssetDrag(event)" ondragleave="leaveAssetDrag(event)" ondrop="dropAssetDrag(event,'${a.id}')" ondragend="endAssetDrag(event)" class="right-layer-row flex items-center justify-between gap-2 px-3 py-2 border border-black cursor-pointer ${active ? 'bg-[#FFF8F5] text-brand-orange border-brand-orange' : 'bg-white text-black hover:bg-stone-50'} ${visible ? '' : 'opacity-50'}">
         <div class="flex items-center gap-2 min-w-0 flex-1">
           <i data-lucide="grip-vertical" class="w-3 h-3 ${active ? 'text-brand-orange' : 'text-stone-400'} shrink-0"></i>
           <button onclick="event.stopPropagation();toggleAssetVis('${a.id}')" class="${active ? 'text-brand-orange hover:text-black' : 'text-stone-500 hover:text-brand-orange'} shrink-0" title="${visible ? 'Hide layer' : 'Show layer'}"><i data-lucide="${visible ? 'eye' : 'eye-off'}" class="w-3 h-3"></i></button>
-          <span class="text-[10px] font-bold uppercase truncate">${a.name}</span>
+          <span class="text-[10px] font-bold uppercase truncate asset-name-label" data-asset-id="${a.id}">${a.name}</span>
         </div>
         <div class="flex items-center gap-2 shrink-0">
           <span class="text-[9px] font-mono ${active ? 'text-brand-orange' : 'text-stone-400'}">${count}</span>
@@ -2454,6 +2724,10 @@
         ${exportRowHTML()}`;
       lucide.createIcons();
       restoreRightPanelScrollState(scrollState);
+      rp.querySelectorAll('.right-layer-row').forEach(row => {
+        const id = row.querySelector('.asset-name-label')?.dataset.assetId;
+        if (id) row.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); showLayerRowContextMenu(e, id); });
+      });
       return;
     }
 
@@ -2556,6 +2830,10 @@
 
     lucide.createIcons();
     restoreRightPanelScrollState(scrollState);
+    rp.querySelectorAll('.right-layer-row').forEach(row => {
+      const id = row.querySelector('.asset-name-label')?.dataset.assetId;
+      if (id) row.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); showLayerRowContextMenu(e, id); });
+    });
   }
 
   function presetSpecificHTML(layer) {
@@ -2755,9 +3033,74 @@
   // ═══════════════════════════════════════════════════════════════════════════
   function getSelLayer() { return S.layers.find(l => l.id === S.sel) || null; }
 
-  function selectAssetRow(id) {
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MULTI-SELECT
+  // ═══════════════════════════════════════════════════════════════════════════
+  function getSelectedIds() {
+    // Always includes activeAssetId + any shift-selected ones
+    const ids = new Set(S.selectedAssetIds || []);
+    if (S.activeAssetId) ids.add(S.activeAssetId);
+    return [...ids];
+  }
+
+  function isMultiSelect() {
+    return (S.selectedAssetIds || []).length > 0;
+  }
+
+  function clearMultiSelect() {
+    S.selectedAssetIds = [];
+    updateMultiSelectUI();
+    buildTimeline();
+    buildRightPanel();
+  }
+
+  function toggleMultiSelectAsset(id) {
+    if (!S.selectedAssetIds) S.selectedAssetIds = [];
+    // Ensure active asset is always in the set when starting multi-select
+    if (S.selectedAssetIds.length === 0 && S.activeAssetId && S.activeAssetId !== id) {
+      S.selectedAssetIds.push(S.activeAssetId);
+    }
+    const idx = S.selectedAssetIds.indexOf(id);
+    if (idx >= 0) {
+      S.selectedAssetIds.splice(idx, 1);
+    } else {
+      S.selectedAssetIds.push(id);
+    }
+    S.activeAssetId = id;
+    S.file = getAsset(id);
+    updateMultiSelectUI();
+    buildTimeline();
+    buildRightPanel();
+  }
+
+  function updateMultiSelectUI() {
+    const banner = document.getElementById('multi-select-banner');
+    const label  = document.getElementById('multi-select-label');
+    const ids = getSelectedIds();
+    const multi = isMultiSelect();
+    if (banner) banner.classList.toggle('active', multi);
+    if (label)  label.textContent = `${ids.length} layer${ids.length !== 1 ? 's' : ''} selected — click preset to apply to all`;
+    // Highlight rows in timeline
+    document.querySelectorAll('.timeline-row').forEach(row => {
+      row.classList.toggle('multi-selected', multi && ids.includes(row.dataset.assetId));
+    });
+    // Highlight rows in right panel
+    document.querySelectorAll('.right-layer-row').forEach(row => {
+      const id = row.querySelector('.asset-name-label')?.dataset.assetId;
+      row.classList.toggle('multi-selected', multi && id && ids.includes(id));
+    });
+  }
+
+  function selectAssetRow(id, event) {
     const asset = getAsset(id);
     if (!asset) return;
+    // Shift+click → toggle multi-select
+    if (event && event.shiftKey) {
+      toggleMultiSelectAsset(id);
+      return;
+    }
+    // Normal click → clear multi-select, select single
+    S.selectedAssetIds = [];
     S.activeAssetId = asset.id;
     S.file = asset;
     if (!S.sel || !S.layers.some(l => l.id === S.sel && l.assetId === asset.id)) {
@@ -2843,6 +3186,38 @@
     if(rpDur) rpDur.value = S.scale.toFixed(2);
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ALIGNMENT
+  // ═══════════════════════════════════════════════════════════════════════════
+  function alignAsset(direction) {
+    const asset = currentAsset();
+    if (!asset) return;
+
+    const canvasEl = document.getElementById('canvas-target');
+    const [wStr, hStr] = (S.size || '400x400').split('x');
+    // Use the canvas element's actual layout size (unaffected by CSS scale transform)
+    const cw = canvasEl ? canvasEl.offsetWidth  : (parseInt(wStr) || 400);
+    const ch = canvasEl ? canvasEl.offsetHeight : (parseInt(hStr) || 400);
+
+    // Read the asset wrapper's layout size (offsetWidth/Height ignores CSS transforms)
+    const el = document.querySelector(`[data-asset-id="${asset.id}"]`);
+    const aw = el ? el.offsetWidth  : (asset.w || cw);
+    const ah = el ? el.offsetHeight : (asset.h || ch);
+
+    pushUndo('Align ' + direction);
+    // x=0,y=0 = canvas center. Asset origin = its center (transform: translate(-50%,-50%))
+    switch (direction) {
+      case 'left':    asset.x = -(cw / 2) + (aw / 2); break;
+      case 'centerH': asset.x = 0;                     break;
+      case 'right':   asset.x =  (cw / 2) - (aw / 2); break;
+      case 'top':     asset.y = -(ch / 2) + (ah / 2);  break;
+      case 'centerV': asset.y = 0;                      break;
+      case 'bottom':  asset.y =  (ch / 2) - (ah / 2);  break;
+    }
+    applyGraphicPosition();
+    renderGraphic();
+  }
+
   function setPP(key, val, min, max) {
     const l = getSelLayer(); if(!l) return;
     if(typeof min === 'number' && typeof max === 'number') { let v=parseFloat(val); if(isNaN(v)) return; val=Math.max(min,Math.min(max,v)); }
@@ -2920,6 +3295,120 @@
     renderGraphic(); buildRightPanel();
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // LAYER ROW RIGHT-CLICK CONTEXT MENU (Rename / Duplicate / Delete)
+  // ═══════════════════════════════════════════════════════════════════════════
+  function showLayerRowContextMenu(ev, assetId) {
+    hideSegmentContextMenu();
+    hideLayerContextMenu();
+
+    let menu = document.getElementById('layer-row-ctx-menu');
+    if (!menu) {
+      menu = document.createElement('div');
+      menu.id = 'layer-row-ctx-menu';
+      menu.style.cssText = 'position:fixed;z-index:100001;min-width:160px;background:#111;border:1px solid #333;box-shadow:4px 4px 0 rgba(0,0,0,.8);padding:4px;display:none;';
+      document.body.appendChild(menu);
+    }
+
+    const asset = getAsset(assetId);
+    if (!asset) return;
+
+    menu.innerHTML = `
+      <div style="padding:5px 10px 4px;font-size:8px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#555;border-bottom:1px solid #222;margin-bottom:3px;">${asset.name}</div>
+    `;
+
+    const btn = (icon, label, cls, fn) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.style.cssText = 'width:100%;display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:10px;font-weight:700;color:' + (cls === 'danger' ? '#f87171' : '#fff') + ';background:transparent;text-align:left;';
+      b.innerHTML = icon + label;
+      b.onmouseenter = () => b.style.background = cls === 'danger' ? '#2a0a0a' : '#222';
+      b.onmouseleave = () => b.style.background = 'transparent';
+      b.addEventListener('click', () => { menu.style.display = 'none'; fn(); });
+      menu.appendChild(b);
+    };
+
+    // Rename — inline inside the layer row
+    btn(`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+      'Rename', '', () => {
+        // Find the name span in timeline OR right panel
+        const span = document.querySelector(`.asset-name-label[data-asset-id="${assetId}"]`);
+        if (!span) return;
+
+        const original = asset.name;
+        window.__renamingAsset = true; // block DOM rebuilds
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = original;
+        input.style.cssText = 'background:transparent;border:none;border-bottom:1.5px solid #FFB000;outline:none;width:100%;min-width:0;font-size:inherit;font-weight:inherit;font-family:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;padding:0;margin:0;line-height:inherit;';
+
+        span.textContent = '';
+        span.style.overflow = 'visible';
+        span.appendChild(input);
+        input.focus();
+        input.select();
+
+        let done = false;
+        const commit = () => {
+          if (done) return;
+          done = true;
+          window.__renamingAsset = false;
+          const val = input.value.trim();
+          if (val && val !== original) {
+            pushUndo('Rename layer');
+            asset.name = val;
+          }
+          buildTimeline();
+          buildRightPanel();
+        };
+        const cancel = () => {
+          if (done) return;
+          done = true;
+          window.__renamingAsset = false;
+          span.textContent = original;
+          span.style.overflow = '';
+        };
+
+        input.addEventListener('blur',    () => commit());
+        input.addEventListener('keydown', e => {
+          e.stopPropagation();
+          if (e.key === 'Enter')  { e.preventDefault(); commit(); }
+          if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+        });
+        input.addEventListener('click',       e => e.stopPropagation());
+        input.addEventListener('pointerdown', e => e.stopPropagation());
+      });
+
+    // Duplicate
+    btn(`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
+      'Duplicate', '', () => {
+        S.activeAssetId = assetId;
+        duplicateSelectedAsset();
+      });
+
+    // Separator
+    const sep = document.createElement('div');
+    sep.style.cssText = 'height:1px;background:#222;margin:3px 0;';
+    menu.appendChild(sep);
+
+    // Delete
+    btn(`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`,
+      'Delete', 'danger', () => removeAsset(assetId));
+
+    // Position
+    menu.style.display = 'block';
+    menu.style.left = '0'; menu.style.top = '0';
+    const r = menu.getBoundingClientRect();
+    menu.style.left = Math.min(ev.clientX, window.innerWidth  - r.width  - 8) + 'px';
+    menu.style.top  = Math.min(ev.clientY, window.innerHeight - r.height - 8) + 'px';
+
+    // Close on outside click
+    const close = () => { menu.style.display = 'none'; window.removeEventListener('click', close); window.removeEventListener('keydown', onKey); };
+    const onKey = e => { if (e.key === 'Escape') close(); };
+    setTimeout(() => { window.addEventListener('click', close); window.addEventListener('keydown', onKey); }, 0);
+  }
+
   function toggleAssetVis(id) {
     const asset = getAsset(id); if(!asset) return;
     pushUndo('Toggle layer visibility');
@@ -2969,6 +3458,42 @@
     S.activeAssetId = nextAsset?.id || null;
     S.file = currentAsset();
     S.sel = S.layers.find(l => l.assetId === S.activeAssetId)?.id || null;
+    refreshAll();
+    return true;
+  }
+
+  function duplicateSelectedAsset() {
+    const asset = getAsset(S.activeAssetId);
+    if (!asset) return false;
+    pushUndo('Duplicate object');
+    const newId = newAssetId();
+    // Deep-clone the asset, give it a new id and offset position
+    const clone = JSON.parse(JSON.stringify(asset));
+    clone.id = newId;
+    clone.name = asset.name.replace(/ copy(\s\d+)?$/, '') + ' copy';
+    clone.x = (asset.x || 0) + 20;
+    clone.y = (asset.y || 0) + 20;
+    // Insert the clone directly after the original in the array
+    const idx = S.assets.findIndex(a => a.id === asset.id);
+    S.assets.splice(idx + 1, 0, clone);
+    // Deep-clone all layers that belong to the original asset, reassign to new asset
+    const originalLayers = S.layers.filter(l => l.assetId === asset.id);
+    const clonedLayers = originalLayers.map(l => {
+      const lc = JSON.parse(JSON.stringify(l));
+      lc.id = newLayerId() + Math.floor(Math.random() * 9999);
+      lc.assetId = newId;
+      return lc;
+    });
+    // Insert cloned layers right after the original layers in S.layers
+    if (originalLayers.length) {
+      const lastOrigIdx = (() => { let li=-1; S.layers.forEach((l,i)=>{ if(l.assetId===asset.id) li=i; }); return li; })();
+      S.layers.splice(lastOrigIdx + 1, 0, ...clonedLayers);
+    } else {
+      S.layers.push(...clonedLayers);
+    }
+    S.activeAssetId = newId;
+    S.file = clone;
+    S.sel = clonedLayers[0]?.id || null;
     refreshAll();
     return true;
   }
@@ -3281,39 +3806,93 @@
     if(!target || !wrap) return;
 
     let drag = null;
-    const finishDrag = e => {
-      if(!drag) return;
+
+    const finishDrag = () => {
+      if (!drag) return;
       try { drag.el.releasePointerCapture(drag.pointerId); } catch(_) {}
+      drag.el.classList.remove('dragging');
+
+      if (drag.isDup && drag.moved) {
+        // The element was visually dragged to a new position (asset.x/y updated live).
+        // Capture final position, restore original, then create clone at that position.
+        const finalX = drag.asset.x;
+        const finalY = drag.asset.y;
+
+        // Restore original to where it started
+        drag.asset.x = drag.origX;
+        drag.asset.y = drag.origY;
+
+        // Create duplicate at the dropped position
+        pushUndo('Duplicate object');
+        const newId = newAssetId();
+        const clone = JSON.parse(JSON.stringify(drag.asset));
+        clone.id = newId;
+        clone.name = drag.asset.name.replace(/ copy(\s\d+)?$/, '') + ' copy';
+        clone.x = finalX;
+        clone.y = finalY;
+
+        const idx = S.assets.findIndex(a => a.id === drag.asset.id);
+        S.assets.splice(idx + 1, 0, clone);
+
+        const originalLayers = S.layers.filter(l => l.assetId === drag.asset.id);
+        const clonedLayers = originalLayers.map(l => {
+          const lc = JSON.parse(JSON.stringify(l));
+          lc.id = 'L' + Date.now() + Math.floor(Math.random() * 99999);
+          lc.assetId = newId;
+          return lc;
+        });
+        if (clonedLayers.length) {
+          const lastIdx = (() => {
+            let li = -1;
+            S.layers.forEach((l, i) => { if (l.assetId === drag.asset.id) li = i; });
+            return li;
+          })();
+          if (lastIdx >= 0) S.layers.splice(lastIdx + 1, 0, ...clonedLayers);
+          else S.layers.push(...clonedLayers);
+        }
+
+        S.activeAssetId = newId;
+        S.file = clone;
+        S.sel = clonedLayers[0]?.id || null;
+        refreshAll();
+      }
+
       drag = null;
-      document.querySelectorAll('.asset-wrapper.dragging').forEach(el => el.classList.remove('dragging'));
     };
 
     wrap.addEventListener('pointerdown', e => {
       const el = e.target.closest('.asset-wrapper');
-      if(!el || e.button !== 0) return;
+      if (!el || e.button !== 0) return;
       const asset = getAsset(el.dataset.assetId);
-      if(!asset) return;
+      if (!asset) return;
       e.preventDefault();
       e.stopPropagation();
+
       S.activeAssetId = asset.id;
       S.file = asset;
       S.sel = S.layers.find(l => l.assetId === asset.id)?.id || null;
+
       const rect = target.getBoundingClientRect();
+      const scaleX = rect.width  ? target.offsetWidth  / rect.width  : 1;
+      const scaleY = rect.height ? target.offsetHeight / rect.height : 1;
+
       drag = {
         pointerId: e.pointerId,
         el,
         asset,
-        startX: e.clientX,
-        startY: e.clientY,
-        assetX: asset.x || 0,
-        assetY: asset.y || 0,
-        scaleX: rect.width ? target.offsetWidth / rect.width : 1,
-        scaleY: rect.height ? target.offsetHeight / rect.height : 1,
-        moved: false,
+        startX:  e.clientX,
+        startY:  e.clientY,
+        origX:   asset.x || 0,
+        origY:   asset.y || 0,
+        scaleX,
+        scaleY,
+        moved:   false,
+        isDup:   e.altKey,
       };
+
       el.setPointerCapture(e.pointerId);
       el.classList.add('dragging');
-      document.querySelectorAll('.asset-wrapper.selected').forEach(node => node.classList.remove('selected'));
+      document.querySelectorAll('.asset-wrapper.selected').forEach(n => n.classList.remove('selected'));
       el.classList.add('selected');
       buildPresets();
       buildTimeline();
@@ -3321,22 +3900,26 @@
     });
 
     wrap.addEventListener('pointermove', e => {
-      if(!drag || e.pointerId !== drag.pointerId) return;
+      if (!drag || e.pointerId !== drag.pointerId) return;
       const dx = e.clientX - drag.startX;
       const dy = e.clientY - drag.startY;
-      if (!drag.moved && Math.hypot(dx, dy) > 2) {
-        pushUndo('Move asset');
+
+      if (!drag.moved && Math.hypot(dx, dy) > 3) {
         drag.moved = true;
+        if (!drag.isDup) pushUndo('Move asset');
       }
-      drag.asset.x = drag.assetX + (e.clientX - drag.startX) * drag.scaleX;
-      drag.asset.y = drag.assetY + (e.clientY - drag.startY) * drag.scaleY;
+      if (!drag.moved) return;
+
+      // Both normal drag and alt+drag move the element visually — on release we decide
+      drag.asset.x = drag.origX + dx * drag.scaleX;
+      drag.asset.y = drag.origY + dy * drag.scaleY;
       clampAssetPosition(drag.asset);
       drag.el.style.cssText = assetPositionStyle(drag.asset);
     });
 
-    wrap.addEventListener('pointerup', finishDrag);
-    wrap.addEventListener('pointercancel', finishDrag);
-    wrap.addEventListener('lostpointercapture', finishDrag);
+    wrap.addEventListener('pointerup',           finishDrag);
+    wrap.addEventListener('pointercancel',        finishDrag);
+    wrap.addEventListener('lostpointercapture',   finishDrag);
   }
 
   function ensureLayerContextMenu() {
@@ -3377,6 +3960,18 @@
       empty.textContent = 'No layers yet';
       menu.appendChild(empty);
     } else {
+      // Duplicate action for active asset
+      if (S.activeAssetId) {
+        const dupBtn = document.createElement('button');
+        dupBtn.type = 'button';
+        dupBtn.className = 'menu-action';
+        dupBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;margin-right:6px;vertical-align:middle"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate Layer';
+        dupBtn.addEventListener('click', e => { e.stopPropagation(); hideLayerContextMenu(); duplicateSelectedAsset(); });
+        menu.appendChild(dupBtn);
+        const sep = document.createElement('div');
+        sep.className = 'menu-sep';
+        menu.appendChild(sep);
+      }
       assets.forEach(asset => {
         const btn = document.createElement('button');
         btn.type = 'button';
@@ -3403,15 +3998,95 @@
     menu.style.top = Math.max(8, y) + 'px';
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SEGMENT (PRESET) RIGHT-CLICK CONTEXT MENU
+  // ═══════════════════════════════════════════════════════════════════════════
+  function ensureSegmentContextMenu() {
+    let menu = document.getElementById('seg-context-menu');
+    if (menu) return menu;
+    menu = document.createElement('div');
+    menu.id = 'seg-context-menu';
+    menu.className = 'seg-context-menu';
+    document.body.appendChild(menu);
+    return menu;
+  }
+
+  function hideSegmentContextMenu() {
+    const m = document.getElementById('seg-context-menu');
+    if (m) m.classList.remove('open');
+  }
+
+  function showSegmentContextMenu(ev, layer) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    hideSegmentContextMenu();
+    hideLayerContextMenu();
+
+    selectLayer(layer.id, { timeline: false });
+
+    const menu = ensureSegmentContextMenu();
+    menu.innerHTML = '';
+
+    // Header — preset name
+    const hdr = document.createElement('div');
+    hdr.className = 'scm-header';
+    hdr.textContent = layer.name || 'Preset';
+    menu.appendChild(hdr);
+
+    // Duplicate preset
+    const dupBtn = document.createElement('button');
+    dupBtn.type = 'button';
+    dupBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate`;
+    dupBtn.addEventListener('click', () => {
+      hideSegmentContextMenu();
+      const src = S.layers.find(l => l.id === layer.id);
+      if (!src) return;
+      pushUndo('Duplicate preset');
+      const newLayer = JSON.parse(JSON.stringify(src));
+      newLayer.id = 'L' + Date.now() + Math.floor(Math.random() * 99999);
+      newLayer.delay = Math.min(src.delay + src.duration, getTotalDur() - src.duration);
+      const srcIdx = S.layers.findIndex(l => l.id === src.id);
+      S.layers.splice(srcIdx + 1, 0, newLayer);
+      S.sel = newLayer.id;
+      refreshAll();
+    });
+    menu.appendChild(dupBtn);
+
+    const sep = document.createElement('div');
+    sep.className = 'scm-sep';
+    menu.appendChild(sep);
+
+    // Delete preset
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'scm-danger';
+    delBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>Delete`;
+    delBtn.addEventListener('click', () => {
+      hideSegmentContextMenu();
+      removeLayer(layer.id);
+    });
+    menu.appendChild(delBtn);
+
+    // Position the menu
+    menu.classList.add('open');
+    menu.style.left = '0px';
+    menu.style.top = '0px';
+    const rect = menu.getBoundingClientRect();
+    const x = Math.min(ev.clientX, window.innerWidth  - rect.width  - 8);
+    const y = Math.min(ev.clientY, window.innerHeight - rect.height - 8);
+    menu.style.left = Math.max(8, x) + 'px';
+    menu.style.top  = Math.max(8, y) + 'px';
+  }
+
   function initArtboardContextMenu() {
     const target = document.getElementById('canvas-target');
     if (!target) return;
     target.addEventListener('contextmenu', showLayerContextMenu);
-    window.addEventListener('click', hideLayerContextMenu);
+    window.addEventListener('click', () => { hideLayerContextMenu(); hideSegmentContextMenu(); });
     window.addEventListener('keydown', e => {
-      if (e.key === 'Escape') hideLayerContextMenu();
+      if (e.key === 'Escape') { hideLayerContextMenu(); hideSegmentContextMenu(); }
     });
-    window.addEventListener('resize', hideLayerContextMenu);
+    window.addEventListener('resize', () => { hideLayerContextMenu(); hideSegmentContextMenu(); });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -4350,6 +5025,7 @@
     renderGraphic();
     buildTimeline();
     buildRightPanel();
+    updateMultiSelectUI();
   }
 
   function initScrubbing() {
@@ -4409,6 +5085,11 @@
         else undoProject();
         return;
       }
+      if ((e.ctrlKey || e.metaKey) && key === 'd') {
+        e.preventDefault();
+        duplicateSelectedAsset();
+        return;
+      }
       if (!e.ctrlKey && !e.metaKey && !e.altKey && (key === 'delete' || key === 'backspace')) {
         if (deleteSelectedArtboardObject()) e.preventDefault();
       }
@@ -4448,6 +5129,11 @@
       document.getElementById('size-btn')?.setAttribute('aria-expanded', 'false');
       document.getElementById('shape-btn')?.setAttribute('aria-expanded', 'false');
     });
+
+    // Alt key held → switch seg/row cursors to "copy"
+    window.addEventListener('keydown', e => { if (e.key === 'Alt') document.body.classList.add('alt-held'); });
+    window.addEventListener('keyup',   e => { if (e.key === 'Alt') document.body.classList.remove('alt-held'); });
+    window.addEventListener('blur',    ()  => document.body.classList.remove('alt-held'));
 
     // Spacebar to play/pause
     window.addEventListener('keydown', (e) => {
