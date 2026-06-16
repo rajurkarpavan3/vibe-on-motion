@@ -281,13 +281,13 @@
     /* Tech */
     @keyframes kf-glitch       { 0%,100%{transform:translate(0);clip-path:inset(0);filter:none} 10%{transform:translate(-4px,2px);clip-path:inset(10% 0 60% 0);filter:drop-shadow(var(--rgb-split,-4px) 0 0 red) drop-shadow(calc(var(--rgb-split,-4px) * -1) 0 0 blue)} 20%{transform:translate(4px,-2px);clip-path:inset(80% 0 5% 0);filter:drop-shadow(calc(var(--rgb-split,-4px) * -1) 0 0 red) drop-shadow(var(--rgb-split,-4px) 0 0 blue)} 30%{transform:translate(-2px,2px);clip-path:inset(40% 0 40% 0);filter:none} 40%{transform:translate(2px,-2px);clip-path:inset(20% 0 20% 0);filter:drop-shadow(var(--rgb-split,-4px) 0 0 red)} 50%{transform:translate(0);clip-path:inset(0);filter:none} }
     @keyframes kf-hologram     { 0%,100%{opacity:1;filter:hue-rotate(0deg) brightness(1)} 33%{opacity:.7;filter:hue-rotate(90deg) brightness(1.3)} 66%{opacity:.9;filter:hue-rotate(180deg) brightness(.9)} }
-    @keyframes kf-neon-glow    { 0%,100%{filter:drop-shadow(0 0 2px var(--glow-color,#FFB000))} 50%{filter:drop-shadow(0 0 12px var(--glow-color,#FFB000)) drop-shadow(0 0 24px var(--glow-color,#FFB000))} }
+    @keyframes kf-neon-glow    { 0%,100%{filter:drop-shadow(0 0 2px var(--glow-color,#FFB000))} 50%{filter:drop-shadow(0 0 12px var(--glow-color,#FFB000)) drop-shadow(var(--glow-x,0px) var(--glow-y,0px) 24px var(--glow-color-2,var(--glow-color,#FFB000)))} }
     @keyframes kf-pixel        { 0%{opacity:0;filter:contrast(2) brightness(1.3)} 100%{opacity:1;filter:contrast(1) brightness(1)} }
     @keyframes kf-rgb-split    { 0%,100%{filter:none} 50%{filter:drop-shadow(var(--rgb-split,-4px) 0 0 red) drop-shadow(calc(var(--rgb-split,-4px) * -1) 0 0 blue)} }
     @keyframes kf-x-ray        { 0%,100%{filter:invert(1) grayscale(1) opacity(var(--xray-op,0.8)) drop-shadow(0 0 4px rgba(255,255,255,0.5))} 50%{filter:invert(1) grayscale(1) opacity(calc(var(--xray-op,0.8) + 0.2)) drop-shadow(0 0 12px rgba(255,255,255,0.8))} }
 
     /* Gaming */
-    @keyframes kf-loot-glow    { 0%,100%{filter:drop-shadow(0 0 4px gold) brightness(1)} 50%{filter:drop-shadow(0 0 20px gold) drop-shadow(0 0 40px gold) brightness(1.4)} }
+    @keyframes kf-loot-glow    { 0%,100%{filter:drop-shadow(0 0 4px var(--glow-color,gold)) brightness(1)} 50%{filter:drop-shadow(0 0 20px var(--glow-color,gold)) drop-shadow(var(--glow-x,0px) var(--glow-y,0px) 40px var(--glow-color-2,var(--glow-color,gold))) brightness(1.4)} }
     @keyframes kf-damage-shake { 0%,100%{transform:translate(0,0) rotate(0deg)} 15%{transform:translate(-6px,2px) rotate(-2deg)} 30%{transform:translate(6px,-2px) rotate(2deg)} 45%{transform:translate(-4px,1px) rotate(-1deg)} 60%{transform:translate(4px,-1px) rotate(1deg)} }
     @keyframes kf-energy       { 0%{transform:scale(.9);filter:brightness(1) saturate(1)} 50%{transform:scale(1.05);filter:brightness(1.5) saturate(2)} 100%{transform:scale(1);filter:brightness(1) saturate(1)} }
 
@@ -504,7 +504,7 @@
       overflow:hidden;
     }
     .right-layer-list {
-      max-height:186px;
+      max-height:160px;
       overflow-y:auto;
       padding-right:0;
     }
@@ -544,13 +544,17 @@
     }
     .rp-tab {
       border-radius:0 !important;
-      background:#202020 !important;
-      color:#D6D3D1 !important;
+      background:#161616 !important;
+      color:#555 !important;
       border:0 !important;
+      transition: background .15s, color .15s;
+    }
+    .rp-tab:hover {
+      color:#BBB !important;
     }
     .rp-tab.is-active {
-      background:#FFB000 !important;
-      color:#050505 !important;
+      background:#2D2D2D !important;
+      color:#E8E8E8 !important;
     }
     .rp-tab + .rp-tab {
       border-left:1px solid #2B2B2B !important;
@@ -843,6 +847,85 @@
       border-color:var(--theme-border-strong) !important;
       color-scheme:dark;
     }
+    /* Unified color picker component */
+    .color-field {
+      display:flex;
+      align-items:center;
+      gap:0;
+      border:1px solid #2A2A2A;
+      border-radius:6px;
+      overflow:hidden;
+      background:#161616;
+      height:36px;
+    }
+    .color-field input[type="color"] {
+      width:36px;
+      height:36px;
+      border:none;
+      padding:4px;
+      cursor:pointer;
+      background:transparent;
+      flex-shrink:0;
+    }
+    .color-field input[type="text"] {
+      flex:1;
+      background:transparent;
+      border:none;
+      border-left:1px solid #2A2A2A;
+      color:#CCC;
+      font-family:monospace;
+      font-size:11px;
+      padding:0 8px;
+      outline:none;
+      text-transform:uppercase;
+      height:36px;
+    }
+    .color-field input[type="text"]:focus { color:#FFF; }
+    .vom-gradient-editor {
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .vom-gradient-bar {
+      position:relative;
+      height:30px;
+      border:1px solid #3A3A3A;
+      border-radius:4px;
+      cursor:crosshair;
+      overflow:visible;
+      background:#222;
+    }
+    .vom-gradient-stop {
+      position:absolute;
+      top:50%;
+      width:20px;
+      height:20px;
+      border:2px solid #FFF;
+      border-radius:999px;
+      box-shadow:0 0 0 2px #111;
+      transform:translate(-50%,-50%);
+      cursor:grab;
+      touch-action:none;
+    }
+    .vom-gradient-stop:hover,
+    .vom-gradient-stop.is-active {
+      border-color:#FFB000;
+    }
+    .vom-gradient-stop.is-dragging {
+      cursor:grabbing;
+      border-color:#FFB000;
+      z-index:2;
+    }
+    body.dragging-gradient-stop {
+      cursor:grabbing;
+      user-select:none;
+    }
+    .vom-gradient-stop-row {
+      display:grid;
+      grid-template-columns:1fr 54px 28px;
+      gap:6px;
+      align-items:center;
+    }
     .theme-arcade input[type="color"] {
       background:transparent !important;
     }
@@ -1047,6 +1130,13 @@
     .theme-arcade #center-panel > .bg-white {
       background:var(--theme-panel) !important;
     }
+    .toolbar-add-btn {
+      width:32px; height:32px;
+      display:flex; align-items:center; justify-content:center;
+      border-radius:5px; color:#888; flex-shrink:0;
+      transition:background .12s, color .12s;
+    }
+    .toolbar-add-btn:hover { background:rgba(255,255,255,.12); color:#FFF; }
     .theme-arcade #canvas-toolbar {
       border-top:0 !important;
       border-bottom:0 !important;
@@ -1315,11 +1405,11 @@
     <div class="flex items-center gap-2" style="position:absolute;right:16px;top:50%;transform:translateY(-50%)">
       <input type="file" id="json-import" accept=".json" class="hidden">
       <button onclick="document.getElementById('json-import').click()" class="vom-cta flex items-center space-x-2 px-4 text-[10px] font-bold bg-[#1A1A1A] text-[#AAA] hover:bg-[#2A2A2A] hover:text-white border border-[#333] transition-colors rounded-full" style="height:36px" title="Load a saved project JSON">
-        <i data-lucide="folder-open" class="w-3.5 h-3.5"></i><span>LOAD PROJECT</span>
+        <i data-lucide="folder-open" class="w-4 h-4"></i><span>LOAD PROJECT</span>
       </button>
       <input type="file" id="file-upload" accept="image/*,.svg" multiple class="hidden">
       <button onclick="newProject()" class="vom-cta vom-cta-primary flex items-center space-x-2 px-4 text-[10px] font-bold bg-brand-orange text-black hover:bg-orange-400 transition-colors rounded-full" style="height:36px;font-weight:900" title="Start a new file">
-        <i data-lucide="file-plus" class="w-3.5 h-3.5"></i><span>NEW FILE</span>
+        <i data-lucide="file-plus" class="w-4 h-4"></i><span>NEW FILE</span>
       </button>
     </div>
   </header>
@@ -1349,37 +1439,19 @@
     <section id="center-panel" class="workspace-center flex flex-col bg-[#FAF9F6] overflow-hidden">
       <!-- Canvas toolbar -->
       <div id="canvas-toolbar" class="flex items-stretch border-b border-black bg-white shrink-0 relative" style="height:40px;z-index:9998">
-        <div class="relative flex items-center px-2" id="shape-controls">
-          <button onclick="toggleShapeDrop(event)" id="shape-btn" aria-expanded="false" class="vom-cta flex items-center space-x-2 px-4 text-[10px] font-bold transition-colors h-8 uppercase">
-            <span>ADD</span>
-            <i data-lucide="plus" class="w-3 h-3"></i>
+        <!-- Inline add buttons -->
+        <div class="flex items-center gap-3 px-4" id="shape-controls">
+          <input type="file" id="file-upload" accept="image/*,.svg" multiple class="hidden">
+          <button onclick="document.getElementById('file-upload').click()" title="Add image" class="toolbar-add-btn">
+            <i data-lucide="image" class="w-5 h-5"></i>
           </button>
-          <div id="shape-drop" class="vom-menu-list absolute left-2 top-full mt-2 w-52 bg-white border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] z-50 hidden" onclick="event.stopPropagation()">
-            <button onclick="addTextAsset(event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase flex items-center gap-3">
-              <i data-lucide="type" class="w-4 h-4 shrink-0"></i><span>Text</span>
-            </button>
-            <button onclick="addShapeAsset('square',event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase flex items-center gap-3">
-              <i data-lucide="square" class="w-4 h-4 shrink-0"></i><span>Square</span>
-            </button>
-            <button onclick="addShapeAsset('circle',event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase flex items-center gap-3">
-              <i data-lucide="circle" class="w-4 h-4 shrink-0"></i><span>Circle</span>
-            </button>
-            <button onclick="addShapeAsset('triangle',event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase flex items-center gap-3">
-              <i data-lucide="triangle" class="w-4 h-4 shrink-0"></i><span>Triangle</span>
-            </button>
-            <button onclick="addShapeAsset('star',event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase flex items-center gap-3">
-              <i data-lucide="star" class="w-4 h-4 shrink-0"></i><span>Star</span>
-            </button>
-          </div>
-        </div>
-        <!-- Align icons next to ADD -->
-        <div class="flex items-center gap-0.5 px-2" id="toolbar-align-btns">
-          <button onclick="alignAsset('left')"    title="Align Left"     class="w-7 h-7 flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-100 transition-colors rounded"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="3" width="2" height="10"/><rect x="4" y="5" width="7" height="3"/><rect x="4" y="9" width="10" height="3"/></svg></button>
-          <button onclick="alignAsset('centerH')" title="Center H"       class="w-7 h-7 flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-100 transition-colors rounded"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="7" y="1" width="2" height="14"/><rect x="3" y="4" width="10" height="3"/><rect x="1" y="9" width="14" height="3"/></svg></button>
-          <button onclick="alignAsset('right')"   title="Align Right"    class="w-7 h-7 flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-100 transition-colors rounded"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="13" y="3" width="2" height="10"/><rect x="5" y="5" width="7" height="3"/><rect x="2" y="9" width="10" height="3"/></svg></button>
-          <button onclick="alignAsset('top')"     title="Align Top"      class="w-7 h-7 flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-100 transition-colors rounded"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="1" width="10" height="2"/><rect x="5" y="4" width="3" height="7"/><rect x="9" y="4" width="3" height="10"/></svg></button>
-          <button onclick="alignAsset('centerV')" title="Center V"       class="w-7 h-7 flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-100 transition-colors rounded"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="7" width="14" height="2"/><rect x="4" y="3" width="3" height="10"/><rect x="9" y="1" width="3" height="14"/></svg></button>
-          <button onclick="alignAsset('bottom')"  title="Align Bottom"   class="w-7 h-7 flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-100 transition-colors rounded"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="13" width="10" height="2"/><rect x="5" y="2" width="3" height="10"/><rect x="9" y="5" width="3" height="7"/></svg></button>
+          <button onclick="addTextAsset(event)" title="Add text" class="toolbar-add-btn">
+            <i data-lucide="type" class="w-4 h-4"></i>
+          </button>
+          <button onclick="addShapeAsset('square',event)"   title="Square"   class="toolbar-add-btn"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="2.5" width="11" height="11" rx="1"/></svg></button>
+          <button onclick="addShapeAsset('circle',event)"   title="Circle"   class="toolbar-add-btn"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/></svg></button>
+          <button onclick="addShapeAsset('triangle',event)" title="Triangle" class="toolbar-add-btn"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 2.5L13.5 13H2.5z"/></svg></button>
+          <button onclick="addShapeAsset('star',event)"     title="Star"     class="toolbar-add-btn"><svg width="22" height="22" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 1.5l1.6 3.3 3.6.5-2.6 2.5.6 3.6L8 9.7l-3.2 1.7.6-3.6L2.8 5.3l3.6-.5z"/></svg></button>
         </div>
 
 
@@ -1403,14 +1475,13 @@
                 </div>
               </div>
               <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                  <input type="color" id="bg-custom-color" value="#FFFFFF" oninput="setCustomBgColor(this.value)" onchange="setCustomBgColor(this.value)" class="w-8 h-8 border border-black p-0 cursor-pointer shrink-0">
-                  <input type="text" id="bg-custom-hex" value="#FFFFFF" oninput="setCustomBgColor(this.value)" onchange="setCustomBgColor(this.value)" class="w-[132px] text-xs font-mono border border-black px-2 py-1.5 outline-none focus:border-[#555] uppercase">
+                <div id="bg-solid-row" class="flex items-center justify-between">
+                  <div class="color-field w-full">
+                    <input type="color" id="bg-custom-color" value="#FFFFFF" oninput="setCustomBgColor(this.value);document.getElementById('bg-custom-hex').value=this.value.toUpperCase()" onchange="setCustomBgColor(this.value)">
+                    <input type="text" id="bg-custom-hex" value="#FFFFFF" oninput="setCustomBgColor(this.value);document.getElementById('bg-custom-color').value=this.value" class="uppercase" placeholder="#FFFFFF">
+                  </div>
                 </div>
-                <div id="bg-gradient-row" class="hidden flex items-center justify-between">
-                  <input type="color" id="bg-gradient-color" value="#FFB000" oninput="setGradientBgColor(this.value)" onchange="setGradientBgColor(this.value)" class="w-8 h-8 border border-black p-0 cursor-pointer shrink-0">
-                  <input type="text" id="bg-gradient-hex" value="#FFB000" oninput="setGradientBgColor(this.value)" onchange="setGradientBgColor(this.value)" class="w-[132px] text-xs font-mono border border-black px-2 py-1.5 outline-none focus:border-[#555] uppercase">
-                </div>
+                <div id="bg-gradient-row" class="hidden"></div>
               </div>
             </div>
           </div>
@@ -1453,10 +1524,10 @@
         <div class="flex items-center justify-between border-b border-black px-4 bg-stone-50 shrink-0" style="height:40px">
           <div class="flex items-center space-x-2">
             <button onclick="togglePlay()" id="play-btn" class="p-1.5 bg-black hover:bg-brand-orange text-white border border-black transition">
-              <i data-lucide="play" class="w-3.5 h-3.5"></i>
+              <i data-lucide="play" class="w-4 h-4"></i>
             </button>
             <button onclick="restartAnim()" class="p-1.5 bg-white hover:bg-stone-100 border border-black text-stone-600 transition">
-              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
             </button>
           </div>
           <div class="flex items-center space-x-3">
@@ -1604,6 +1675,8 @@
     bg: 'light',
     customBg: '#FFFFFF',
     customBg2: '#FFB000',
+    customBgStops: [{ color:'#FFFFFF', pos:0 }, { color:'#FFB000', pos:100 }],
+    customBgAngle: 135,
     size: '400x400',
     scale: 1,
     playing: false,
@@ -1628,6 +1701,8 @@
       bg: S.bg,
       customBg: S.customBg || '#FFFFFF',
       customBg2: S.customBg2 || '#FFB000',
+      customBgStops: normalizeGradientStops(S.customBgStops, S.customBg || '#FFFFFF', S.customBg2 || '#FFB000'),
+      customBgAngle: S.customBgAngle ?? 135,
       size: S.size,
       scale: S.scale,
       time: S.time,
@@ -1659,12 +1734,8 @@
     const safe2 = color2 || S.customBg2 || '#FFB000';
     const cCol = document.getElementById('bg-custom-color');
     const cHex = document.getElementById('bg-custom-hex');
-    const gCol = document.getElementById('bg-gradient-color');
-    const gHex = document.getElementById('bg-gradient-hex');
     if (cCol) cCol.value = safe;
     if (cHex) cHex.value = safe;
-    if (gCol) gCol.value = safe2;
-    if (gHex) gHex.value = safe2;
     updateCustomBgModeUI();
   }
 
@@ -1680,6 +1751,8 @@
     S.bg = snap.bg || 'light';
     S.customBg = snap.customBg || '#FFFFFF';
     S.customBg2 = snap.customBg2 || '#FFB000';
+    S.customBgStops = normalizeGradientStops(snap.customBgStops, S.customBg, S.customBg2);
+    S.customBgAngle = clampGradientAngle(snap.customBgAngle, 135);
     S.size = snap.size || '400x400';
     S.scale = parseFloat(snap.scale) || 1;
     S.time = parseFloat(snap.time) || 0;
@@ -1717,6 +1790,19 @@
 
   function newLayerId() { return 'L' + Date.now(); }
   function newAssetId() { return 'A' + Date.now() + Math.floor(Math.random() * 1000); }
+
+  function syncMovePresetDirection(layer) {
+    if (!layer || !layer.params) return;
+    // Move presets are named by travel direction. CSS starts from an offset and
+    // animates back to center, so the stored offset is intentionally opposite.
+    const dirByPreset = {
+      'move-in-right': 'left',
+      'move-in-left': 'right',
+      'move-top': 'bottom',
+      'move-bottom': 'top',
+    };
+    if (dirByPreset[layer.presetId]) layer.params.slideDir = dirByPreset[layer.presetId];
+  }
 
   function hasAssets() { return S.assets && S.assets.length > 0; }
   function getAsset(id) { return (S.assets || []).find(a => a.id === id) || null; }
@@ -1807,6 +1893,8 @@
 
   function normalizeProjectState() {
     if (!S.assets) S.assets = [];
+    S.customBgStops = normalizeGradientStops(S.customBgStops, S.customBg || '#FFFFFF', S.customBg2 || '#FFB000');
+    S.customBgAngle = clampGradientAngle(S.customBgAngle, 135);
     if (!S.assets.length && S.file) {
       S.assets = [{
         id: newAssetId(),
@@ -1821,6 +1909,14 @@
     }
     if ((!S.activeAssetId || !getAsset(S.activeAssetId)) && S.assets[0]) S.activeAssetId = S.assets[0].id;
     S.assets.forEach(a => {
+      if (a.borderGradientAngle === undefined) a.borderGradientAngle = 135;
+      if (a.borderGradientStops === undefined) a.borderGradientStops = normalizeGradientStops(null, a.borderColor || '#FFFFFF', a.borderColor2 || '#FFB000');
+      if (a.type === 'svg') {
+        if (a.svgFillGradientAngle === undefined) a.svgFillGradientAngle = 135;
+        if (a.svgStrokeGradientAngle === undefined) a.svgStrokeGradientAngle = 135;
+        if (a.svgFillGradientStops === undefined) a.svgFillGradientStops = normalizeGradientStops(null, a.svgFill || '#C8C8C8', a.svgFill2 || '#FFB000');
+        if (a.svgStrokeGradientStops === undefined) a.svgStrokeGradientStops = normalizeGradientStops(null, a.svgStroke || '#000000', a.svgStroke2 || '#FFB000');
+      }
       if (a.type === 'text') {
         if (!a.content)      a.content = 'Your Text';
         if (!a.fontFamily)   a.fontFamily = 'Inter';
@@ -1831,6 +1927,7 @@
         if (!a.textColor2)   a.textColor2 = '#FFB000';
         if (!a.colorMode)    a.colorMode = 'solid';
         if (a.gradientAngle === undefined) a.gradientAngle = 90;
+        if (a.textGradientStops === undefined) a.textGradientStops = normalizeGradientStops(null, a.textColor || '#1F1F1F', a.textColor2 || '#FFB000');
         if (!a.textAlign)    a.textAlign = 'center';
         if (a.letterSpacing === undefined) a.letterSpacing = 0;
         if (a.lineHeight    === undefined) a.lineHeight = 1.2;
@@ -1847,18 +1944,32 @@
       if (a.rotation === undefined) a.rotation = 0;
       if (a.radius === undefined) a.radius = 0;
       if (a.points === undefined) a.points = a.shapeType === 'star' ? 5 : 3;
-      if (!a.fill) a.fill = '#1F1F1F';
+      if (!a.fill) a.fill = '#C8C8C8';
       if (!a.fill2) a.fill2 = '#FFB000';
       if (!a.fillMode) a.fillMode = 'solid';
+      if (a.fillGradientAngle === undefined) a.fillGradientAngle = 135;
+      if (a.fillGradientStops === undefined) a.fillGradientStops = normalizeGradientStops(null, a.fill || '#C8C8C8', a.fill2 || '#FFB000');
       if (!a.stroke) a.stroke = '#FFFFFF';
       if (!a.stroke2) a.stroke2 = '#FFB000';
       if (!a.strokeMode) a.strokeMode = 'solid';
+      if (a.strokeGradientAngle === undefined) a.strokeGradientAngle = 135;
+      if (a.strokeGradientStops === undefined) a.strokeGradientStops = normalizeGradientStops(null, a.stroke || '#FFFFFF', a.stroke2 || '#FFB000');
       if (a.strokeWidth === undefined) a.strokeWidth = 0;
       if (!a.strokeJoin) a.strokeJoin = 'round';
       if (!a.strokeDash) a.strokeDash = 'solid';
     });
     S.layers.forEach(l => {
       if (!l.assetId && S.activeAssetId) l.assetId = S.activeAssetId;
+      syncMovePresetDirection(l);
+      const layerPreset = getPreset(l.presetId);
+      if (layerPreset?.controls?.includes('glow-color')) {
+        if (!l.params) l.params = {};
+        if (l.params.glowColorMode === undefined) l.params.glowColorMode = 'solid';
+        if (l.params.glowColor === undefined) l.params.glowColor = '#FFB000';
+        if (l.params.glowColor2 === undefined) l.params.glowColor2 = '#FF5C5C';
+        if (l.params.glowGradientAngle === undefined) l.params.glowGradientAngle = 135;
+        if (l.params.glowGradientStops === undefined) l.params.glowGradientStops = normalizeGradientStops(null, l.params.glowColor || '#FFB000', l.params.glowColor2 || '#FF5C5C');
+      }
       if (l.presetId === 'trim-paths') {
         if (!l.params) l.params = {};
         if (l.params.trimEnd === undefined) l.params.trimEnd = 100;
@@ -1867,6 +1978,8 @@
         if (l.params['stroke-c1'] === undefined) l.params['stroke-c1'] = '#FFB000';
         if (l.params['stroke-c2'] === undefined) l.params['stroke-c2'] = '#FFFFFF';
         if (l.params['stroke-color-mode'] === undefined) l.params['stroke-color-mode'] = 'solid';
+        if (l.params['stroke-gradient-angle'] === undefined) l.params['stroke-gradient-angle'] = 135;
+        if (l.params['stroke-gradient-stops'] === undefined) l.params['stroke-gradient-stops'] = normalizeGradientStops(null, l.params['stroke-c1'] || '#FFB000', l.params['stroke-c2'] || '#FFFFFF');
       }
     });
     S.file = currentAsset();
@@ -1902,7 +2015,13 @@
     if (p.controls.includes('pulse-scale')) params.pulseScale  = 1.1;
     if (p.controls.includes('orbit-r'))     params.orbitR      = 20;
     if (p.controls.includes('glitch-int'))  params.glitchInt   = 1;
-    if (p.controls.includes('glow-color'))  params.glowColor   = '#FFB000';
+    if (p.controls.includes('glow-color')) {
+      params.glowColorMode = 'solid';
+      params.glowColor   = '#FFB000';
+      params.glowColor2  = '#FF5C5C';
+      params.glowGradientAngle = 135;
+      params.glowGradientStops = normalizeGradientStops(null, '#FFB000', '#FF5C5C');
+    }
     if (p.controls.includes('glow-size'))   params.glowSize    = 12;
     if (p.controls.includes('stroke-width')) params['stroke-width'] = 4;
     if (p.controls.includes('stroke-cap')) params['stroke-cap'] = 'round';
@@ -1910,6 +2029,8 @@
       params['stroke-color-mode'] = 'solid';
       params['stroke-c1'] = '#FFB000';
       params['stroke-c2'] = '#FFFFFF';
+      params['stroke-gradient-angle'] = 135;
+      params['stroke-gradient-stops'] = normalizeGradientStops(null, '#FFB000', '#FFFFFF');
     }
     if (p.controls.includes('trim-end')) params.trimEnd = 100;
     const layer = {
@@ -1925,10 +2046,7 @@
       easing: p.easing,
       params,
     };
-    if (presetId === 'move-in-right') { layer.params.slideDir = 'right'; }
-    if (presetId === 'move-in-left') { layer.params.slideDir = 'left'; }
-    if (presetId === 'move-top') { layer.params.slideDir = 'top'; }
-    if (presetId === 'move-bottom') { layer.params.slideDir = 'bottom'; }
+    syncMovePresetDirection(layer);
     
     return layer;
   }
@@ -1980,7 +2098,7 @@
             ${isApplied ? `<button onclick="event.stopPropagation(); removeLayerByPreset('${p.id}')" class="text-brand-orange hover:text-orange-700 p-1 -mr-1 -mt-1"><i data-lucide="x" class="w-3 h-3"></i></button>` : ''}
           </div>
           <div class="flex-1 mt-1 flex items-center justify-center">
-            <div class="card-dot w-3 h-3 ${isApplied ? 'bg-brand-orange' : 'bg-black border border-black'}"></div>
+            <div class="card-dot w-8 h-8 rounded-lg ${isApplied ? 'bg-brand-orange' : 'bg-black border border-black'}"></div>
           </div>`;
         grid.appendChild(div);
       });
@@ -2077,14 +2195,23 @@
       let d = asset.data;
       const xi = d.indexOf('<svg');
       if (xi > -1) d = d.substring(xi);
+      d = applySvgPaintOverrides(d, asset);
       return d;
     }
     // Image (jpg/png/gif/webp) — apply border/stroke if set
     const bw = parseFloat(asset.borderWidth) || 0;
     const bc = asset.borderColor || '#FFFFFF';
+    const bc2 = asset.borderColor2 || '#FFB000';
+    const bm = asset.borderMode || 'solid';
     const bt = asset.borderType || 'solid';
     const br = asset.borderRadius !== undefined ? asset.borderRadius : 0;
-    const borderStyle = bw > 0
+    if (bm === 'gradient' && bw > 0) {
+      const innerRadius = Math.max(0, br - bw);
+      const angle = clampGradientAngle(asset.borderGradientAngle, 135);
+      const stops = gradientStops(asset, 'borderGradientStops', bc, bc2, 'borderColor', 'borderColor2');
+      return `<div style="width:100%;height:100%;padding:${bw}px;box-sizing:border-box;background:${linearGradientCSS(angle, stops)};border-radius:${br}px;"><img src="${asset.data}" alt="Graphic" style="width:100%;height:100%;object-fit:fill;display:block;border-radius:${innerRadius}px;"></div>`;
+    }
+    const borderStyle = (bm !== 'none' && bw > 0)
       ? `border:${bw}px ${bt} ${bc};box-sizing:border-box;border-radius:${br}px;`
       : `border-radius:${br}px;`;
     return `<img src="${asset.data}" alt="Graphic" style="width:100%;height:100%;object-fit:fill;display:block;${borderStyle}">`;
@@ -2102,11 +2229,12 @@
     const justify = align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center';
 
     let colorStyle = '';
-    if (asset.colorMode === 'gradient') {
-      const c1    = asset.textColor  || '#1F1F1F';
-      const c2    = asset.textColor2 || '#FFB000';
+    if (asset.colorMode === 'none') {
+      colorStyle = `color:transparent;-webkit-text-fill-color:transparent;`;
+    } else if (asset.colorMode === 'gradient') {
       const angle = asset.gradientAngle !== undefined ? asset.gradientAngle : 90;
-      colorStyle  = `background-image:linear-gradient(${angle}deg,${c1},${c2});background-size:100% 100%;background-repeat:no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;`;
+      const stops = gradientStops(asset, 'textGradientStops', asset.textColor || '#1F1F1F', asset.textColor2 || '#FFB000', 'textColor', 'textColor2');
+      colorStyle  = `background-image:${linearGradientCSS(angle, stops)};background-size:100% 100%;background-repeat:no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;`;
     } else {
       colorStyle = `color:${asset.textColor || '#1F1F1F'};`;
     }
@@ -2139,6 +2267,261 @@
     return /^#[0-9a-f]{6}$/i.test(value || '') ? value : fallback;
   }
 
+  function clampGradientAngle(value, fallback=135) {
+    const n = parseFloat(value);
+    if (!Number.isFinite(n)) return fallback;
+    return ((Math.round(n) % 360) + 360) % 360;
+  }
+
+  function gradientLineAttrs(angle) {
+    const rad = (clampGradientAngle(angle) - 90) * Math.PI / 180;
+    const dx = Math.cos(rad);
+    const dy = Math.sin(rad);
+    const scale = 0.5 / Math.max(Math.abs(dx), Math.abs(dy), 0.0001);
+    const x1 = (0.5 - dx * scale) * 100;
+    const y1 = (0.5 - dy * scale) * 100;
+    const x2 = (0.5 + dx * scale) * 100;
+    const y2 = (0.5 + dy * scale) * 100;
+    const fmt = n => Number(n.toFixed(2));
+    return `x1="${fmt(x1)}%" y1="${fmt(y1)}%" x2="${fmt(x2)}%" y2="${fmt(y2)}%"`;
+  }
+
+  function gradientOffsetVars(angle, amount=8) {
+    const rad = (clampGradientAngle(angle) - 90) * Math.PI / 180;
+    return {
+      x: `${Number((Math.cos(rad) * amount).toFixed(2))}px`,
+      y: `${Number((Math.sin(rad) * amount).toFixed(2))}px`,
+    };
+  }
+
+  function normalizeGradientStops(stops, fallbackA='#1F1F1F', fallbackB='#FFB000') {
+    let arr = Array.isArray(stops) ? stops : [];
+    arr = arr.map(s => ({
+      color: safeShapeColor(s?.color, fallbackA),
+      pos: Math.max(0, Math.min(100, parseFloat(s?.pos)))
+    })).filter(s => Number.isFinite(s.pos));
+    if (arr.length < 2) {
+      arr = [
+        { color: safeShapeColor(fallbackA, '#1F1F1F'), pos: 0 },
+        { color: safeShapeColor(fallbackB, '#FFB000'), pos: 100 }
+      ];
+    }
+    arr.sort((a,b) => a.pos - b.pos);
+    arr[0].pos = Math.max(0, Math.min(100, arr[0].pos));
+    arr[arr.length - 1].pos = Math.max(0, Math.min(100, arr[arr.length - 1].pos));
+    return arr.map(s => ({ color:s.color, pos:Math.round(s.pos) }));
+  }
+
+  function gradientStops(owner, stopsKey, fallbackA, fallbackB, legacyA, legacyB) {
+    const a = legacyA ? (owner?.[legacyA] || fallbackA) : fallbackA;
+    const b = legacyB ? (owner?.[legacyB] || fallbackB) : fallbackB;
+    return normalizeGradientStops(owner?.[stopsKey], a, b);
+  }
+
+  function gradientStopsCSS(stops) {
+    return normalizeGradientStops(stops).map(s => `${s.color} ${s.pos}%`).join(', ');
+  }
+
+  function linearGradientCSS(angle, stops) {
+    return `linear-gradient(${clampGradientAngle(angle,135)}deg, ${gradientStopsCSS(stops)})`;
+  }
+
+  function gradientStopElements(stops) {
+    return normalizeGradientStops(stops).map(s => `<stop offset="${s.pos}%" stop-color="${s.color}"/>`).join('');
+  }
+
+  function gradientOwner(kind) {
+    if (kind === 'bg') return S;
+    if (kind === 'asset') return currentAsset();
+    if (kind === 'layer') return getSelLayer()?.params || null;
+    return null;
+  }
+
+  function refreshGradientOwner(kind) {
+    if (kind === 'bg') {
+      setCustomBgInputs(S.customBg, S.customBg2);
+      setBg('gradient', false);
+      return;
+    }
+    renderGraphic();
+    buildRightPanel();
+  }
+
+  function setGradientStop(kind, stopsKey, idx, prop, value, fallbackA='#1F1F1F', fallbackB='#FFB000') {
+    const owner = gradientOwner(kind); if (!owner) return;
+    pushUndoContinuous(`grad-${kind}-${stopsKey}`, 'Gradient');
+    const stops = normalizeGradientStops(owner[stopsKey], fallbackA, fallbackB);
+    const i = Math.max(0, Math.min(stops.length - 1, parseInt(idx)));
+    if (prop === 'color') stops[i].color = safeShapeColor(value, stops[i].color);
+    if (prop === 'pos') stops[i].pos = Math.max(0, Math.min(100, parseFloat(value) || 0));
+    owner[stopsKey] = normalizeGradientStops(stops, fallbackA, fallbackB);
+    refreshGradientOwner(kind);
+  }
+
+  function addGradientStop(kind, stopsKey, fallbackA, fallbackB, ev) {
+    if (ev) ev.stopPropagation();
+    const owner = gradientOwner(kind); if (!owner) return;
+    pushUndo('Add gradient stop');
+    const stops = normalizeGradientStops(owner[stopsKey], fallbackA, fallbackB);
+    const rect = ev?.currentTarget?.getBoundingClientRect?.();
+    let pos = 50;
+    if (rect && rect.width) pos = Math.round(((ev.clientX - rect.left) / rect.width) * 100);
+    pos = Math.max(0, Math.min(100, pos));
+    const nearest = stops.reduce((best, s) => Math.abs(s.pos - pos) < Math.abs(best.pos - pos) ? s : best, stops[0]);
+    stops.push({ color: nearest?.color || fallbackA || '#FFB000', pos });
+    owner[stopsKey] = normalizeGradientStops(stops, fallbackA, fallbackB);
+    refreshGradientOwner(kind);
+  }
+
+  function removeGradientStop(kind, stopsKey, idx, fallbackA='#1F1F1F', fallbackB='#FFB000') {
+    const owner = gradientOwner(kind); if (!owner) return;
+    const stops = normalizeGradientStops(owner[stopsKey], fallbackA, fallbackB);
+    if (stops.length <= 2) return;
+    pushUndo('Remove gradient stop');
+    stops.splice(parseInt(idx), 1);
+    owner[stopsKey] = normalizeGradientStops(stops, fallbackA, fallbackB);
+    refreshGradientOwner(kind);
+  }
+
+  function startGradientStopDrag(kind, stopsKey, angleKey, idx, fallbackA='#1F1F1F', fallbackB='#FFB000', ev) {
+    if (!ev) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    const owner = gradientOwner(kind); if (!owner) return;
+    const stopEl = ev.currentTarget;
+    const bar = stopEl.closest('.vom-gradient-bar');
+    const editor = stopEl.closest('.vom-gradient-editor');
+    if (!bar || !editor) return;
+
+    let stops = normalizeGradientStops(owner[stopsKey], fallbackA, fallbackB);
+    let i = Math.max(0, Math.min(stops.length - 1, parseInt(idx)));
+    pushUndoContinuous(`grad-drag-${kind}-${stopsKey}`, 'Gradient stop');
+
+    const update = e => {
+      const rect = bar.getBoundingClientRect();
+      if (!rect.width) return;
+      const pos = Math.max(0, Math.min(100, Math.round(((e.clientX - rect.left) / rect.width) * 100)));
+      stops = normalizeGradientStops(owner[stopsKey], fallbackA, fallbackB);
+      i = Math.max(0, Math.min(stops.length - 1, i));
+      stops[i].pos = pos;
+      owner[stopsKey] = stops;
+
+      stopEl.style.left = pos + '%';
+      stopEl.title = `${stops[i].color} at ${pos}%`;
+      const posInput = editor.querySelector(`.vom-gradient-stop-row[data-stop-index="${i}"] input[type="number"]`);
+      if (posInput) posInput.value = pos;
+      bar.style.background = linearGradientCSS(owner[angleKey], stops);
+
+      if (kind === 'bg') {
+        const canvas = document.getElementById('canvas-target');
+        if (canvas) canvas.style.backgroundImage = linearGradientCSS(owner[angleKey], stops);
+      } else {
+        renderGraphic();
+      }
+    };
+
+    const stop = () => {
+      document.removeEventListener('pointermove', update);
+      document.removeEventListener('pointerup', stop);
+      document.removeEventListener('pointercancel', stop);
+      stopEl.classList.remove('is-dragging');
+      document.body.classList.remove('dragging-gradient-stop');
+      owner[stopsKey] = normalizeGradientStops(owner[stopsKey], fallbackA, fallbackB);
+      endContinuousUndo();
+      refreshGradientOwner(kind);
+    };
+
+    stopEl.classList.add('is-dragging');
+    document.body.classList.add('dragging-gradient-stop');
+    document.addEventListener('pointermove', update);
+    document.addEventListener('pointerup', stop);
+    document.addEventListener('pointercancel', stop);
+    update(ev);
+  }
+
+  function setGradientEditorAngle(kind, angleKey, value) {
+    const owner = gradientOwner(kind); if (!owner) return;
+    pushUndoContinuous(`grad-angle-${kind}-${angleKey}`, 'Gradient angle');
+    owner[angleKey] = clampGradientAngle(value, 135);
+    refreshGradientOwner(kind);
+  }
+
+  function gradientEditorHTML(kind, stopsKey, angleKey, stops, angle, fallbackA='#1F1F1F', fallbackB='#FFB000') {
+    const safeStops = normalizeGradientStops(stops, fallbackA, fallbackB);
+    const safeAngle = clampGradientAngle(angle, 135);
+    const stopRows = safeStops.map((s, i) => `
+      <div class="vom-gradient-stop-row" data-stop-index="${i}">
+        <div class="color-field">
+          <input type="color" value="${s.color}" onchange="setGradientStop('${kind}','${stopsKey}',${i},'color',this.value,'${fallbackA}','${fallbackB}')">
+          <input type="text" value="${s.color.toUpperCase()}" onchange="setGradientStop('${kind}','${stopsKey}',${i},'color',this.value,'${fallbackA}','${fallbackB}')" placeholder="#000000">
+        </div>
+        <input type="number" min="0" max="100" step="1" value="${s.pos}" onchange="setGradientStop('${kind}','${stopsKey}',${i},'pos',this.value,'${fallbackA}','${fallbackB}')" class="native-spin text-center font-mono text-[11px] border border-[#2A2A2A] focus:outline-none py-1 bg-transparent text-inherit">
+        <button type="button" onclick="removeGradientStop('${kind}','${stopsKey}',${i},'${fallbackA}','${fallbackB}')" class="h-8 flex items-center justify-center border border-[#2A2A2A] text-[11px] font-bold" style="color:${safeStops.length <= 2 ? '#444' : '#AAA'}" ${safeStops.length <= 2 ? 'disabled' : ''}>×</button>
+      </div>`).join('');
+    return `<div class="vom-gradient-editor">
+      <div class="vom-gradient-bar" title="Click to add a color stop" onclick="addGradientStop('${kind}','${stopsKey}','${fallbackA}','${fallbackB}',event)" style="background:${linearGradientCSS(safeAngle, safeStops)}">
+        ${safeStops.map((s,i) => `<span class="vom-gradient-stop ${i===0?'is-active':''}" style="left:${s.pos}%;background:${s.color}" title="${s.color} at ${s.pos}%" onpointerdown="startGradientStopDrag('${kind}','${stopsKey}','${angleKey}',${i},'${fallbackA}','${fallbackB}',event)" onclick="event.stopPropagation()"></span>`).join('')}
+      </div>
+      <div class="space-y-1">
+        <div class="flex justify-between text-[9px]" style="color:#888"><span>Angle</span><span>${safeAngle}°</span></div>
+        <input type="range" min="0" max="360" step="1" value="${safeAngle}" oninput="setGradientEditorAngle('${kind}','${angleKey}',this.value);this.style.setProperty('--rp',Math.round(parseFloat(this.value)/360*100)+'%')" class="w-full" style="--rp:${Math.round(safeAngle/360*100)}%">
+      </div>
+      <div class="space-y-1">${stopRows}</div>
+    </div>`;
+  }
+
+  function safeSvgIdPart(value) {
+    return String(value || 'asset').replace(/[^a-z0-9_-]/gi, '');
+  }
+
+  function svgAssetGradientId(asset, kind) {
+    return `svg-${safeSvgIdPart(asset.id)}-${kind}`;
+  }
+
+  function svgGradientDef(asset, kind, colorKey, fallbackA, fallbackB) {
+    const angle = asset[`${colorKey}GradientAngle`];
+    const stops = gradientStops(asset, `${colorKey}GradientStops`, fallbackA, fallbackB, colorKey, `${colorKey}2`);
+    return `<linearGradient id="${svgAssetGradientId(asset, kind)}" ${gradientLineAttrs(angle)}>${gradientStopElements(stops)}</linearGradient>`;
+  }
+
+  function svgPaintValue(asset, modeKey, colorKey, kind, fallbackA, fallbackB) {
+    const mode = asset[modeKey] || 'solid';
+    if (mode === 'none') return 'none';
+    if (mode === 'gradient') return `url(#${svgAssetGradientId(asset, kind)})`;
+    return safeShapeColor(asset[colorKey], fallbackA);
+  }
+
+  function applySvgPaintOverrides(svgString, asset) {
+    const scope = `vom-${safeSvgIdPart(asset.id)}`;
+    const fillMode = asset.svgFillMode || 'solid';
+    const strokeMode = asset.svgStrokeMode || 'solid';
+    const hasFillOverride = !!(asset.svgFillMode || asset.svgFill || asset.svgFill2);
+    const hasStrokeOverride = !!(asset.svgStrokeMode || asset.svgStroke || asset.svgStroke2 || asset.svgStrokeWidth !== undefined || asset.svgStrokeDash || asset.svgStrokeJoin);
+    const defs = [];
+    const css = [];
+
+    if (hasFillOverride) {
+      if (fillMode === 'gradient') defs.push(svgGradientDef(asset, 'fill', 'svgFill', '#C8C8C8', '#FFB000'));
+      const fill = svgPaintValue(asset, 'svgFillMode', 'svgFill', 'fill', '#C8C8C8', '#FFB000');
+      css.push(`[data-vom-svg-scope="${scope}"] path,[data-vom-svg-scope="${scope}"] rect,[data-vom-svg-scope="${scope}"] circle,[data-vom-svg-scope="${scope}"] ellipse,[data-vom-svg-scope="${scope}"] polygon,[data-vom-svg-scope="${scope}"] polyline{fill:${fill}!important;}`);
+    }
+
+    if (hasStrokeOverride) {
+      if (strokeMode === 'gradient') defs.push(svgGradientDef(asset, 'stroke', 'svgStroke', '#000000', '#FFB000'));
+      const stroke = svgPaintValue(asset, 'svgStrokeMode', 'svgStroke', 'stroke', '#000000', '#FFB000');
+      const sw = Math.max(0, Math.min(50, parseFloat(asset.svgStrokeWidth) || 0));
+      const dash = asset.svgStrokeDash || 'solid';
+      const join = asset.svgStrokeJoin || 'round';
+      const effectiveSw = Math.max(sw, 1);
+      const dashCss = dash === 'dashed' ? `stroke-dasharray:${effectiveSw * 4} ${effectiveSw * 2.5}!important;stroke-linecap:butt!important;` :
+                      dash === 'dotted' ? `stroke-dasharray:${effectiveSw} ${effectiveSw * 2}!important;stroke-linecap:round!important;` : 'stroke-dasharray:none!important;';
+      css.push(`[data-vom-svg-scope="${scope}"] path,[data-vom-svg-scope="${scope}"] line,[data-vom-svg-scope="${scope}"] polyline,[data-vom-svg-scope="${scope}"] polygon,[data-vom-svg-scope="${scope}"] rect,[data-vom-svg-scope="${scope}"] circle,[data-vom-svg-scope="${scope}"] ellipse{stroke:${stroke}!important;stroke-width:${sw}px!important;stroke-linejoin:${join}!important;${dashCss}}`);
+    }
+
+    const injected = `${defs.length ? `<defs>${defs.join('')}</defs>` : ''}${css.length ? `<style>${css.join('')}</style>` : ''}`;
+    return svgString.replace(/<svg([^>]*)>/, (m, attrs) => `<svg${attrs} data-vom-svg-scope="${scope}">${injected}`);
+  }
+
   function shapeGradientId(asset, kind) {
     return `shape-${String(asset.id || 'asset').replace(/[^a-z0-9_-]/gi, '')}-${kind}`;
   }
@@ -2146,14 +2529,13 @@
   function shapePaint(asset, kind, fallbackA, fallbackB, defs) {
     const mode = asset[`${kind}Mode`] || 'solid';
     if (mode === 'none') return 'none';
-    const c1 = safeShapeColor(asset[kind], fallbackA);
-    const c2 = safeShapeColor(asset[`${kind}2`], fallbackB);
     if (mode === 'gradient') {
       const id = shapeGradientId(asset, kind);
-      defs.push(`<linearGradient id="${id}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient>`);
+      const stops = gradientStops(asset, `${kind}GradientStops`, fallbackA, fallbackB, kind, `${kind}2`);
+      defs.push(`<linearGradient id="${id}" ${gradientLineAttrs(asset[`${kind}GradientAngle`])}>${gradientStopElements(stops)}</linearGradient>`);
       return `url(#${id})`;
     }
-    return c1;
+    return safeShapeColor(asset[kind], fallbackA);
   }
 
   function pointFmt(n) {
@@ -2206,14 +2588,15 @@
 
   function buildShapeHTML(asset) {
     const defs = [];
-    const fill = shapePaint(asset, 'fill', '#1F1F1F', '#FFB000', defs);
+    const fill = shapePaint(asset, 'fill', '#C8C8C8', '#FFB000', defs);
     const stroke = shapePaint(asset, 'stroke', '#FFFFFF', '#FFB000', defs);
     const sw = stroke === 'none' ? 0 : Math.max(0, Math.min(24, parseFloat(asset.strokeWidth) || 0));
     const radius = Math.max(0, Math.min(50, parseFloat(asset.radius) || 0));
     const strokeJoin = ['round','miter','bevel'].includes(asset.strokeJoin) ? asset.strokeJoin : 'round';
     const strokeDash = asset.strokeDash || 'solid';
-    const dashArray = strokeDash === 'dashed' ? `${sw * 3} ${sw * 2}` :
-                      strokeDash === 'dotted' ? `${sw * 0.5} ${sw * 2}` : 'none';
+    const effectiveSw = Math.max(sw, 1); // ensure dash visible even at sw=0
+    const dashArray = strokeDash === 'dashed' ? `${effectiveSw * 4} ${effectiveSw * 2.5}` :
+                      strokeDash === 'dotted' ? `${effectiveSw} ${effectiveSw * 2}` : 'none';
     const dashAttr = dashArray !== 'none' ? `stroke-dasharray="${dashArray}" stroke-linecap="round"` : '';
     const common = `fill="${fill}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="${strokeJoin}" stroke-linecap="${strokeJoin === 'round' ? 'round' : 'butt'}" ${dashAttr} vector-effect="non-scaling-stroke"`;
     let shape = '';
@@ -2297,9 +2680,9 @@
         const extraClass = l.presetId === 'trim-paths' ? 'layer-trim-paths' : '';
         let defsInject = '';
         if (l.presetId === 'trim-paths' && (l.params?.['stroke-color-mode'] || 'solid') === 'gradient') {
-          const c1 = l.params?.['stroke-c1'] || '#FFB000';
-          const c2 = l.params?.['stroke-c2'] || '#FFB020';
-          defsInject = `<svg class="gradient-defs-svg" width="0" height="0" style="position:absolute;pointer-events:none;"><defs><linearGradient id="grad-${l.id}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs></svg>`;
+          const angle = l.params?.['stroke-gradient-angle'];
+          const stops = gradientStops(l.params || {}, 'stroke-gradient-stops', '#FFB000', '#FFB020', 'stroke-c1', 'stroke-c2');
+          defsInject = `<svg class="gradient-defs-svg" width="0" height="0" style="position:absolute;pointer-events:none;"><defs><linearGradient id="grad-${l.id}" ${gradientLineAttrs(angle)}>${gradientStopElements(stops)}</linearGradient></defs></svg>`;
         }
         const inner = `<div class="${extraClass}" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;animation:${animStr};animation-play-state:${ps};">${defsInject}${html}</div>`;
         html = `<div data-layer-id="${l.id}" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;transform:scale(${stScale}) rotate(${stRot}deg);">${inner}</div>`;
@@ -2337,12 +2720,32 @@
     if (p.bounceH    !== undefined) set('--bounce-y',   `-${p.bounceH}px`);
     if (p.pulseScale !== undefined) set('--pulse-scale',p.pulseScale);
     if (p.orbitR     !== undefined) set('--orbit-r',    `${p.orbitR}px`);
-    if (p.glowColor  !== undefined) set('--glow-color', p.glowColor);
+    if (p.glowColorMode === 'none') {
+      set('--glow-color', 'transparent');
+      set('--glow-color-2', 'transparent');
+      set('--glow-x', '0px');
+      set('--glow-y', '0px');
+    } else {
+      if (p.glowColor  !== undefined) set('--glow-color', p.glowColor);
+      if ((p.glowColorMode || 'solid') === 'gradient') {
+        const glowOffset = gradientOffsetVars(p.glowGradientAngle, 8);
+        const glowStops = gradientStops(p, 'glowGradientStops', p.glowColor || '#FFB000', p.glowColor2 || '#FF5C5C', 'glowColor', 'glowColor2');
+        set('--glow-color', glowStops[0]?.color || p.glowColor || '#FFB000');
+        set('--glow-color-2', glowStops[glowStops.length - 1]?.color || p.glowColor2 || '#FF5C5C');
+        set('--glow-x', glowOffset.x);
+        set('--glow-y', glowOffset.y);
+      } else if (p.glowColor !== undefined) {
+        set('--glow-color-2', p.glowColor);
+        set('--glow-x', '0px');
+        set('--glow-y', '0px');
+      }
+    }
     if (p.slideFade  !== undefined) set('--slide-fade', 1 - (p.slideFade/100));
     if (p.slideDist  !== undefined) {
       const dir = p.slideDir || 'left';
-      const x = (dir==='left'?-1:dir==='right'?1:0) * p.slideDist;
-      const y = (dir==='top'?-1:dir==='bottom'?1:0) * p.slideDist;
+      const dist = Math.abs(p.slideDist);
+      const x = (dir==='left'?-1:dir==='right'?1:0) * dist;
+      const y = (dir==='top'?-1:dir==='bottom'?1:0) * dist;
       set('--slide-x', `${x}px`);
       set('--slide-y', `${y}px`);
     }
@@ -2352,7 +2755,9 @@
       set('--stroke-w', `${p['stroke-width'] ?? 2}px`);
       set('--stroke-cap', p['stroke-cap'] ?? 'round');
       set('--stroke-join', 'round');
-      if ((p['stroke-color-mode'] || 'solid') === 'gradient') {
+      if ((p['stroke-color-mode'] || 'solid') === 'none') {
+        set('--stroke-color', 'none');
+      } else if ((p['stroke-color-mode'] || 'solid') === 'gradient') {
         set('--stroke-color', `url(#grad-${l.id})`);
       } else {
         set('--stroke-color', p['stroke-c1'] || '#FFB000');
@@ -2733,13 +3138,16 @@
 
       effects.forEach((layer, j) => {
         const segColor = getLayerTimelineColor(layer);
+        const isSelected = layer.id === S.sel;
         const bLeft = layer.delay * PX_PER_SEC;
         const bW    = Math.max(layer.duration * PX_PER_SEC, 10);
         const laneTop = effects.length <= 1 ? 4 : 4 + (j * 34);
         const laneHeight = effects.length <= 1 ? rowH - 8 : 28;
         const seg   = document.createElement('div');
-        seg.className = 'seg-block';
-        seg.style.cssText = `left:${bLeft}px;width:${bW}px;top:${laneTop}px;height:${laneHeight}px;bottom:auto;background:${segColor}`;
+        seg.className = 'seg-block' + (isSelected ? ' is-selected' : '');
+        const bg = isSelected ? segColor : '#2C2C2C';
+        const textColor = isSelected ? '#000' : '#777';
+        seg.style.cssText = `left:${bLeft}px;width:${bW}px;top:${laneTop}px;height:${laneHeight}px;bottom:auto;background:${bg};color:${textColor}`;
         seg.innerHTML = `<div class="seg-resize-l"></div><span class="truncate z-10 relative pointer-events-none px-1">${layer.name}</span><div class="seg-resize-r"></div>`;
         attachSegmentHandlers(seg, layer);
         seg.addEventListener('contextmenu', ev => { ev.preventDefault(); ev.stopPropagation(); showSegmentContextMenu(ev, layer); });
@@ -2816,87 +3224,86 @@
       const isNone     = mode === 'none';
       const isGradient = mode === 'gradient';
       const isSolid    = !isNone && !isGradient;
+      const c1val = safeShapeColor(asset[kind], fallbackA);
+      const c2val = safeShapeColor(asset[colorBKey], fallbackB);
       return `<div class="space-y-1.5">
         <div class="flex items-center justify-between gap-2">
-          <span class="text-xs" style="color:#888">${label}</span>
-          <div class="vom-segmented grid-cols-3">
-            <button onclick="setShapeDirect('${modeKey}','none')"     class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${isNone?'is-selected':''}">None</button>
-            <button onclick="setShapeDirect('${modeKey}','solid')"    class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${isSolid?'is-selected':''}">Solid</button>
-            <button onclick="setShapeDirect('${modeKey}','gradient')" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${isGradient?'is-selected':''}">Grad</button>
+          <span class="text-xs" style="color:#888">Color</span>
+          <div class="vom-segmented" style="grid-template-columns:repeat(3,auto);display:inline-grid">
+            <button onclick="setShapeDirect('${modeKey}','none')"     class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase transition-colors ${isNone?'is-selected':''}">None</button>
+            <button onclick="setShapeDirect('${modeKey}','solid')"    class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase transition-colors ${isSolid?'is-selected':''}">Solid</button>
+            <button onclick="setShapeDirect('${modeKey}','gradient')" class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase transition-colors ${isGradient?'is-selected':''}">Grad</button>
           </div>
         </div>
-        ${!isNone ? `<div class="flex gap-2">
-          <input type="color" value="${safeShapeColor(asset[kind],fallbackA)}" onchange="setShapeDirect('${kind}',this.value)" class="flex-1 h-9 border border-[#2A2A2A] cursor-pointer" style="background:transparent">
-          ${isGradient?`<input type="color" value="${safeShapeColor(asset[colorBKey],fallbackB)}" onchange="setShapeDirect('${colorBKey}',this.value)" class="flex-1 h-9 border border-[#2A2A2A] cursor-pointer" style="background:transparent">`:''}
-        </div>` : `<div class="w-full h-9 border border-[#333] relative overflow-hidden" style="background:#1a1a1a">
-          <svg width="100%" height="100%" viewBox="0 0 100 36" preserveAspectRatio="none" style="position:absolute;top:0;left:0">
-            <line x1="0" y1="0" x2="100" y2="36" stroke="#cc2222" stroke-width="1.5"/>
-          </svg>
+        ${isNone ? `<div class="color-field" style="pointer-events:none">
+          <div style="width:36px;height:36px;position:relative;overflow:hidden;background:#111">
+            <svg width="36" height="36" viewBox="0 0 36 36"><line x1="0" y1="0" x2="36" y2="36" stroke="#cc2222" stroke-width="1.5"/></svg>
+          </div>
+          <input type="text" value="None" disabled style="color:#555">
+        </div>` : isGradient ? gradientEditorHTML('asset', `${kind}GradientStops`, `${kind}GradientAngle`, gradientStops(asset, `${kind}GradientStops`, fallbackA, fallbackB, kind, colorBKey), v(`${kind}GradientAngle`,135), fallbackA, fallbackB) : `<div class="space-y-1.5">
+          <div class="color-field">
+            <input type="color" value="${c1val}" onchange="setShapeDirect('${kind}',this.value);this.nextElementSibling.value=this.value.toUpperCase()">
+            <input type="text" value="${c1val.toUpperCase()}" onchange="setShapeDirect('${kind}',this.value);this.previousElementSibling.value=this.value" placeholder="#000000">
+          </div>
         </div>`}
       </div>`;
     };
     const sw = parseFloat(v('strokeWidth', 0));
-    return `
-    <div class="border-t border-black">
-      <div class="py-2.5 px-4 text-[10px] font-bold uppercase tracking-wider text-stone-500">
-        Shape
+    const shapeContent = `<div class="vom-choice-grid">
+      ${['square','circle','triangle','star'].map(type=>`<button onclick="setShapeKind('${type}')" class="vom-choice-btn py-3 text-[9px] font-bold transition-colors ${asset.shapeType===type?'is-selected':''} uppercase">${type}</button>`).join('')}
+    </div>
+    ${asset.shapeType === 'star' ? `<div class="space-y-1">
+      <div class="flex justify-between items-center">
+        <span class="text-xs" style="color:#888">Points (Spikes)</span>
+        <input id="shape-points-val" type="number" min="3" max="12" step="1" value="${asset.points||5}"
+          onchange="setShapeProp('points',this.value,3,12);document.getElementById('shape-points-sl').value=this.value"
+          class="w-10 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
       </div>
-      <div class="space-y-3 pb-3 px-4">
-        <div class="vom-choice-grid">
-          ${['square','circle','triangle','star'].map(type=>`<button onclick="setShapeKind('${type}')" class="vom-choice-btn py-3 text-[9px] font-bold transition-colors ${asset.shapeType===type?'is-selected':''} uppercase">${type}</button>`).join('')}
-        </div>
-        ${paintControls('fill','Fill','#1F1F1F','#FFB000')}
-        ${paintControls('stroke','Stroke Color','#FFFFFF','#FFB000')}
-        ${asset.shapeType === 'star' ? `
-        <div class="space-y-1">
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-stone-600">Points (Spikes)</span>
-            <input id="shape-points-val" type="number" min="3" max="12" step="1" value="${asset.points||5}"
-              onchange="setShapeProp('points',this.value,3,12);document.getElementById('shape-points-sl').value=this.value"
-              class="w-10 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
-          </div>
-          <input id="shape-points-sl" type="range" min="3" max="12" step="1" value="${asset.points||5}"
-            oninput="setShapeProp('points',this.value,3,12);document.getElementById('shape-points-val').value=this.value"
-            class="w-full" style="--rp:${Math.round((((asset.points||5)-3)/(12-3))*100)}%">
-        </div>` : ''}
-        <div class="space-y-1" style="${v('strokeMode','solid') === 'none' ? 'display:none' : ''}">
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-stone-600">Stroke Weight</span>
-            <input id="shape-strokeWidth-val" type="text" value="${sw}" onchange="setShapeProp('strokeWidth',this.value,0,24)" class="w-10 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
-          </div>
-          ${slider('strokeWidth',0,24,1,0,`setShapeProp('strokeWidth',this.value,0,24)`,`setShapeSlider('strokeWidth',this.value,'shape-strokeWidth-val')`)}
-        </div>
-        <div class="space-y-1.5" style="${v('strokeMode','solid') === 'none' ? 'display:none' : ''}">
-          <span class="text-xs text-stone-600">Stroke Type</span>
-          <div class="vom-segmented grid-cols-3">
-            ${[['solid','Solid'],['dashed','Dashed'],['dotted','Dotted']].map(([val,lbl]) =>
-              `<button onclick="setShapeDirect('strokeDash','${val}')" class="vom-segment py-1.5 text-[10px] font-bold transition-colors ${(v('strokeDash','solid'))===val?'is-selected':''} uppercase">${lbl}</button>`).join('')}
-          </div>
-        </div>
-        <div class="space-y-1.5" style="${v('strokeMode','solid') === 'none' ? 'display:none' : ''}">
-          <span class="text-xs text-stone-600">Stroke Join</span>
-          <div class="vom-segmented grid-cols-3">
-            ${[['round','Round'],['miter','Sharp'],['bevel','Bevel']].map(([val,lbl]) =>
-              `<button onclick="setShapeDirect('strokeJoin','${val}')" class="vom-segment py-1.5 text-[10px] font-bold transition-colors ${(asset.strokeJoin||'round')===val?'is-selected':''} uppercase">${lbl}</button>`).join('')}
-          </div>
-        </div>
-        ${asset.shapeType === 'star' ? `<div class="space-y-1">
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-stone-600">Inner Radius</span>
-            <input id="shape-innerRadius-val" type="text" value="${Math.round((v('innerRadius',0.45))*100)}%" onchange="setShapeDirect('innerRadius',parseFloat(this.value)/100)" class="w-12 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
-          </div>
-          <input id="shape-innerRadius-sl" type="range" min="5" max="95" step="1" value="${Math.round((v('innerRadius',0.45))*100)}"
-            oninput="setShapeDirect('innerRadius',this.value/100);document.getElementById('shape-innerRadius-val').value=this.value+'%'"
-            class="w-full" style="--rp:${Math.round((v('innerRadius',0.45))*100)}%">
-        </div>` : ''}
+      <input id="shape-points-sl" type="range" min="3" max="12" step="1" value="${asset.points||5}"
+        oninput="setShapeProp('points',this.value,3,12);document.getElementById('shape-points-val').value=this.value"
+        class="w-full" style="--rp:${Math.round((((asset.points||5)-3)/(12-3))*100)}%">
+    </div>
+    <div class="space-y-1">
+      <div class="flex justify-between items-center">
+        <span class="text-xs" style="color:#888">Inner Radius</span>
+        <input id="shape-innerRadius-val" type="text" value="${Math.round((v('innerRadius',0.45))*100)}%" onchange="setShapeDirect('innerRadius',parseFloat(this.value)/100)" class="w-12 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+      </div>
+      <input id="shape-innerRadius-sl" type="range" min="5" max="95" step="1" value="${Math.round((v('innerRadius',0.45))*100)}"
+        oninput="setShapeDirect('innerRadius',this.value/100);document.getElementById('shape-innerRadius-val').value=this.value+'%'"
+        class="w-full" style="--rp:${Math.round((v('innerRadius',0.45))*100)}%">
+    </div>` : ''}`;
+
+    const fillContent = `${paintControls('fill','','#C8C8C8','#FFB000')}`;
+
+    const strokeContent = `
+    ${paintControls('stroke','Color','#FFFFFF','#FFB000')}
+    <div class="space-y-1" style="${v('strokeMode','solid')==='none'?'display:none':''}">
+      <div class="flex justify-between items-center">
+        <span class="text-xs" style="color:#888">Weight</span>
+        <input id="shape-strokeWidth-val" type="text" value="${sw}" onchange="setShapeProp('strokeWidth',this.value,0,24)" class="w-10 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+      </div>
+      ${slider('strokeWidth',0,24,1,0,`setShapeProp('strokeWidth',this.value,0,24)`,`setShapeSlider('strokeWidth',this.value,'shape-strokeWidth-val')`)}
+    </div>
+    <div class="space-y-1.5" style="${v('strokeMode','solid')==='none'?'display:none':''}">
+      <span class="text-xs" style="color:#888">Type</span>
+      <div class="vom-segmented grid-cols-3">
+        ${[['solid','Solid'],['dashed','Dashed'],['dotted','Dotted']].map(([val,lbl])=>`<button onclick="setShapeDirect('strokeDash','${val}')" class="vom-segment py-1.5 text-[10px] font-bold transition-colors ${(v('strokeDash','solid'))===val?'is-selected':''} uppercase">${lbl}</button>`).join('')}
+      </div>
+    </div>
+    <div class="space-y-1.5" style="${v('strokeMode','solid')==='none'?'display:none':''}">
+      <span class="text-xs" style="color:#888">Join</span>
+      <div class="vom-segmented grid-cols-3">
+        ${[['round','Round'],['miter','Sharp'],['bevel','Bevel']].map(([val,lbl])=>`<button onclick="setShapeDirect('strokeJoin','${val}')" class="vom-segment py-1.5 text-[10px] font-bold transition-colors ${(asset.strokeJoin||'round')===val?'is-selected':''} uppercase">${lbl}</button>`).join('')}
       </div>
     </div>`;
+
+    return `${rpSection('shape','Shape',shapeContent)}${rpSection('fill','Fill',fillContent)}${rpSection('stroke','Stroke',strokeContent)}`;
   }
 
   function setAssetXY(axis, val) {
     const asset = currentAsset();
     if (!asset || !Number.isFinite(val)) return;
-    pushUndo('Move');
+    pushUndoContinuous('xy-' + axis, 'Move');
     asset[axis] = val;
     clampAssetPosition(asset);
     applyGraphicPosition();
@@ -3033,24 +3440,19 @@
       <div class="space-y-1.5">
         <div class="flex items-center justify-between">
           <span class="text-xs text-stone-600">Color</span>
-          <div class="vom-segmented grid-cols-2" style="width:120px">
+          <div class="vom-segmented" style="grid-template-columns:repeat(3,auto);display:inline-grid">
+            <button onclick="setTextProp('colorMode','none')" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${asset.colorMode==='none'?'is-selected':''}">None</button>
             <button onclick="setTextProp('colorMode','solid')" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${(asset.colorMode||'solid')==='solid'?'is-selected':''}">Solid</button>
-            <button onclick="setTextProp('colorMode','gradient')" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${asset.colorMode==='gradient'?'is-selected':''}">Gradient</button>
+            <button onclick="setTextProp('colorMode','gradient')" class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${asset.colorMode==='gradient'?'is-selected':''}">Grad</button>
           </div>
         </div>
+        ${asset.colorMode==='none'?`<div class="color-field" style="pointer-events:none;opacity:.4"><div style="width:36px;height:36px;background:#111;position:relative;overflow:hidden"><svg width="36" height="36" viewBox="0 0 36 36"><line x1="0" y1="0" x2="36" y2="36" stroke="#cc2222" stroke-width="1.5"/></svg></div><input type="text" value="None" disabled></div>`:asset.colorMode==='gradient'?gradientEditorHTML('asset','textGradientStops','gradientAngle',gradientStops(asset,'textGradientStops',asset.textColor||'#1F1F1F',asset.textColor2||'#FFB000','textColor','textColor2'),asset.gradientAngle??90,asset.textColor||'#1F1F1F',asset.textColor2||'#FFB000'):`
         <div class="flex items-center gap-2">
-          <input type="color" value="${asset.textColor||'#1F1F1F'}" onchange="setTextProp('textColor',this.value)" class="w-10 h-8 border border-black cursor-pointer p-0">
-          <input type="text" value="${asset.textColor||'#1F1F1F'}" onchange="setTextProp('textColor',this.value)" class="flex-1 text-xs font-mono border border-black px-2 py-1.5 outline-none focus:border-[#555] uppercase" style="color-scheme:light">
-        </div>
-        ${asset.colorMode==='gradient'?`
-        <div class="flex items-center gap-2">
-          <input type="color" value="${asset.textColor2||'#FFB000'}" onchange="setTextProp('textColor2',this.value)" class="w-10 h-8 border border-black cursor-pointer p-0">
-          <input type="text" value="${asset.textColor2||'#FFB000'}" onchange="setTextProp('textColor2',this.value)" class="flex-1 text-xs font-mono border border-black px-2 py-1.5 outline-none focus:border-[#555] uppercase" style="color-scheme:light">
-        </div>
-        <div class="space-y-1">
-          <div class="flex justify-between text-[9px] text-stone-400"><span>Angle</span><span id="txt-grad-angle-val">${asset.gradientAngle??90}°</span></div>
-          <input type="range" min="0" max="360" step="1" value="${asset.gradientAngle??90}" oninput="setTextProp('gradientAngle',parseInt(this.value));document.getElementById('txt-grad-angle-val').textContent=this.value+'°'" class="w-full" style="--rp:${((asset.gradientAngle??90)/360*100).toFixed(0)}%">
-        </div>`:''}</div>
+          <div class="color-field flex-1">
+            <input type="color" value="${asset.textColor||'#1F1F1F'}" onchange="setTextProp('textColor',this.value);this.nextElementSibling.value=this.value.toUpperCase()">
+            <input type="text" value="${(asset.textColor||'#1F1F1F').toUpperCase()}" onchange="setTextProp('textColor',this.value);this.previousElementSibling.value=this.value" placeholder="#000000">
+          </div>
+        </div>`}</div>
     </div>`;
   }
 
@@ -3076,8 +3478,8 @@
         <span class="text-[9px] text-stone-400 uppercase font-bold block">W</span>
         <div class="tf-num-wrap">
           <button type="button" class="tf-step-btn left" onpointerdown="holdTFStep(event,'tf-w',-1)" aria-label="Decrease width">‹</button>
-          <input id="tf-w" type="number" min="${isShape?20:10}" max="2000" step="1" value="${Math.round(isShape ? (asset.w||150) : (asset.w||320))}"
-            onchange="setTFSize('w',this.value)"
+          <input id="tf-w" type="number" min="1" max="2000" step="1" value="${Math.round(isShape ? (asset.w||150) : (asset.w||320))}"
+            oninput="setTFSize('w',this.value)" onchange="setTFSize('w',this.value)"
             class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-[#555] bg-transparent text-inherit">
           <button type="button" class="tf-step-btn right" onpointerdown="holdTFStep(event,'tf-w',1)" aria-label="Increase width">›</button>
         </div>
@@ -3086,79 +3488,75 @@
         <span class="text-[9px] text-stone-400 uppercase font-bold block">H</span>
         <div class="tf-num-wrap">
           <button type="button" class="tf-step-btn left" onpointerdown="holdTFStep(event,'tf-h',-1)" aria-label="Decrease height">‹</button>
-          <input id="tf-h" type="number" min="${isShape?20:10}" max="2000" step="1" value="${Math.round(isShape ? (asset.h||150) : (asset.h||80))}"
-            onchange="setTFSize('h',this.value)"
+          <input id="tf-h" type="number" min="1" max="2000" step="1" value="${Math.round(isShape ? (asset.h||150) : (asset.h||80))}"
+            oninput="setTFSize('h',this.value)" onchange="setTFSize('h',this.value)"
             class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-[#555] bg-transparent text-inherit">
           <button type="button" class="tf-step-btn right" onpointerdown="holdTFStep(event,'tf-h',1)" aria-label="Increase height">›</button>
         </div>
       </div>`;
     const lockBtn = `<button onclick="window._tfLock=!window._tfLock;this.classList.toggle('text-brand-orange',window._tfLock);this.classList.toggle('text-stone-500',!window._tfLock)" title="Link W and H"
         class="self-end mb-1.5 px-1 transition-colors ${window._tfLock ? 'text-brand-orange' : 'text-stone-500'}">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
       </button>`;
 
-    const fields = `
-      <div class="grid grid-cols-2 gap-2 pt-2">
+    const layoutContent = `
+      <div class="grid grid-cols-2 gap-2">
         ${numField('tf-x','X', asset.x||0, `setAssetXY('x',parseFloat(this.value))`, -2000, 2000)}
         ${numField('tf-y','Y', asset.y||0, `setAssetXY('y',parseFloat(this.value))`, -2000, 2000)}
       </div>
-      ${(isShape || (asset.w && asset.h)) ? `<div class="flex items-start gap-1">
-        <div class="flex-1">${wField}</div>
-        ${lockBtn}
-        <div class="flex-1">${hField}</div>
-      </div>` : isImage ? `<div class="flex items-start gap-1">
+      ${(isShape || isImage || (asset.w && asset.h)) ? `<div class="flex items-center gap-1">
         <div class="flex-1">${wField}</div>
         ${lockBtn}
         <div class="flex-1">${hField}</div>
       </div>` : ''}
       ${isShape ? `
-      <div class="space-y-2">
-        <div class="space-y-0.5">
+        <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <span class="text-[9px] text-stone-400 uppercase font-bold">Rotate °</span>
-            <div class="tf-num-wrap" style="width:80px">
+            <span class="text-[9px]" style="color:#888">Rotate °</span>
+            <div class="tf-num-wrap" style="width:72px">
               <button type="button" class="tf-step-btn left" onpointerdown="holdTFStep(event,'tf-rot',-1)">‹</button>
               <input id="tf-rot" type="number" min="-360" max="360" step="1" value="${Math.round(asset.rotation||0)}"
-                onchange="setShapeProp('rotation',this.value,-360,360);document.getElementById('tf-rot-sl').value=this.value;document.getElementById('tf-rot-sl').style.setProperty('--rp',Math.round((parseFloat(this.value)+360)/720*100)+'%')"
-                class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-[#555] bg-transparent text-inherit">
+                onchange="setShapePropLive('rotation',this.value,-360,360);buildRightPanel();document.getElementById('tf-rot-sl').value=this.value;document.getElementById('tf-rot-sl').style.setProperty('--rp',Math.round((parseFloat(this.value)+360)/720*100)+'%')"
+                class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1 focus:border-[#555] bg-transparent text-inherit">
               <button type="button" class="tf-step-btn right" onpointerdown="holdTFStep(event,'tf-rot',1)">›</button>
             </div>
           </div>
           <input id="tf-rot-sl" type="range" min="-360" max="360" step="1" value="${asset.rotation||0}"
-            oninput="setShapeProp('rotation',this.value,-360,360);document.getElementById('tf-rot').value=Math.round(this.value);this.style.setProperty('--rp',Math.round((parseFloat(this.value)+360)/720*100)+'%')"
+            oninput="setShapePropLive('rotation',this.value,-360,360);document.getElementById('tf-rot').value=Math.round(this.value);this.style.setProperty('--rp',Math.round((parseFloat(this.value)+360)/720*100)+'%')"
             class="w-full" style="--rp:${Math.round(((asset.rotation||0)+360)/720*100)}%">
         </div>
-        <div class="${asset.shapeType === 'circle' ? 'opacity-40 pointer-events-none' : ''} space-y-0.5">
+        <div class="space-y-1 ${asset.shapeType==='circle'?'opacity-40 pointer-events-none':''}">
           <div class="flex items-center justify-between">
-            <span class="text-[9px] text-stone-400 uppercase font-bold">Radius</span>
-            <div class="tf-num-wrap" style="width:80px">
+            <span class="text-[9px]" style="color:#888">Radius</span>
+            <div class="tf-num-wrap" style="width:72px">
               <button type="button" class="tf-step-btn left" onpointerdown="holdTFStep(event,'tf-rad',-1)">‹</button>
-              <input id="tf-rad" type="number" min="0" max="50" step="1" value="${asset.shapeType==='circle' ? 50 : Math.round(asset.radius||0)}"
+              <input id="tf-rad" type="number" min="0" max="50" step="1" value="${asset.shapeType==='circle'?50:Math.round(asset.radius||0)}"
                 onchange="setShapeProp('radius',this.value,0,50);document.getElementById('tf-rad-sl').value=this.value;document.getElementById('tf-rad-sl').style.setProperty('--rp',Math.round(parseFloat(this.value)/50*100)+'%')"
-                class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-[#555] bg-transparent text-inherit">
+                class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1 focus:border-[#555] bg-transparent text-inherit">
               <button type="button" class="tf-step-btn right" onpointerdown="holdTFStep(event,'tf-rad',1)">›</button>
             </div>
           </div>
-          <input id="tf-rad-sl" type="range" min="0" max="50" step="1" value="${asset.shapeType==='circle' ? 50 : (asset.radius||0)}"
-            oninput="setShapeProp('radius',this.value,0,50);document.getElementById('tf-rad').value=Math.round(this.value);this.style.setProperty('--rp',Math.round(parseFloat(this.value)/50*100)+'%')"
-            class="w-full" style="--rp:${Math.round((asset.shapeType==='circle' ? 50 : (asset.radius||0))/50*100)}%">
-        </div>
-      </div>` : isImage ? `
-      <div class="space-y-0.5">
-        <div class="flex items-center justify-between">
-          <span class="text-[9px] text-stone-400 uppercase font-bold">Rotate °</span>
-          <div class="tf-num-wrap" style="width:80px">
-            <button type="button" class="tf-step-btn left" onpointerdown="holdTFStep(event,'tf-rot',-1)">‹</button>
-            <input id="tf-rot" type="number" min="-360" max="360" step="1" value="${Math.round(asset.rotation||0)}"
-              onchange="setAssetRotation(parseFloat(this.value));document.getElementById('tf-rot-sl').value=this.value;document.getElementById('tf-rot-sl').style.setProperty('--rp',Math.round((parseFloat(this.value)+360)/720*100)+'%')"
-              class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1.5 focus:border-[#555] bg-transparent text-inherit">
-            <button type="button" class="tf-step-btn right" onpointerdown="holdTFStep(event,'tf-rot',1)">›</button>
+          <input id="tf-rad-sl" type="range" min="0" max="50" step="1" value="${asset.shapeType==='circle'?50:(asset.radius||0)}"
+            oninput="setShapePropLive('radius',this.value,0,50);document.getElementById('tf-rad').value=Math.round(this.value);this.style.setProperty('--rp',Math.round(parseFloat(this.value)/50*100)+'%')"
+            class="w-full" style="--rp:${Math.round((asset.shapeType==='circle'?50:(asset.radius||0))/50*100)}%">
+        </div>` : isImage ? `
+        <div class="space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="text-[9px]" style="color:#888">Rotate °</span>
+            <div class="tf-num-wrap" style="width:72px">
+              <button type="button" class="tf-step-btn left" onpointerdown="holdTFStep(event,'tf-rot',-1)">‹</button>
+              <input id="tf-rot" type="number" min="-360" max="360" step="1" value="${Math.round(asset.rotation||0)}"
+                onchange="setAssetRotation(parseFloat(this.value));document.getElementById('tf-rot-sl').value=this.value;document.getElementById('tf-rot-sl').style.setProperty('--rp',Math.round((parseFloat(this.value)+360)/720*100)+'%')"
+                class="tf-num-input w-full text-center font-mono text-[11px] border border-stone-700 focus:outline-none py-1 focus:border-[#555] bg-transparent text-inherit">
+              <button type="button" class="tf-step-btn right" onpointerdown="holdTFStep(event,'tf-rot',1)">›</button>
+            </div>
           </div>
-        </div>
-        <input id="tf-rot-sl" type="range" min="-360" max="360" step="1" value="${asset.rotation||0}"
-          oninput="setAssetRotation(parseFloat(this.value));document.getElementById('tf-rot').value=Math.round(this.value);this.style.setProperty('--rp',Math.round((parseFloat(this.value)+360)/720*100)+'%')"
-          class="w-full" style="--rp:${Math.round(((asset.rotation||0)+360)/720*100)}%">
-      </div>` : ''}`;
+          <input id="tf-rot-sl" type="range" min="-360" max="360" step="1" value="${asset.rotation||0}"
+            oninput="setAssetRotation(parseFloat(this.value));document.getElementById('tf-rot').value=Math.round(this.value);this.style.setProperty('--rp',Math.round((parseFloat(this.value)+360)/720*100)+'%')"
+            class="w-full" style="--rp:${Math.round(((asset.rotation||0)+360)/720*100)}%">
+        </div>` : ''}`;
+
+    return rpSection('layout', 'Layout', layoutContent);
 
     return `
     <div class="border-t border-black">
@@ -3172,7 +3570,7 @@
   function setAssetRotation(val) {
     const asset = currentAsset();
     if (!asset) return;
-    pushUndo('Rotate');
+    pushUndoContinuous('rotate', 'Rotate');
     asset.rotation = val;
     applyGraphicPosition();
     renderGraphic();
@@ -3182,7 +3580,7 @@
   function setTFSize(axis, val) {
     const asset = currentAsset();
     if (!asset) return;
-    const v = Math.max(10, Math.min(2000, parseFloat(val) || 10));
+    const v = Math.max(1, Math.min(2000, parseFloat(val) || 1));
     if (window._tfLock && asset.w && asset.h) {
       const ratio = asset.w / asset.h;
       if (axis === 'w') {
@@ -3199,21 +3597,21 @@
     } else {
       asset[axis] = v;
     }
+    pushUndoContinuous('tf-size-' + axis, 'Resize');
+    // Always just re-render, no panel rebuild (fast live update)
     if (asset.type === 'shape') {
-      if (axis === 'w') setShapeProp('w', asset.w, 20, 2000);
-      else setShapeProp('h', asset.h, 20, 2000);
-    } else {
-      // image or text — just update and re-render
-      renderGraphic();
-      buildRightPanel();
+      const clamped = Math.max(1, Math.min(2000, asset[axis]));
+      asset[axis] = clamped;
     }
+    renderGraphic();
+    applyGraphicPosition();
   }
 
   function alignmentControlsHTML() {
     if (!hasAssets()) return '';
     const btn = (dir, title, svgPath) =>
       `<button onclick="alignAsset('${dir}')" title="${title}" class="flex-1 h-8 flex items-center justify-center hover:bg-stone-100 border-r border-black last:border-r-0 transition-colors text-stone-600 hover:text-black">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">${svgPath}</svg>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">${svgPath}</svg>
       </button>`;
     return `
     <div class="border-t border-black">
@@ -3241,66 +3639,173 @@
     if (!isImg) return '';
     const v = (k, d) => asset[k] ?? d;
     const bw = parseFloat(v('borderWidth', 0));
+    const isSvg = asset.type === 'svg';
     const pct = (val, min, max) => Math.round(((val - min) / (max - min)) * 100);
     const slider = (id, min, max, step, val, oninput) =>
       `<input id="${id}" type="range" min="${min}" max="${max}" step="${step}" value="${val}"
         oninput="${oninput};this.style.setProperty('--rp',Math.round((parseFloat(this.value)-${min})/(${max}-${min})*100)+'%')"
         class="w-full" style="--rp:${pct(val, min, max)}%">`;
 
-    return `
-    <div class="border-t border-black">
-      <div class="py-2.5 px-4 text-[10px] font-bold uppercase tracking-wider" style="color:#888">Border</div>
-      <div class="space-y-3 pb-3 px-4">
-        <!-- Border color -->
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-xs" style="color:#888">Color</span>
+    // SVG: same structure as shapes — Fill section + Stroke section
+    const svgFillMode = v('svgFillMode','solid');
+    const svgStrokeMode = v('svgStrokeMode','solid');
+    const svgFillColor = v('svgFill','#C8C8C8');
+    const svgStrokeColor = v('svgStroke','#000000');
+    const svgFillAngle = clampGradientAngle(v('svgFillGradientAngle',135),135);
+    const svgStrokeAngle = clampGradientAngle(v('svgStrokeGradientAngle',135),135);
+    const svgStrokeDash = v('svgStrokeDash','solid');
+    const svgStrokeJoin = v('svgStrokeJoin','round');
+    const svgSW = parseFloat(v('svgStrokeWidth',0));
+    const borderMode = v('borderMode','solid');
+    const borderColor = v('borderColor','#FFFFFF');
+    const borderColor2 = v('borderColor2','#FFB000');
+    const borderAngle = clampGradientAngle(v('borderGradientAngle',135),135);
+
+    if (isSvg) {
+      const fillSection = `
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <span class="text-xs" style="color:#888">Color</span>
+          <div class="vom-segmented" style="grid-template-columns:repeat(3,auto);display:inline-grid">
+            <button onclick="setImageProp('svgFillMode','none');window['rp_open_svg-fill']=true;renderGraphic();buildRightPanel()"    class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase ${svgFillMode==='none'?'is-selected':''}">None</button>
+            <button onclick="setImageProp('svgFillMode','solid');window['rp_open_svg-fill']=true;renderGraphic();buildRightPanel()"   class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase ${svgFillMode==='solid'?'is-selected':''}">Solid</button>
+            <button onclick="setImageProp('svgFillMode','gradient');window['rp_open_svg-fill']=true;renderGraphic();buildRightPanel()" class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase ${svgFillMode==='gradient'?'is-selected':''}">Grad</button>
           </div>
-          <input type="color" value="${v('borderColor','#FFFFFF')}"
-            onchange="setImageProp('borderColor',this.value)"
-            class="w-full h-9 border border-[#2A2A2A] cursor-pointer" style="background:transparent">
         </div>
-        <!-- Border weight -->
+        ${svgFillMode==='none' ? `<div class="color-field" style="pointer-events:none;opacity:.4"><div style="width:36px;height:36px;background:#111;position:relative;overflow:hidden"><svg width="36" height="36" viewBox="0 0 36 36"><line x1="0" y1="0" x2="36" y2="36" stroke="#cc2222" stroke-width="1.5"/></svg></div><input type="text" value="None" disabled></div>` : svgFillMode==='gradient' ? gradientEditorHTML('asset','svgFillGradientStops','svgFillGradientAngle',gradientStops(asset,'svgFillGradientStops','#C8C8C8','#FFB000','svgFill','svgFill2'),svgFillAngle,'#C8C8C8','#FFB000') : `<div class="space-y-1.5">
+          <div class="color-field">
+            <input type="color" value="${svgFillColor}" onchange="setImageProp('svgFill',this.value);this.nextElementSibling.value=this.value.toUpperCase();renderGraphic()">
+            <input type="text" value="${svgFillColor.toUpperCase()}" onchange="setImageProp('svgFill',this.value);this.previousElementSibling.value=this.value;renderGraphic()" placeholder="#000000">
+          </div>
+        </div>`}`;
+
+      const strokeSection = `
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <span class="text-xs" style="color:#888">Color</span>
+          <div class="vom-segmented" style="grid-template-columns:repeat(3,auto);display:inline-grid">
+            <button onclick="setImageProp('svgStrokeMode','none');window['rp_open_svg-stroke']=true;renderGraphic();buildRightPanel()"    class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase ${svgStrokeMode==='none'?'is-selected':''}">None</button>
+            <button onclick="setImageProp('svgStrokeMode','solid');window['rp_open_svg-stroke']=true;renderGraphic();buildRightPanel()"   class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase ${svgStrokeMode==='solid'?'is-selected':''}">Solid</button>
+            <button onclick="setImageProp('svgStrokeMode','gradient');window['rp_open_svg-stroke']=true;renderGraphic();buildRightPanel()" class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase ${svgStrokeMode==='gradient'?'is-selected':''}">Grad</button>
+          </div>
+        </div>
+        ${svgStrokeMode==='none' ? `<div class="color-field mb-2" style="pointer-events:none;opacity:.4"><div style="width:36px;height:36px;background:#111;position:relative;overflow:hidden"><svg width="36" height="36" viewBox="0 0 36 36"><line x1="0" y1="0" x2="36" y2="36" stroke="#cc2222" stroke-width="1.5"/></svg></div><input type="text" value="None" disabled></div>` : svgStrokeMode==='gradient' ? `<div class="mb-2">${gradientEditorHTML('asset','svgStrokeGradientStops','svgStrokeGradientAngle',gradientStops(asset,'svgStrokeGradientStops','#000000','#FFB000','svgStroke','svgStroke2'),svgStrokeAngle,'#000000','#FFB000')}</div>` : `<div class="space-y-1.5 mb-2">
+          <div class="color-field">
+            <input type="color" value="${svgStrokeColor}" onchange="setImageProp('svgStroke',this.value);this.nextElementSibling.value=this.value.toUpperCase();renderGraphic()">
+            <input type="text" value="${svgStrokeColor.toUpperCase()}" onchange="setImageProp('svgStroke',this.value);this.previousElementSibling.value=this.value;renderGraphic()" placeholder="#000000">
+          </div>
+        </div>`}
         <div class="space-y-1">
           <div class="flex justify-between items-center">
             <span class="text-xs" style="color:#888">Weight</span>
-            <input id="img-bw-val" type="text" value="${bw}"
-              onchange="setImageProp('borderWidth',parseFloat(this.value)||0)"
+            <input id="svg-sw-val" type="text" value="${svgSW}"
+              oninput="setImageProp('svgStrokeWidth',parseFloat(this.value)||0);renderGraphic()"
               class="w-10 text-center font-mono text-[11px] border border-[#2A2A2A] focus:outline-none py-0.5 bg-transparent text-inherit">
           </div>
-          ${slider('img-bw-sl', 0, 24, 0.5, bw,
-            `setImageProp('borderWidth',parseFloat(this.value));document.getElementById('img-bw-val').value=parseFloat(this.value).toFixed(1)`)}
+          ${slider('svg-sw-sl', 0, 20, 1, svgSW,
+            `setImageProp('svgStrokeWidth',parseFloat(this.value));document.getElementById('svg-sw-val').value=Math.round(parseFloat(this.value));renderGraphic()`)}
         </div>
-        <!-- Border radius -->
-        <div class="space-y-1">
-          <div class="flex justify-between items-center">
-            <span class="text-xs" style="color:#888">Radius</span>
-            <input id="img-br-val" type="text" value="${v('borderRadius',0)}"
-              onchange="setImageProp('borderRadius',parseFloat(this.value)||0)"
-              class="w-10 text-center font-mono text-[11px] border border-[#2A2A2A] focus:outline-none py-0.5 bg-transparent text-inherit">
-          </div>
-          ${slider('img-br-sl', 0, 200, 1, v('borderRadius', 0),
-            `setImageProp('borderRadius',parseFloat(this.value));document.getElementById('img-br-val').value=this.value`)}
-        </div>
-        <!-- Border style -->
         <div class="space-y-1.5">
-          <span class="text-xs" style="color:#888">Style</span>
+          <span class="text-xs" style="color:#888">Type</span>
           <div class="vom-segmented grid-cols-3">
-            ${['Solid','Dashed','Dotted'].map(s => `<button onclick="setImageProp('borderType','${s.toLowerCase()}')"
-              class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${v('borderType','solid')===s.toLowerCase()?'is-selected':''}">${s}</button>`).join('')}
+            ${['solid','dashed','dotted'].map(s=>`<button onclick="setImageProp('svgStrokeDash','${s}');renderGraphic();buildRightPanel()"
+              class="vom-segment py-1.5 text-[10px] font-bold uppercase ${svgStrokeDash===s?'is-selected':''}">${s}</button>`).join('')}
           </div>
         </div>
+        <div class="space-y-1.5">
+          <span class="text-xs" style="color:#888">Join</span>
+          <div class="vom-segmented grid-cols-3">
+            ${[['round','Round'],['miter','Sharp'],['bevel','Bevel']].map(([val,lbl])=>`<button onclick="setImageProp('svgStrokeJoin','${val}');renderGraphic()"
+              class="vom-segment py-1.5 text-[10px] font-bold uppercase ${svgStrokeJoin===val?'is-selected':''}">${lbl}</button>`).join('')}
+          </div>
+        </div>`;
+
+      return `${rpSection('svg-fill','Fill', fillSection)}${rpSection('svg-stroke','Stroke', strokeSection)}`;
+    }
+    // Raster image: border controls
+    const rasterContent = `
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs" style="color:#888">Color</span>
+          <div class="vom-segmented" style="grid-template-columns:repeat(3,auto);display:inline-grid">
+            <button onclick="setImageProp('borderMode','none');window['rp_open_border']=true;renderGraphic();buildRightPanel()" class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase transition-colors ${borderMode==='none'?'is-selected':''}">None</button>
+            <button onclick="setImageProp('borderMode','solid');window['rp_open_border']=true;renderGraphic();buildRightPanel()" class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase transition-colors ${borderMode==='solid'?'is-selected':''}">Solid</button>
+            <button onclick="setImageProp('borderMode','gradient');window['rp_open_border']=true;renderGraphic();buildRightPanel()" class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase transition-colors ${borderMode==='gradient'?'is-selected':''}">Grad</button>
+          </div>
+        </div>
+        ${borderMode==='none'?`<div class="color-field" style="pointer-events:none;opacity:.4"><div style="width:36px;height:36px;background:#111;position:relative;overflow:hidden"><svg width="36" height="36" viewBox="0 0 36 36"><line x1="0" y1="0" x2="36" y2="36" stroke="#cc2222" stroke-width="1.5"/></svg></div><input type="text" value="None" disabled></div>`:borderMode==='gradient'?gradientEditorHTML('asset','borderGradientStops','borderGradientAngle',gradientStops(asset,'borderGradientStops','#FFFFFF','#FFB000','borderColor','borderColor2'),borderAngle,'#FFFFFF','#FFB000'):`<div class="space-y-1.5">
+          <div class="color-field">
+            <input type="color" value="${borderColor}" onchange="setImageProp('borderColor',this.value);this.nextElementSibling.value=this.value.toUpperCase();renderGraphic()">
+            <input type="text" value="${borderColor.toUpperCase()}" onchange="setImageProp('borderColor',this.value);this.previousElementSibling.value=this.value;renderGraphic()" placeholder="#FFFFFF">
+          </div>
+        </div>`}
       </div>
-    </div>`;
+      <div class="space-y-1">
+        <div class="flex justify-between items-center">
+          <span class="text-xs" style="color:#888">Weight</span>
+          <input id="img-bw-val" type="text" value="${bw}"
+            oninput="setImageProp('borderWidth',parseFloat(this.value)||0)"
+            class="w-10 text-center font-mono text-[11px] border border-[#2A2A2A] focus:outline-none py-0.5 bg-transparent text-inherit">
+        </div>
+        ${slider('img-bw-sl', 0, 24, 0.5, bw,
+          `setImageProp('borderWidth',parseFloat(this.value));document.getElementById('img-bw-val').value=Math.round(parseFloat(this.value))`)}
+      </div>
+      <div class="space-y-1">
+        <div class="flex justify-between items-center">
+          <span class="text-xs" style="color:#888">Radius</span>
+          <input id="img-br-val" type="text" value="${v('borderRadius',0)}"
+            oninput="setImageProp('borderRadius',parseFloat(this.value)||0)"
+            class="w-10 text-center font-mono text-[11px] border border-[#2A2A2A] focus:outline-none py-0.5 bg-transparent text-inherit">
+        </div>
+        ${slider('img-br-sl', 0, 200, 1, v('borderRadius',0),
+          `setImageProp('borderRadius',parseFloat(this.value));document.getElementById('img-br-val').value=this.value`)}
+      </div>
+      <div class="space-y-1.5">
+        <span class="text-xs" style="color:#888">Type</span>
+        <div class="vom-segmented grid-cols-3">
+          ${['Solid','Dashed','Dotted'].map(s=>`<button onclick="setImageProp('borderType','${s.toLowerCase()}')"
+            class="vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${v('borderType','solid')===s.toLowerCase()?'is-selected':''}">${s}</button>`).join('')}
+        </div>
+      </div>`;
+
+    return rpSection('border', 'Border', rasterContent);
   }
 
   function setImageProp(key, val) {
     const asset = currentAsset();
     if (!asset) return;
-    pushUndo('Image property');
+    pushUndoContinuous('img-' + key, 'Image property');
     asset[key] = val;
     renderGraphic();
-    buildRightPanel();
+  }
+
+  // Collapsible section helper for right panel Design tab
+  function rpSection(id, title, content, defaultOpen=false) {
+    const key = `rp_open_${id}`;
+    const isOpen = window[key] === true; // default CLOSED unless user opened it
+    return `
+    <div class="border-t border-[#2A2A2A]">
+      <button onclick="toggleRpSection('${id}')" id="rp-sec-btn-${id}"
+        class="w-full flex items-center justify-between px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider transition-colors"
+        style="color:#888">
+        <span>${title}</span>
+        <svg id="rp-sec-arr-${id}" width="10" height="10" viewBox="0 0 10 10" fill="none"
+          style="transition:transform .15s;transform:${isOpen?'rotate(180deg)':'rotate(0deg)'}">
+          <path d="M1 3L5 7L9 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div id="rp-sec-${id}" class="px-4 pb-3 space-y-3" style="display:${isOpen?'block':'none'}">
+        ${content}
+      </div>
+    </div>`;
+  }
+
+  function toggleRpSection(id) {
+    const key = `rp_open_${id}`;
+    const panel = document.getElementById(`rp-sec-${id}`);
+    const arrow = document.getElementById(`rp-sec-arr-${id}`);
+    const isOpen = panel?.style.display !== 'none';
+    window[key] = !isOpen;
+    if (panel) panel.style.display = isOpen ? 'none' : 'block';
+    if (arrow) arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
   }
 
   function buildRightPanel() {
@@ -3324,20 +3829,31 @@
       const active = a.id === S.activeAssetId || rightMultiIds.has(a.id);
       const count = S.layers.filter(l => l.assetId === a.id).length;
       const visible = a.visible !== false;
-      return `<div oncontextmenu="event.preventDefault();event.stopPropagation();showLayerRowContextMenu(event,'${a.id}')" onclick="selectAssetRow('${a.id}',event)" draggable="true" ondragstart="startAssetDrag(event,'${a.id}')" ondragover="overAssetDrag(event)" ondragleave="leaveAssetDrag(event)" ondrop="dropAssetDrag(event,'${a.id}')" ondragend="endAssetDrag(event)" class="right-layer-row flex items-center justify-between gap-2 px-3 py-2 border border-black cursor-pointer ${active ? 'bg-[#FFF8F5] text-brand-orange border-brand-orange' : 'bg-white text-black hover:bg-stone-50'} ${rightMultiIds.has(a.id) ? 'multi-selected' : ''} ${visible ? '' : 'opacity-50'}">
+      return `<div oncontextmenu="event.preventDefault();event.stopPropagation();showLayerRowContextMenu(event,'${a.id}')" onclick="selectAssetRow('${a.id}',event)" draggable="true" ondragstart="startAssetDrag(event,'${a.id}')" ondragover="overAssetDrag(event)" ondragleave="leaveAssetDrag(event)" ondrop="dropAssetDrag(event,'${a.id}')" ondragend="endAssetDrag(event)" class="right-layer-row flex items-center justify-between gap-2 px-3 py-2 border cursor-pointer ${active ? 'border-[#3A3A3A] text-white' : 'border-[#2A2A2A] text-[#AAA] hover:text-white'} ${rightMultiIds.has(a.id) ? 'multi-selected' : ''} ${visible ? '' : 'opacity-50'}" style="background:${active ? '#1E1E1E' : '#161616'}">
         <div class="flex items-center gap-2 min-w-0 flex-1">
-          <i data-lucide="grip-vertical" class="w-3 h-3 ${active ? 'text-brand-orange' : 'text-stone-400'} shrink-0"></i>
-          <button onclick="event.stopPropagation();toggleAssetVis('${a.id}')" class="${active ? 'text-brand-orange hover:text-black' : 'text-stone-500 hover:text-brand-orange'} shrink-0" title="${visible ? 'Hide layer' : 'Show layer'}"><i data-lucide="${visible ? 'eye' : 'eye-off'}" class="w-3 h-3"></i></button>
+          <i data-lucide="grip-vertical" class="w-3 h-3 shrink-0" style="color:#444"></i>
+          <button onclick="event.stopPropagation();toggleAssetVis('${a.id}')" class="shrink-0" style="color:${visible ? '#666' : '#444'}" title="${visible ? 'Hide layer' : 'Show layer'}"><i data-lucide="${visible ? 'eye' : 'eye-off'}" class="w-3 h-3"></i></button>
           <span class="text-[10px] font-bold uppercase truncate asset-name-label" data-asset-id="${a.id}">${a.name}</span>
         </div>
         <div class="flex items-center gap-2 shrink-0">
-          <span class="text-[9px] font-mono ${active ? 'text-brand-orange' : 'text-stone-400'}">${count}</span>
-          <button onclick="event.stopPropagation();removeAsset('${a.id}')" class="${active ? 'text-brand-orange hover:text-black' : 'text-stone-400 hover:text-red-500'}"><i data-lucide="x" class="w-3 h-3"></i></button>
+          <span class="text-[9px] font-mono" style="color:#555">${count}</span>
+          <button onclick="event.stopPropagation();removeAsset('${a.id}')" style="color:#444" onmouseover="this.style.color='#FF6666'" onmouseout="this.style.color='#444'"><i data-lucide="x" class="w-3 h-3"></i></button>
         </div>
       </div>`;
     }).join('') : '';
 
-    const alignBtns = ''; // moved to toolbar
+    const alignBtns = (() => {
+      const icons = [
+        ['left','Align Left','<rect x="1" y="3" width="2" height="10"/><rect x="4" y="5" width="7" height="3"/><rect x="4" y="9" width="10" height="3"/>'],
+        ['centerH','Center H','<rect x="7" y="1" width="2" height="14"/><rect x="3" y="4" width="10" height="3"/><rect x="1" y="9" width="14" height="3"/>'],
+        ['right','Align Right','<rect x="13" y="3" width="2" height="10"/><rect x="5" y="5" width="7" height="3"/><rect x="2" y="9" width="10" height="3"/>'],
+        ['top','Align Top','<rect x="3" y="1" width="10" height="2"/><rect x="5" y="4" width="3" height="7"/><rect x="9" y="4" width="3" height="10"/>'],
+        ['centerV','Center V','<rect x="1" y="7" width="14" height="2"/><rect x="4" y="3" width="3" height="10"/><rect x="9" y="1" width="3" height="14"/>'],
+        ['bottom','Align Bottom','<rect x="3" y="13" width="10" height="2"/><rect x="5" y="2" width="3" height="10"/><rect x="9" y="5" width="3" height="7"/>']
+      ];
+      const btns = icons.map(([d,t,p]) => `<button onclick="alignAsset('${d}')" title="${t}" class="flex-1 h-full flex items-center justify-center transition-colors" style="color:#444" onmouseover="this.style.color='#CCC'" onmouseout="this.style.color='#444'"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">${p}</svg></button>`).join('');
+      return `<div class="flex items-center border-b border-[#2A2A2A] px-2 shrink-0" style="background:#111;height:34px">${btns}</div>`;
+    })();
 
     // Tabs
     const isDesign  = (window._rpTab !== 'animate');
@@ -3353,29 +3869,27 @@
 
     if (!layer) {
       rp.innerHTML = `
-        <div class="flex items-center justify-between px-4 border-b border-black bg-white shrink-0" style="height:40px">
-          <span class="text-xs font-bold uppercase font-outfit tracking-wider text-black">Controls</span>
+        <div class="flex items-center justify-between px-4 border-b border-[#2A2A2A] shrink-0" style="height:40px;background:#0E0E0E">
+          <span class="text-xs font-bold uppercase font-outfit tracking-wider" style="color:#CCC">Controls</span>
         </div>
         ${alignBtns}
-        <div class="flex-1 overflow-y-auto" data-rp-scroll>
-          <div class="p-4 pb-3 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-[10px] font-bold uppercase tracking-wider" style="color:#888">Layers</span>
-              <button onclick="document.getElementById('file-upload').click()" title="Add layer" class="w-5 h-5 flex items-center justify-center rounded transition-colors hover:text-white" style="color:#555">
+        <div class="px-4 pt-3 pb-5 shrink-0">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider" style="color:#666">Layers</span>
+            <button onclick="document.getElementById('file-upload').click()" title="Add layer" class="w-5 h-5 flex items-center justify-center" style="color:#555" onmouseover="this.style.color='#CCC'" onmouseout="this.style.color='#555'">
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             </button>
-            </div>
-            <div class="right-layer-box">
-              ${hasAssets() ? `<div class="${layerListClass}" ${layerListStyle}>${assetRows}</div>` : `
-                <div class="w-full flex items-center justify-center p-6 text-stone-400">
-                  <span class="text-[10px] font-bold uppercase tracking-widest">No layers</span>
-                </div>`}
-            </div>
           </div>
-          ${tabBar}
+          ${hasAssets() ? `<div class="${layerListClass}" ${layerListStyle}>${assetRows}</div>` : `
+            <div class="flex items-center justify-center py-4" style="color:#444">
+              <span class="text-[10px] font-bold uppercase tracking-widest">No layers</span>
+            </div>`}
+        </div>
+        ${tabBar}
+        <div class="overflow-y-auto" data-rp-scroll style="flex:1 1 0;min-height:0">
           ${window._rpTab === 'animate'
-            ? `<div id="rp-panel-animate" class="p-4 space-y-4">
-                <p class="text-xs text-stone-400">Select a preset on the timeline to edit its animation settings.</p>
+            ? `<div id="rp-panel-animate">
+                <p class="px-4 py-3 text-xs" style="color:#555">Select a preset on the timeline to edit its animation settings.</p>
               </div>`
             : `<div id="rp-panel-design">
                 ${designContent}
@@ -3396,82 +3910,76 @@
 
     // Animate panel content (preset controls)
     const animateContent = `
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 shrink-0 rounded-sm" style="background:${selectedLayerColor}"></span>
-          <span class="text-[10px] font-bold uppercase tracking-widest text-stone-500 font-outfit truncate">${layer.name}</span>
+        <div class="flex items-center gap-2 px-4 pt-3 pb-1">
+          <span class="w-2 h-2 shrink-0 rounded-sm" style="background:${selectedLayerColor}"></span>
+          <span class="text-[10px] font-bold uppercase tracking-widest font-outfit truncate" style="color:#888">${layer.name}</span>
         </div>
-        <div class="space-y-1.5 relative" id="easing-wrap">
-          <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Easing</label>
-          <button onclick="toggleEasingDrop(event)" class="w-full text-left text-xs font-semibold px-3 py-2 bg-white border border-black flex items-center justify-between">
-            <span id="easing-lbl">${easingLabel(layer.easing)}</span>
-            <i data-lucide="chevron-down" class="w-4 h-4"></i>
-          </button>
-          <div id="easing-drop" class="vom-menu-list absolute left-0 top-full w-full bg-white border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] z-50 hidden overflow-y-auto" style="max-height:200px">
-            ${EASINGS.map(([v,l], idx) => `<button onclick="pickEasingByIdx(${idx},event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold hover:bg-stone-100 transition font-outfit uppercase">${l}</button>`).join('')}
+        ${rpSection('anim-easing','Easing', `
+          <div class="space-y-1.5 relative" id="easing-wrap">
+            <button onclick="toggleEasingDrop(event)" class="w-full text-left text-xs font-semibold px-3 py-2 border border-[#2A2A2A] flex items-center justify-between" style="background:#161616;color:#CCC">
+              <span id="easing-lbl">${easingLabel(layer.easing)}</span>
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="opacity:.5"><path d="M1 3L5 7L9 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+            <div id="easing-drop" class="vom-menu-list fixed border border-[#2A2A2A] hidden overflow-y-auto" style="max-height:200px;background:#1A1A1A;width:280px;z-index:99999">
+              ${EASINGS.map(([v,l], idx) => `<button onclick="pickEasingByIdx(${idx},event)" class="vom-menu-row w-full text-left px-4 py-2.5 text-[10px] font-bold font-outfit uppercase" style="color:#CCC">${l}</button>`).join('')}
+            </div>
           </div>
-        </div>
-        <div class="space-y-1.5">
-          <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Direction</label>
+        `)}
+        ${rpSection('anim-dir','Direction', `
           <div class="vom-segmented grid-cols-2">
             ${['in','out'].map(d => `<button onclick="setLP('direction','${d}')" class="vom-segment py-1.5 text-[10px] font-bold transition-colors ${layer.direction===d?'is-selected':''}">${d==='in'?'In':'Out'}</button>`).join('')}
           </div>
-        </div>
-        <div class="space-y-3">
-          <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Timing</label>
+        `)}
+        ${rpSection('anim-timing','Timing', `
           <div class="space-y-1">
             <div class="flex justify-between items-center">
-              <span class="text-xs text-stone-600">Duration (s)</span>
-              <input id="rp-duration-val" type="text" value="${layer.duration.toFixed(2)}" onchange="setLPNum('duration',this.value,0.1,30)" class="w-14 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+              <span class="text-xs" style="color:#888">Duration (s)</span>
+              <input id="rp-duration-val" type="text" value="${layer.duration.toFixed(2)}" onchange="setLPNum('duration',this.value,0.1,30)" class="w-14 text-center font-mono text-[11px] border border-[#2A2A2A] focus:outline-none py-0.5 bg-transparent text-inherit">
             </div>
             <input id="rp-duration-slider" type="range" min="0.1" max="10" step="0.05" value="${layer.duration}" oninput="setLPSlider('duration',this.value,'rp-duration-val')" class="w-full" style="--rp:${pct(layer.duration,0.1,10)}%">
           </div>
-        </div>
-        <div class="border-t border-black pt-4 space-y-3">
-          <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Global Transform</label>
+        `)}
+        ${rpSection('anim-transform','Global Transform', `
           <div class="space-y-1">
             <div class="flex justify-between items-center">
-              <span class="text-xs text-stone-600">Scale</span>
-              <input id="pc-layerScale-val" type="text" value="${layer.params?.layerScale ?? 1}" onchange="setPP('layerScale',this.value,-5,5)" class="w-14 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+              <span class="text-xs" style="color:#888">Scale</span>
+              <input id="pc-layerScale-val" type="text" value="${layer.params?.layerScale ?? 1}" onchange="setPP('layerScale',this.value,-5,5)" class="w-14 text-center font-mono text-[11px] border border-[#2A2A2A] focus:outline-none py-0.5 bg-transparent text-inherit">
             </div>
             <input id="pc-layerScale-sl" type="range" min="-5" max="5" step="0.05" value="${layer.params?.layerScale ?? 1}" oninput="setPPSlider('layerScale',this.value,'pc-layerScale-val')" class="w-full" style="--rp:${pct(layer.params?.layerScale ?? 1,-5,5)}%">
           </div>
-          <div class="space-y-1 mt-2">
+          <div class="space-y-1">
             <div class="flex justify-between items-center">
-              <span class="text-xs text-stone-600">Rotate (°)</span>
-              <input id="pc-layerRot-val" type="text" value="${layer.params?.layerRot ?? 0}" onchange="setPP('layerRot',this.value,-360,360)" class="w-14 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+              <span class="text-xs" style="color:#888">Rotate (°)</span>
+              <input id="pc-layerRot-val" type="text" value="${layer.params?.layerRot ?? 0}" onchange="setPP('layerRot',this.value,-360,360)" class="w-14 text-center font-mono text-[11px] border border-[#2A2A2A] focus:outline-none py-0.5 bg-transparent text-inherit">
             </div>
             <input id="pc-layerRot-sl" type="range" min="-360" max="360" step="1" value="${layer.params?.layerRot ?? 0}" oninput="setPPSlider('layerRot',this.value,'pc-layerRot-val')" class="w-full" style="--rp:${pct(layer.params?.layerRot ?? 0,-360,360)}%">
           </div>
-        </div>
+        `)}
         ${presetSpecificHTML(layer)}
-        <div class="border-t border-black pt-4">
-          <div>
-            <button onclick="resetLayer('${layer.id}')" class="w-full py-2 px-4 text-[10px] font-bold bg-white hover:bg-stone-100 border border-black uppercase tracking-wider transition flex items-center justify-center space-x-1.5">
-              <i data-lucide="rotate-ccw" class="w-3 h-3"></i><span>Reset</span>
-            </button>
-          </div>
+        <div class="border-t border-[#2A2A2A] px-4 py-3">
+          <button onclick="resetLayer('${layer.id}')" class="w-full py-2 px-4 text-[10px] font-bold border border-[#2A2A2A] uppercase tracking-wider transition flex items-center justify-center space-x-1.5" style="background:#161616;color:#AAA">
+            <i data-lucide="rotate-ccw" class="w-3 h-3"></i><span>Reset</span>
+          </button>
         </div>`;
 
     rp.innerHTML = `
-      <div class="flex items-center justify-between border-b border-black shrink-0 bg-white px-4" style="height:40px">
-        <span class="text-xs font-bold uppercase font-outfit tracking-wider text-black">Controls</span>
+      <div class="flex items-center justify-between border-b border-[#2A2A2A] shrink-0 px-4" style="height:40px;background:#0E0E0E">
+        <span class="text-xs font-bold uppercase font-outfit tracking-wider" style="color:#CCC">Controls</span>
       </div>
       ${alignBtns}
-      <div class="flex-1 overflow-y-auto" data-rp-scroll>
-        <div class="p-4 pb-3 space-y-2">
-          <div class="flex items-center justify-between">
-              <span class="text-[10px] font-bold uppercase tracking-wider" style="color:#888">Layers</span>
-              <button onclick="document.getElementById('file-upload').click()" title="Add layer" class="w-5 h-5 flex items-center justify-center rounded transition-colors hover:text-white" style="color:#555">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            </button>
-            </div>
-          <div class="right-layer-box">
-            <div class="${layerListClass}" ${layerListStyle}>${assetRows}</div>
-          </div>
+      <div class="px-4 pt-3 pb-5 shrink-0">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] font-bold uppercase tracking-wider" style="color:#666">Layers</span>
+          <button onclick="document.getElementById('file-upload').click()" title="Add layer" class="w-5 h-5 flex items-center justify-center" style="color:#555" onmouseover="this.style.color='#CCC'" onmouseout="this.style.color='#555'">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
         </div>
-        ${tabBar}
+        <div class="${layerListClass}" ${layerListStyle}>${assetRows}</div>
+      </div>
+      ${tabBar}
+      <div class="overflow-y-auto" data-rp-scroll style="flex:1 1 0;min-height:0">
         ${window._rpTab === 'animate'
-          ? `<div id="rp-panel-animate" class="p-4 space-y-4">
+          ? `<div id="rp-panel-animate">
               ${animateContent}
             </div>`
           : `<div id="rp-panel-design">
@@ -3493,23 +4001,6 @@
   function rpTab(tab) {
     window._rpTab = tab;
     buildRightPanel();
-    return;
-    const dPanel = document.getElementById('rp-panel-design');
-    const aPanel = document.getElementById('rp-panel-animate');
-    const dTab   = document.getElementById('rp-tab-design');
-    const aTab   = document.getElementById('rp-tab-animate');
-    if (!dPanel || !aPanel) { buildRightPanel(); return; }
-    if (tab === 'animate') {
-      dPanel.style.display = 'none';
-      aPanel.style.display = '';
-      if (dTab) { dTab.style.background = 'transparent'; dTab.style.color = '#555'; }
-      if (aTab) { aTab.style.background = '#2A2A2A'; aTab.style.color = '#FFF'; }
-    } else {
-      aPanel.style.display = 'none';
-      dPanel.style.display = '';
-      if (aTab) { aTab.style.background = 'transparent'; aTab.style.color = '#555'; }
-      if (dTab) { dTab.style.background = '#2A2A2A'; dTab.style.color = '#FFF'; }
-    }
   }
 
   function presetSpecificHTML(layer) {
@@ -3517,40 +4008,40 @@
     const preset = getPreset(layer.presetId);
     if (!preset || !preset.controls.length) return '';
 
-    let html = `<div class="border-t border-black pt-4 space-y-3">
-      <label class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Preset Controls</label>`;
+    let innerHtml = '';
 
     const sRow = (key, label, min, max, step, valKey) => {
       const v = p[valKey] ?? min;
+      const displayVal = step >= 1 ? Math.round(v) : parseFloat(v).toFixed(2);
       return `<div class="space-y-1">
         <div class="flex justify-between items-center">
-          <span class="text-xs text-stone-600">${label}</span>
-          <input id="pc-${key}-val" type="text" value="${v}" onchange="setPP('${valKey}',this.value,${min},${max})" class="w-14 text-center font-mono text-[11px] border border-black focus:outline-none py-0.5">
+          <span class="text-xs" style="color:#888">${label}</span>
+          <input id="pc-${key}-val" type="text" value="${displayVal}" onchange="setPP('${valKey}',this.value,${min},${max})" class="w-14 text-center font-mono text-[11px] border border-[#2A2A2A] focus:outline-none py-0.5 bg-transparent text-inherit">
         </div>
         <input id="pc-${key}-sl" type="range" min="${min}" max="${max}" step="${step}" value="${v}" oninput="setPPSlider('${valKey}',this.value,'pc-${key}-val')" class="w-full" style="--rp:${pct(v,min,max)}%">
       </div>`;
     };
 
-    if (preset.controls.includes('opacity'))     html += sRow('opacity','Opacity',0,1,0.05,'opacity');
-    if (preset.controls.includes('blur-amt'))    html += sRow('blur','Blur (px)',0,100,1,'blurAmt');
-    if (preset.controls.includes('scale-range')) html += sRow('scale-from','Scale from',-2,5,0.05,'scaleFrom');
-    if (preset.controls.includes('slide-dist'))  html += sRow('slide-dist','Distance (px)',-500,500,1,'slideDist');
-    if (preset.controls.includes('slide-fade'))  html += sRow('slide-fade','Fade Intensity %',0,100,1,'slideFade');
+    if (preset.controls.includes('opacity'))     innerHtml += sRow('opacity','Opacity',0,1,0.05,'opacity');
+    if (preset.controls.includes('blur-amt'))    innerHtml += sRow('blur','Blur (px)',0,100,1,'blurAmt');
+    if (preset.controls.includes('scale-range')) innerHtml += sRow('scale-from','Scale from',-2,5,0.05,'scaleFrom');
+    if (preset.controls.includes('slide-dist'))  innerHtml += sRow('slide-dist','Distance (px)',0,500,1,'slideDist');
+    if (preset.controls.includes('slide-fade'))  innerHtml += sRow('slide-fade','Fade Intensity %',0,100,1,'slideFade');
     if (preset.controls.includes('slide-dir')) {
       const dirs = ['left','right','top','bottom'];
-      html += `<div class="space-y-1.5">
-        <span class="text-xs text-stone-600">Slide direction</span>
+      innerHtml += `<div class="space-y-1.5">
+        <span class="text-xs" style="color:#888">Slide direction</span>
         <div class="grid grid-cols-2 gap-1">
-          ${dirs.map(d => `<button onclick="setPP('slideDir','${d}',null,null)" class="py-1.5 text-[10px] font-bold border border-black transition-colors ${p.slideDir===d?'bg-black text-white':'bg-white hover:bg-stone-100'} uppercase">${d}</button>`).join('')}
+          ${dirs.map(d => `<button onclick="setPP('slideDir','${d}',null,null)" class="py-1.5 text-[10px] font-bold border border-[#2A2A2A] transition-colors ${p.slideDir===d?'bg-[#2A2A2A] text-white':'hover:bg-[#222]'} uppercase" style="color:${p.slideDir===d?'#FFF':'#888'}">${d}</button>`).join('')}
         </div>
       </div>`;
     }
-    if (preset.controls.includes('stroke-width')) html += sRow('stroke-width','Thickness (px)',0,50,0.5,'stroke-width');
-    if (preset.controls.includes('trim-end')) html += sRow('trim-end','Path %',0,100,1,'trimEnd');
+    if (preset.controls.includes('stroke-width')) innerHtml += sRow('stroke-width','Thickness (px)',0,50,0.5,'stroke-width');
+    if (preset.controls.includes('trim-end')) innerHtml += sRow('trim-end','Path %',0,100,1,'trimEnd');
     if (preset.controls.includes('stroke-cap')) {
       const caps = ['round','square','butt'];
-      html += `<div class="space-y-1.5">
-        <span class="text-xs text-stone-600">Stroke End</span>
+      innerHtml += `<div class="space-y-1.5">
+        <span class="text-xs" style="color:#888">Stroke End</span>
         <div class="vom-segmented grid-cols-3">
           ${caps.map(c => `<button onclick="setPP('stroke-cap','${c}',null,null)" class="vom-segment py-1.5 text-[10px] font-bold transition-colors ${(p['stroke-cap']===c || (!p['stroke-cap'] && c==='round')) ? 'is-selected' : ''} uppercase">${c}</button>`).join('')}
         </div>
@@ -3560,54 +4051,69 @@
       const mode = p['stroke-color-mode'] || 'solid';
       const c1 = p['stroke-c1'] || '#FFB000';
       const c2 = p['stroke-c2'] || '#FFB020';
-      html += `<div class="space-y-1.5 border border-stone-200 p-2 bg-white">
+      const strokeAngle = clampGradientAngle(p['stroke-gradient-angle'], 135);
+      const strokeStops = gradientStops(p, 'stroke-gradient-stops', c1, c2, 'stroke-c1', 'stroke-c2');
+      innerHtml += `<div class="space-y-1.5">
         <div class="flex justify-between items-center mb-2 relative" id="stroke-mode-wrap">
-          <span class="text-xs text-stone-600 font-bold">Stroke Color</span>
-          <div class="relative">
-            <button onclick="toggleStrokeModeDrop(event)" class="text-[10px] font-bold px-2 py-1 bg-white border border-black flex items-center justify-between space-x-1.5 w-24">
-              <span>${mode === 'gradient' ? 'Gradient' : 'Solid'}</span>
-              <i data-lucide="chevron-down" class="w-3 h-3 text-stone-600"></i>
-            </button>
-            <div id="stroke-mode-drop" class="vom-menu-list absolute right-0 top-full mt-1 w-28 bg-white border border-black shadow-[2px_2px_0_rgba(0,0,0,1)] z-50 hidden" onclick="event.stopPropagation()">
-              <button onclick="pickStrokeMode('solid', event)" class="vom-menu-row w-full text-left px-3 py-2 text-[9px] font-bold hover:bg-stone-100 transition uppercase">Solid</button>
-              <button onclick="pickStrokeMode('gradient', event)" class="vom-menu-row w-full text-left px-3 py-2 text-[9px] font-bold hover:bg-stone-100 transition uppercase">Gradient</button>
-            </div>
+          <span class="text-xs font-bold" style="color:#888">Stroke Color</span>
+          <div class="vom-segmented" style="grid-template-columns:repeat(3,auto);display:inline-grid">
+            <button onclick="setPP('stroke-color-mode','none')" class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase transition-colors ${mode==='none'?'is-selected':''}">None</button>
+            <button onclick="setPP('stroke-color-mode','solid')" class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase transition-colors ${mode==='solid'?'is-selected':''}">Solid</button>
+            <button onclick="setPP('stroke-color-mode','gradient')" class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase transition-colors ${mode==='gradient'?'is-selected':''}">Grad</button>
           </div>
         </div>
-        <div class="flex space-x-2">
-          <input type="color" value="${c1}" onchange="setPPDirect('stroke-c1',this.value)" class="flex-1 h-8 border border-black cursor-pointer">
-          ${mode==='gradient' ? `<input type="color" value="${c2}" onchange="setPPDirect('stroke-c2',this.value)" class="flex-1 h-8 border border-black cursor-pointer">` : ''}
-        </div>
+        ${mode==='none'?`<div class="color-field" style="pointer-events:none;opacity:.4"><div style="width:36px;height:36px;background:#111;position:relative;overflow:hidden"><svg width="36" height="36" viewBox="0 0 36 36"><line x1="0" y1="0" x2="36" y2="36" stroke="#cc2222" stroke-width="1.5"/></svg></div><input type="text" value="None" disabled></div>`:mode==='gradient'?gradientEditorHTML('layer','stroke-gradient-stops','stroke-gradient-angle',strokeStops,strokeAngle,c1,c2):`
+          <div class="color-field">
+            <input type="color" value="${c1}" onchange="setPPDirect('stroke-c1',this.value);this.nextElementSibling.value=this.value.toUpperCase()">
+            <input type="text" value="${c1.toUpperCase()}" onchange="setPPDirect('stroke-c1',this.value);this.previousElementSibling.value=this.value" placeholder="#000000">
+          </div>
+        `}
       </div>`;
     }
-    if (preset.controls.includes('rot-deg'))     html += sRow('rot','Angle (°)',-360,360,1,'rotDeg');
-    if (preset.controls.includes('pop-scale'))   html += sRow('pop-scale','Peak scale',-2,5,0.05,'popScale');
-    if (preset.controls.includes('float-dist'))  html += sRow('float-dist','Distance (px)',-200,200,1,'floatDist');
-    if (preset.controls.includes('bounce-h'))    html += sRow('bounce-h','Height (px)',-200,200,1,'bounceH');
-    if (preset.controls.includes('pulse-scale')) html += sRow('pulse-scale','Scale peak',-2,3,0.05,'pulseScale');
-    if (preset.controls.includes('orbit-r'))     html += sRow('orbit-r','Orbit radius (px)',0,150,1,'orbitR');
-    if (preset.controls.includes('glitch-int'))  html += sRow('glitch','Intensity',0.2,3,0.1,'glitchInt');
-    if (preset.controls.includes('rgb-split'))   html += sRow('rgb-split','Split Dist',-20,20,1,'rgbSplit');
-    if (preset.controls.includes('xray-op'))     html += sRow('xray-op','Opacity',0,1,0.05,'xrayOp');
+    if (preset.controls.includes('rot-deg'))     innerHtml += sRow('rot','Angle (°)',-360,360,1,'rotDeg');
+    if (preset.controls.includes('pop-scale'))   innerHtml += sRow('pop-scale','Peak scale',-2,5,0.05,'popScale');
+    if (preset.controls.includes('float-dist'))  innerHtml += sRow('float-dist','Distance (px)',-200,200,1,'floatDist');
+    if (preset.controls.includes('bounce-h'))    innerHtml += sRow('bounce-h','Height (px)',-200,200,1,'bounceH');
+    if (preset.controls.includes('pulse-scale')) innerHtml += sRow('pulse-scale','Scale peak',-2,3,0.05,'pulseScale');
+    if (preset.controls.includes('orbit-r'))     innerHtml += sRow('orbit-r','Orbit radius (px)',0,150,1,'orbitR');
+    if (preset.controls.includes('glitch-int'))  innerHtml += sRow('glitch','Intensity',0.2,3,0.1,'glitchInt');
+    if (preset.controls.includes('rgb-split'))   innerHtml += sRow('rgb-split','Split Dist',-20,20,1,'rgbSplit');
+    if (preset.controls.includes('xray-op'))     innerHtml += sRow('xray-op','Opacity',0,1,0.05,'xrayOp');
     if (preset.controls.includes('glow-color')) {
-      html += `<div class="space-y-1.5">
-        <span class="text-xs text-stone-600">Glow colour</span>
-        <input type="color" value="${p.glowColor||'#FFB000'}" onchange="setPPDirect('glowColor',this.value)" class="w-full h-9 border border-black cursor-pointer">
+      const glowMode = p.glowColorMode || 'solid';
+      const glow1 = p.glowColor || '#FFB000';
+      const glow2 = p.glowColor2 || '#FF5C5C';
+      const glowAngle = clampGradientAngle(p.glowGradientAngle, 135);
+      const glowStops = gradientStops(p, 'glowGradientStops', glow1, glow2, 'glowColor', 'glowColor2');
+      innerHtml += `<div class="space-y-1.5">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs" style="color:#888">Glow Color</span>
+          <div class="vom-segmented" style="grid-template-columns:repeat(3,auto);display:inline-grid">
+            <button onclick="setPP('glowColorMode','none')" class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase transition-colors ${glowMode==='none'?'is-selected':''}">None</button>
+            <button onclick="setPP('glowColorMode','solid')" class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase transition-colors ${glowMode==='solid'?'is-selected':''}">Solid</button>
+            <button onclick="setPP('glowColorMode','gradient')" class="vom-segment px-2 py-0.5 text-[8px] font-bold uppercase transition-colors ${glowMode==='gradient'?'is-selected':''}">Grad</button>
+          </div>
+        </div>
+        ${glowMode==='none'?`<div class="color-field" style="pointer-events:none;opacity:.4"><div style="width:36px;height:36px;background:#111;position:relative;overflow:hidden"><svg width="36" height="36" viewBox="0 0 36 36"><line x1="0" y1="0" x2="36" y2="36" stroke="#cc2222" stroke-width="1.5"/></svg></div><input type="text" value="None" disabled></div>`:glowMode==='gradient'?gradientEditorHTML('layer','glowGradientStops','glowGradientAngle',glowStops,glowAngle,glow1,glow2):`<div class="space-y-1.5">
+          <div class="color-field">
+            <input type="color" value="${glow1}" onchange="setPPDirect('glowColor',this.value);this.nextElementSibling.value=this.value.toUpperCase()">
+            <input type="text" value="${glow1.toUpperCase()}" onchange="setPPDirect('glowColor',this.value);this.previousElementSibling.value=this.value" placeholder="#FFB000">
+          </div>
+        </div>`}
       </div>`;
     }
-    if (preset.controls.includes('glow-size'))   html += sRow('glow-size','Glow size (px)',0,60,1,'glowSize');
+    if (preset.controls.includes('glow-size'))   innerHtml += sRow('glow-size','Glow size (px)',0,60,1,'glowSize');
     if (preset.controls.includes('mask-dir')) {
       const dirs = ['top','bottom','left','right'];
-      html += `<div class="space-y-1.5">
-        <span class="text-xs text-stone-600">Mask direction</span>
+      innerHtml += `<div class="space-y-1.5">
+        <span class="text-xs" style="color:#888">Mask direction</span>
         <div class="grid grid-cols-2 gap-1">
-          ${dirs.map(d => `<button onclick="setPP('maskDir','${d}',null,null)" class="py-1.5 text-[10px] font-bold border border-black transition-colors ${p.maskDir===d?'bg-black text-white':'bg-white hover:bg-stone-100'} uppercase">${d}</button>`).join('')}
+          ${dirs.map(d => `<button onclick="setPP('maskDir','${d}',null,null)" class="py-1.5 text-[10px] font-bold border border-[#2A2A2A] transition-colors ${p.maskDir===d?'bg-[#2A2A2A] text-white':'hover:bg-[#222]'} uppercase" style="color:${p.maskDir===d?'#FFF':'#888'}">${d}</button>`).join('')}
         </div>
       </div>`;
     }
 
-    html += '</div>';
-    return html;
+    return rpSection('anim-preset', 'Preset Controls', innerHtml);
   }
 
   function exportRowHTML() {
@@ -3616,17 +4122,17 @@
       <!-- Save & Delete -->
       <div class="flex border-b border-black gap-2 p-3">
         <button onclick="exportJSON()" class="vom-cta flex-1 flex items-center justify-center space-x-1.5 py-2.5 px-3 text-[10px] font-bold bg-black hover:bg-stone-800 text-white border-r border-stone-700 transition-colors" title="Save project as JSON">
-          <i data-lucide="save" class="w-3.5 h-3.5"></i><span>SAVE PROJECT</span>
+          <i data-lucide="save" class="w-4 h-4"></i><span>SAVE PROJECT</span>
         </button>
         <button onclick="deleteProject()" class="vom-cta flex-1 flex items-center justify-center space-x-1.5 py-2.5 px-3 text-[10px] font-bold bg-white hover:bg-red-50 text-red-600 border-none transition-colors" title="Delete all assets and start fresh">
-          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i><span>DELETE PROJECT</span>
+          <i data-lucide="trash-2" class="w-4 h-4"></i><span>DELETE PROJECT</span>
         </button>
       </div>
 
       <!-- Export -->
       <div class="p-3 space-y-2">
         <button id="export-btn" onclick="openExportModal()" class="vom-cta vom-cta-primary w-full py-2.5 px-3 text-[10px] font-bold bg-brand-orange hover:bg-orange-600 text-white flex items-center justify-center space-x-1.5 transition-colors" title="Choose export format">
-          <i data-lucide="download" class="w-3.5 h-3.5"></i><span>EXPORT</span>
+          <i data-lucide="download" class="w-4 h-4"></i><span>EXPORT</span>
         </button>
       </div>
     </div>`;
@@ -3649,16 +4155,16 @@
           </div>
           <div class="p-4 space-y-2">
             <button onclick="closeExportModal();exportGIF()" class="${exportOptionClass}">
-              <i data-lucide="film" class="w-3.5 h-3.5"></i><span>EXPORT GIF</span>
+              <i data-lucide="film" class="w-4 h-4"></i><span>EXPORT GIF</span>
             </button>
             <button onclick="closeExportModal();exportLottie()" id="lottie-btn" class="${exportOptionClass}">
-              <i data-lucide="box" class="w-3.5 h-3.5"></i><span>EXPORT LOTTIE</span>
+              <i data-lucide="box" class="w-4 h-4"></i><span>EXPORT LOTTIE</span>
             </button>
             <button onclick="copyCodeJSON()" class="${exportOptionClass}">
-              <i data-lucide="code-2" class="w-3.5 h-3.5"></i><span id="copy-btn-lbl">COPY CSS CODE</span>
+              <i data-lucide="code-2" class="w-4 h-4"></i><span id="copy-btn-lbl">COPY CSS CODE</span>
             </button>
             <button onclick="closeExportModal();downloadCSSCode()" class="${exportOptionClass}">
-              <i data-lucide="file-code-2" class="w-3.5 h-3.5"></i><span>DOWNLOAD CSS</span>
+              <i data-lucide="file-code-2" class="w-4 h-4"></i><span>DOWNLOAD CSS</span>
             </button>
           </div>
         </div>
@@ -3896,18 +4402,22 @@
   function setPP(key, val, min, max) {
     const l = getSelLayer(); if(!l) return;
     if(typeof min === 'number' && typeof max === 'number') { let v=parseFloat(val); if(isNaN(v)) return; val=Math.max(min,Math.min(max,v)); }
-    if (l.params[key] === val) return;
-    pushUndo('Preset parameter');
+    pushUndoContinuous('pp-' + key, 'Preset parameter');
     l.params[key] = val;
-    renderGraphic(); buildRightPanel();
+    renderGraphic();
+    // Only rebuild panel for non-numeric changes (like slideDir) that change UI state
+    if (typeof val === 'string') buildRightPanel();
   }
   function setPPSlider(key, val, displayId) {
     const l = getSelLayer(); if(!l) return;
     const next = parseFloat(val);
     if (l.params[key] !== next) pushUndoContinuous('pp-' + key, 'Preset parameter');
     l.params[key] = next;
-    const el=document.getElementById(displayId); if(el) el.value=parseFloat(val).toFixed(2);
-    // Find the slider by the display ID pattern: pc-XXX-val -> pc-XXX-sl
+    const el=document.getElementById(displayId);
+    if(el) {
+      const step = parseFloat(document.getElementById(displayId.replace('-val','-sl'))?.step || 1);
+      el.value = step >= 1 ? Math.round(next) : next.toFixed(2);
+    }
     const slId = displayId.replace('-val', '-sl');
     const sl=document.getElementById(slId);
     if(sl) sl.style.setProperty('--rp',pct(parseFloat(val),parseFloat(sl.min),parseFloat(sl.max))+'%');
@@ -3947,7 +4457,20 @@
     if (asset[key] === next) return;
     pushUndo('Shape setting');
     asset[key] = next;
-    renderGraphic(); buildRightPanel();
+    renderGraphic();
+    buildRightPanel();
+  }
+
+  // Live (oninput) version — only rerenders, no panel rebuild
+  function setShapePropLive(key, val, min, max) {
+    const asset = currentShapeAsset(); if(!asset) return;
+    let next = parseFloat(val);
+    if (isNaN(next)) return;
+    next = Math.max(min, Math.min(max, next));
+    if (asset[key] === next) return;
+    pushUndoContinuous('shape-' + key, 'Shape setting');
+    asset[key] = next;
+    renderGraphic();
   }
 
   function setShapeSlider(key, val, displayId) {
@@ -3967,6 +4490,9 @@
     if (asset[key] === val) return;
     pushUndo('Shape color');
     asset[key] = val;
+    // If changing a mode key, keep the relevant section open
+    if (key === 'fillMode')   window.rp_open_fill   = true;
+    if (key === 'strokeMode') window.rp_open_stroke = true;
     renderGraphic(); buildRightPanel();
   }
 
@@ -4056,7 +4582,7 @@
       });
 
     // Duplicate
-    btn(`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
+    btn(`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="16" height="16" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
       'Duplicate', '', () => {
         S.activeAssetId = assetId;
         duplicateSelectedAsset();
@@ -4184,6 +4710,8 @@
       S.bg = 'light';
       S.customBg = '#FFFFFF';
       S.customBg2 = '#FFB000';
+      S.customBgStops = normalizeGradientStops(null, '#FFFFFF', '#FFB000');
+      S.customBgAngle = 135;
       S.size = '400x400';
       S.scale = 1;
       S.time = 0;
@@ -4208,6 +4736,8 @@
     S.bg = 'light';
     S.customBg = '#FFFFFF';
     S.customBg2 = '#FFB000';
+    S.customBgStops = normalizeGradientStops(null, '#FFFFFF', '#FFB000');
+    S.customBgAngle = 135;
     S.size = '400x400';
     S.scale = 1;
     S.time = 0;
@@ -4266,7 +4796,6 @@
     S.bg = bg;
     const c = document.getElementById('canvas-target');
     const colorInput = document.getElementById('bg-custom-color');
-    const gradientInput = document.getElementById('bg-gradient-color');
     
     document.querySelectorAll('#bg-toggles [data-bg-option]').forEach(b => {
       const isSel = b.id === 'bg-'+bg;
@@ -4285,9 +4814,11 @@
         c.className = 'relative flex items-center justify-center border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] overflow-hidden';
       } else if (bg === 'gradient') {
         const c1 = S.customBg || (colorInput ? colorInput.value : '#ffffff');
-        const c2 = S.customBg2 || (gradientInput ? gradientInput.value : '#FFB000');
+        const c2 = S.customBg2 || '#FFB000';
+        const angle = clampGradientAngle(S.customBgAngle, 135);
+        const stops = gradientStops(S, 'customBgStops', c1, c2, 'customBg', 'customBg2');
         c.style.backgroundColor = '';
-        c.style.backgroundImage = `linear-gradient(135deg, ${c1}, ${c2})`;
+        c.style.backgroundImage = linearGradientCSS(angle, stops);
         c.className = 'relative flex items-center justify-center border border-black shadow-[4px_4px_0_rgba(0,0,0,1)] overflow-hidden';
       } else {
         c.style.backgroundColor = '';
@@ -4300,9 +4831,12 @@
   function updateCustomBgModeUI() {
     const isGradient = S.bg === 'gradient';
     const row = document.getElementById('bg-gradient-row');
+    const solidRow = document.getElementById('bg-solid-row');
     const solid = document.getElementById('bg-solid-mode');
     const grad = document.getElementById('bg-gradient-mode');
     if (row) row.classList.toggle('hidden', !isGradient);
+    if (row && isGradient) row.innerHTML = gradientEditorHTML('bg', 'customBgStops', 'customBgAngle', gradientStops(S, 'customBgStops', S.customBg || '#FFFFFF', S.customBg2 || '#FFB000', 'customBg', 'customBg2'), S.customBgAngle, S.customBg || '#FFFFFF', S.customBg2 || '#FFB000');
+    if (solidRow) solidRow.classList.toggle('hidden', isGradient);
     if (solid) solid.className = `vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${!isGradient ? 'is-selected' : ''}`;
     if (grad) grad.className = `vom-segment px-2 py-1 text-[8px] font-bold uppercase transition-colors ${isGradient ? 'is-selected' : ''}`;
   }
@@ -4326,6 +4860,17 @@
     if (S.customBg2 !== next || S.bg !== 'gradient') pushUndoContinuous('gradient-bg', 'Gradient background');
     S.customBg2 = next;
     setCustomBgInputs(S.customBg, next);
+    setBg('gradient', false);
+  }
+
+  function setGradientBgAngle(value) {
+    const next = clampGradientAngle(value, 135);
+    if (S.customBgAngle !== next || S.bg !== 'gradient') pushUndoContinuous('gradient-bg-angle', 'Gradient background');
+    S.customBgAngle = next;
+    const val = document.getElementById('bg-gradient-angle-val');
+    const sl = document.getElementById('bg-gradient-angle');
+    if (val) val.textContent = `${next}°`;
+    if (sl) sl.style.setProperty('--rp', Math.round(next / 360 * 100) + '%');
     setBg('gradient', false);
   }
 
@@ -4385,7 +4930,16 @@
     pushUndo('Add asset');
     const n = S.assets.length;
     const offset = Math.min(96, n * 24);
-    const asset = { id:newAssetId(), type, data, name, x:offset, y:offset, visible:true };
+    const asset = {
+      id:newAssetId(),
+      type,
+      data,
+      name,
+      x:offset,
+      y:offset,
+      visible:true,
+      borderGradientStops: normalizeGradientStops(null, '#FFFFFF', '#FFB000'),
+    };
 
     // For raster images, detect natural size and fit within canvas
     if (type !== 'svg' && type !== 'text' && type !== 'shape') {
@@ -4456,6 +5010,10 @@
       fontWeight: '700',
       fontStyle: 'normal',
       textColor: '#1F1F1F',
+      textColor2: '#FFB000',
+      colorMode: 'solid',
+      gradientAngle: 90,
+      textGradientStops: normalizeGradientStops(null, '#1F1F1F', '#FFB000'),
       textAlign: 'center',
       letterSpacing: 0,
       lineHeight: 1.2,
@@ -4524,12 +5082,16 @@
       rotation:0,
       radius:0,
       points:shapeType === 'star' ? 5 : 3,
-      fill:'#1F1F1F',
+      fill:'#C8C8C8',
       fill2:'#FFB000',
       fillMode:'solid',
+      fillGradientAngle:135,
+      fillGradientStops: normalizeGradientStops(null, '#C8C8C8', '#FFB000'),
       stroke:'#FFFFFF',
       stroke2:'#FFB000',
       strokeMode:'solid',
+      strokeGradientAngle:135,
+      strokeGradientStops: normalizeGradientStops(null, '#FFFFFF', '#FFB000'),
       strokeWidth:0,
       strokeJoin:'round',
       strokeDash:'solid',
@@ -4845,7 +5407,7 @@
         const dupBtn = document.createElement('button');
         dupBtn.type = 'button';
         dupBtn.className = 'menu-action';
-        dupBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;margin-right:6px;vertical-align:middle"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate Layer';
+        dupBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;margin-right:6px;vertical-align:middle"><rect x="9" y="9" width="16" height="16" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate Layer';
         dupBtn.addEventListener('click', e => { e.stopPropagation(); hideLayerContextMenu(); duplicateSelectedAsset(); });
         menu.appendChild(dupBtn);
         const sep = document.createElement('div');
@@ -4916,7 +5478,7 @@
     // Duplicate preset
     const dupBtn = document.createElement('button');
     dupBtn.type = 'button';
-    dupBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate`;
+    dupBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="16" height="16" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate`;
     dupBtn.addEventListener('click', () => {
       hideSegmentContextMenu();
       const src = S.layers.find(l => l.id === layer.id);
@@ -5323,6 +5885,8 @@
         if (cfg.bg)      S.bg      = cfg.bg;
         if (cfg.customBg) S.customBg = cfg.customBg;
         if (cfg.customBg2) S.customBg2 = cfg.customBg2;
+        if (cfg.customBgStops) S.customBgStops = normalizeGradientStops(cfg.customBgStops, S.customBg || '#FFFFFF', S.customBg2 || '#FFB000');
+        if (cfg.customBgAngle !== undefined) S.customBgAngle = clampGradientAngle(cfg.customBgAngle, 135);
         if (cfg.compDur) S.compDur = cfg.compDur;
         normalizeProjectState();
         setCustomBgInputs(S.customBg || '#FFFFFF', S.customBg2 || '#FFB000');
@@ -5351,7 +5915,7 @@
   function togglePlay() {
     S.playing = !S.playing;
     const btn = document.getElementById('play-btn');
-    if(btn) btn.innerHTML = S.playing ? '<i data-lucide="pause" class="w-3.5 h-3.5"></i>' : '<i data-lucide="play" class="w-3.5 h-3.5"></i>';
+    if(btn) btn.innerHTML = S.playing ? '<i data-lucide="pause" class="w-4 h-4"></i>' : '<i data-lucide="play" class="w-4 h-4"></i>';
     lucide.createIcons();
     if(S.playing) {
       rafStart = performance.now() - S.time * 1000;
@@ -5434,7 +5998,7 @@
 
   async function exportJSON() {
     normalizeProjectState();
-    const cfg = { assets: S.assets, activeAssetId: S.activeAssetId, layers: S.layers, scale: S.scale, sel: S.sel, size: S.size, bg: S.bg, customBg: S.customBg, customBg2: S.customBg2, file: currentAsset(), compDur: S.compDur };
+    const cfg = { assets: S.assets, activeAssetId: S.activeAssetId, layers: S.layers, scale: S.scale, sel: S.sel, size: S.size, bg: S.bg, customBg: S.customBg, customBg2: S.customBg2, customBgStops: S.customBgStops, customBgAngle: S.customBgAngle, file: currentAsset(), compDur: S.compDur };
     const blob = new Blob([JSON.stringify(cfg, null, 2)], {type:'application/json'});
     await saveBlob(blob, (currentAsset() ? currentAsset().name.replace(/\.[^.]+$/, '') + '-vibe' : 'vibe-project') + '.json');
   }
@@ -5481,11 +6045,11 @@
         'kf-wiggle':      '@keyframes kf-wiggle      { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(6deg)} 75%{transform:rotate(-6deg)} }',
         'kf-wave':        '@keyframes kf-wave        { 0%,100%{transform:rotate(0deg) translateY(0)} 25%{transform:rotate(5deg) translateY(-6px)} 75%{transform:rotate(-5deg) translateY(6px)} }',
         'kf-glitch':      '@keyframes kf-glitch      { 0%,100%{transform:translate(0);filter:none} 10%{transform:translate(-4px,2px);filter:drop-shadow(-4px 0 0 red) drop-shadow(4px 0 0 blue)} 50%{transform:translate(0);filter:none} }',
-        'kf-neon-glow':   '@keyframes kf-neon-glow   { 0%,100%{filter:drop-shadow(0 0 2px var(--glow-color,#FFB000))} 50%{filter:drop-shadow(0 0 12px var(--glow-color,#FFB000)) drop-shadow(0 0 24px var(--glow-color,#FFB000))} }',
+        'kf-neon-glow':   '@keyframes kf-neon-glow   { 0%,100%{filter:drop-shadow(0 0 2px var(--glow-color,#FFB000))} 50%{filter:drop-shadow(0 0 12px var(--glow-color,#FFB000)) drop-shadow(var(--glow-x,0px) var(--glow-y,0px) 24px var(--glow-color-2,var(--glow-color,#FFB000)))} }',
         'kf-elastic-pop': '@keyframes kf-elastic-pop { 0%{transform:scale(0)} 50%{transform:scale(1.2)} 75%{transform:scale(.92)} 100%{transform:scale(1)} }',
         'kf-jelly':       '@keyframes kf-jelly       { 0%,100%{transform:scale(1,1)} 30%{transform:scale(1.2,.8)} 50%{transform:scale(.9,1.15)} 70%{transform:scale(1.05,.95)} }',
         'kf-luxury':      '@keyframes kf-luxury      { 0%{transform:translateY(20px) scale(.96);opacity:0;filter:blur(8px)} 100%{transform:translateY(0) scale(1);opacity:1;filter:blur(0)} }',
-        'kf-loot-glow':   '@keyframes kf-loot-glow   { 0%,100%{filter:drop-shadow(0 0 4px gold) brightness(1)} 50%{filter:drop-shadow(0 0 20px gold) drop-shadow(0 0 40px gold) brightness(1.4)} }',
+        'kf-loot-glow':   '@keyframes kf-loot-glow   { 0%,100%{filter:drop-shadow(0 0 4px var(--glow-color,gold)) brightness(1)} 50%{filter:drop-shadow(0 0 20px var(--glow-color,gold)) drop-shadow(var(--glow-x,0px) var(--glow-y,0px) 40px var(--glow-color-2,var(--glow-color,gold))) brightness(1.4)} }',
         'kf-hover-bounce':'@keyframes kf-hover-bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }',
         'kf-card-lift':   '@keyframes kf-card-lift   { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-8px) scale(1.02)} }',
       };
@@ -5507,11 +6071,31 @@
       if (p.bounceH     !== undefined) vars.push(`  --bounce-y: -${p.bounceH}px;`);
       if (p.pulseScale  !== undefined) vars.push(`  --pulse-scale: ${p.pulseScale};`);
       if (p.popScale    !== undefined) vars.push(`  --pop-scale: ${p.popScale};`);
-      if (p.glowColor   !== undefined) vars.push(`  --glow-color: ${p.glowColor};`);
+      if (p.glowColorMode === 'none') {
+        vars.push(`  --glow-color: transparent;`);
+        vars.push(`  --glow-color-2: transparent;`);
+        vars.push(`  --glow-x: 0px;`);
+        vars.push(`  --glow-y: 0px;`);
+      } else {
+        if (p.glowColor   !== undefined) vars.push(`  --glow-color: ${p.glowColor};`);
+        if ((p.glowColorMode || 'solid') === 'gradient') {
+          const glowOffset = gradientOffsetVars(p.glowGradientAngle, 8);
+          const glowStops = gradientStops(p, 'glowGradientStops', p.glowColor || '#FFB000', p.glowColor2 || '#FF5C5C', 'glowColor', 'glowColor2');
+          vars.push(`  --glow-color: ${glowStops[0]?.color || p.glowColor || '#FFB000'};`);
+          vars.push(`  --glow-color-2: ${glowStops[glowStops.length - 1]?.color || p.glowColor2 || p.glowColor || '#FFB000'};`);
+          vars.push(`  --glow-x: ${glowOffset.x};`);
+          vars.push(`  --glow-y: ${glowOffset.y};`);
+        } else if (p.glowColor !== undefined) {
+          vars.push(`  --glow-color-2: ${p.glowColor};`);
+          vars.push(`  --glow-x: 0px;`);
+          vars.push(`  --glow-y: 0px;`);
+        }
+      }
       if (p.slideDist   !== undefined) {
         const dir = p.slideDir || 'left';
-        const x = (dir==='left'?-1:dir==='right'?1:0) * p.slideDist;
-        const y = (dir==='top'?-1:dir==='bottom'?1:0) * p.slideDist;
+        const dist = Math.abs(p.slideDist);
+        const x = (dir==='left'?-1:dir==='right'?1:0) * dist;
+        const y = (dir==='top'?-1:dir==='bottom'?1:0) * dist;
         vars.push(`  --slide-x: ${x}px;`);
         vars.push(`  --slide-y: ${y}px;`);
       }
@@ -5526,7 +6110,7 @@
         vars.push(`  stroke-width: ${p['stroke-width'] ?? 2}px;`);
         vars.push(`  stroke-linecap: ${p['stroke-cap'] ?? 'round'};`);
         vars.push(`  stroke-linejoin: round;`);
-        vars.push(`  stroke: ${p['stroke-c1'] || '#FFB000'};`);
+        vars.push(`  stroke: ${(p['stroke-color-mode'] || 'solid') === 'none' ? 'none' : (p['stroke-c1'] || '#FFB000')};`);
       }
 
       let kf = l.kf;
@@ -5655,7 +6239,7 @@
         else if(id==='spin'){rot+=-((p.rotDeg||360))*(1-prog);sc*=prog;opacity*=prog;}
         else if(id==='rotate'){rot+=(p.rotDeg||360)*prog;}
         else if(id.indexOf('move')===0){
-          const dir=p.slideDir||(id==='move-in-right'?'right':id==='move-in-left'?'left':id==='move-top'?'top':id==='move-bottom'?'bottom':'left');
+          const dir=p.slideDir||(id==='move-in-right'?'left':id==='move-in-left'?'right':id==='move-top'?'bottom':id==='move-bottom'?'top':'left');
           const dx=(dir==='left'?-1:dir==='right'?1:0)*dist, dy=(dir==='top'?-1:dir==='bottom'?1:0)*dist;
           tx+=(1-prog)*dx; ty+=(1-prog)*dy;
         }
@@ -5761,7 +6345,7 @@
       b.disabled=on;
       b.innerHTML = on
         ? `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>${label||'Building…'}</span>`
-        : '<i data-lucide="film" class="w-3.5 h-3.5"></i><span>EXPORT GIF</span>';
+        : '<i data-lucide="film" class="w-4 h-4"></i><span>EXPORT GIF</span>';
     });
     if(window.lucide) lucide.createIcons();
   }
@@ -6088,6 +6672,5 @@
   if(document.readyState==='complete'||document.readyState==='interactive') init();
   else window.addEventListener('DOMContentLoaded', init);
   </script>
-  <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
