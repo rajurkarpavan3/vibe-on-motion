@@ -8256,8 +8256,8 @@
       await new Promise((resolve,reject)=>{
         window.gifshot.createGIF({
           images: frames,
-          gifWidth: cw,
-          gifHeight: ch,
+          gifWidth: cw * exportScale,
+          gifHeight: ch * exportScale,
           interval: delayMs/1000,
           numWorkers: 2,
           sampleInterval: 10,
