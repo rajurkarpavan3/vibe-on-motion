@@ -1950,9 +1950,9 @@
       border: 1px solid var(--border-strong) !important;
       border-radius: 14px !important;
       box-shadow: var(--shadow-xs) !important;
-      padding: 0 12px !important;
-      height: 36px !important;
-      gap: 8px !important;
+      padding: 0 10px !important;
+      height: 32px !important;
+      gap: 6px !important;
       font-size: 10px !important;
       font-weight: 700 !important;
       letter-spacing: .02em !important;
@@ -1963,6 +1963,19 @@
     body.theme-spatial #bg-menu-btn > *,
     body.theme-spatial #size-btn > * {
       flex-shrink: 0 !important;
+    }
+    /* Space the two filter wrappers apart */
+    body.theme-spatial #bg-toggles {
+      padding-right: 6px !important;
+    }
+    body.theme-spatial #size-controls {
+      padding-left: 0 !important;
+      padding-right: 4px !important;
+    }
+    /* Tighten the shape buttons row to reclaim horizontal space */
+    body.theme-spatial #shape-controls {
+      gap: 2px !important;
+      padding: 0 6px !important;
     }
     body.theme-spatial #bg-menu-btn:hover,
     body.theme-spatial #size-btn:hover {
@@ -1998,8 +2011,23 @@
     body.theme-spatial .rp-static-header .vom-cta-primary i,
     body.theme-spatial .rp-static-header .vom-cta-primary svg,
     body.theme-spatial #export-btn i,
-    body.theme-spatial #export-btn svg {
+    body.theme-spatial #export-btn svg,
+    body.theme-spatial button[onclick="exportJSON()"] i,
+    body.theme-spatial button[onclick="exportJSON()"] svg,
+    body.theme-spatial button[onclick="deleteProject()"] i,
+    body.theme-spatial button[onclick="deleteProject()"] svg {
       display: none !important;
+    }
+    /* Ensure Load Project + New File text is vertically centered the same way */
+    body.theme-spatial .rp-static-header .vom-cta,
+    body.theme-spatial .rp-static-header .vom-cta-primary {
+      height: 36px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      line-height: 1 !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
     }
     body.theme-spatial .toolbar-add-btn.is-active,
     body.theme-spatial .toolbar-action-btn.is-active {
@@ -2133,9 +2161,36 @@
       box-shadow: none !important;
     }
 
-    /* --- Timeline end handle: hidden (use Total: input field to change duration) --- */
+    /* --- Timeline end handle: invisible drag zone at right edge of timeline --- */
     body.theme-spatial #tl-end-handle {
+      display: flex !important;
+      background: transparent !important;
+      width: 14px !important;
+      height: 100vh !important;
+      bottom: auto !important;
+      right: -7px !important;
+      cursor: ew-resize !important;
+      z-index: 35 !important;
+    }
+    /* Hide the small white grip dash inside the end handle */
+    body.theme-spatial #tl-end-handle > div {
       display: none !important;
+    }
+    /* Subtle hover indicator: 1px line appears on hover */
+    body.theme-spatial #tl-end-handle::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--text-tertiary);
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity .15s cubic-bezier(.2,.8,.2,1);
+    }
+    body.theme-spatial #tl-end-handle:hover::after {
+      opacity: .6;
     }
     body.theme-spatial #tl-ruler {
       overflow: visible !important;
@@ -3181,8 +3236,8 @@
           </div>
           <div class="flex items-center space-x-3">
             <span class="text-[10px] font-mono text-stone-400">Time: <span id="time-lbl" class="text-black font-bold">0.00s</span></span>
-            <span class="text-[10px] font-mono text-stone-400 flex items-center space-x-1">
-              <span>Total:</span>
+            <span class="text-[10px] font-mono text-stone-400 flex items-center">
+              <span>Total:&nbsp;</span>
               <input type="number" id="comp-dur-val" value="5.0" step="0.5" min="0.5" max="60"
                 onchange="updateCompDur(this.value)"
                 oninput="updateCompDur(this.value)"
@@ -3342,7 +3397,7 @@
     scale: 1,
     playing: false,
     time: 0,
-    compDur: 5.0,          // total composition duration
+    compDur: 4.0,          // total composition duration
   };
 
   let raf = null, rafStart = null;
@@ -3417,7 +3472,7 @@
     S.size = snap.size || '400x400';
     S.scale = parseFloat(snap.scale) || 1;
     S.time = parseFloat(snap.time) || 0;
-    S.compDur = parseFloat(snap.compDur) || 5;
+    S.compDur = parseFloat(snap.compDur) || 4;
     normalizeProjectState();
     setCustomBgInputs(S.customBg, S.customBg2);
     refreshAll();
@@ -4513,7 +4568,7 @@
   }
 
   function getTotalDur() {
-    return S.compDur || 5;
+    return S.compDur || 4;
   }
 
   function buildTimeline() {
@@ -5825,6 +5880,9 @@
       document.body.appendChild(modal);
     }
     if (window._exportScale === undefined) window._exportScale = 1;
+    renderExportMain(modal);
+  }
+  function renderExportMain(modal) {
     const exportOptionClass = 'vom-cta export-option-btn w-full py-3 px-4 text-[11px] font-bold flex items-center justify-center space-x-2 transition-all';
     modal.innerHTML = `
       <div class="export-modal-backdrop" onclick="if(event.target===this) closeExportModal()">
@@ -5833,26 +5891,39 @@
             <span class="text-base font-bold tracking-tight">Export</span>
             <button onclick="closeExportModal()" class="export-modal-close" aria-label="Close"><i data-lucide="x" class="w-4 h-4"></i></button>
           </div>
-          <div class="px-5 pb-5 space-y-4">
+          <div class="px-5 pb-5 space-y-2 pt-5">
+            <button onclick="renderExportGifPicker(document.getElementById('export-modal-root'))" class="${exportOptionClass}">
+              <i data-lucide="film" class="w-4 h-4"></i><span>Export GIF</span>
+            </button>
+            <button onclick="closeExportModal();exportLottie()" id="lottie-btn" class="${exportOptionClass}">
+              <i data-lucide="box" class="w-4 h-4"></i><span>Export Lottie</span>
+            </button>
+            <button onclick="copyCodeJSON()" class="${exportOptionClass}">
+              <i data-lucide="code-2" class="w-4 h-4"></i><span id="copy-btn-lbl">Copy CSS Code</span>
+            </button>
+            <button onclick="closeExportModal();downloadCSSCode()" class="${exportOptionClass}">
+              <i data-lucide="file-code-2" class="w-4 h-4"></i><span>Download CSS</span>
+            </button>
+          </div>
+        </div>
+      </div>`;
+    if (window.lucide) lucide.createIcons();
+  }
+  function renderExportGifPicker(modal) {
+    modal.innerHTML = `
+      <div class="export-modal-backdrop" onclick="if(event.target===this) closeExportModal()">
+        <div class="export-modal">
+          <div class="flex items-center justify-between px-5 py-4 export-modal-header">
+            <button onclick="renderExportMain(document.getElementById('export-modal-root'))" class="export-modal-close" aria-label="Back"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+            <span class="text-base font-bold tracking-tight">Export GIF</span>
+            <button onclick="closeExportModal()" class="export-modal-close" aria-label="Close"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+          <div class="px-5 pb-5 pt-5 space-y-4">
             <div class="export-res-section">
-              <div class="text-[11px] font-semibold export-res-title">Resolution</div>
+              <div class="text-[11px] font-semibold export-res-title">Choose resolution</div>
               <div class="export-res-grid">
-                ${[1,2,3,4].map(s=>`<button onclick="setExportScale(${s})" data-scale="${s}" class="export-res-btn ${window._exportScale===s?'is-selected':''}"><span class="export-res-label">${s}x</span><span class="export-res-sub">${s===1?'72':s===2?'144':s===3?'216':'288'} DPI</span></button>`).join('')}
+                ${[1,2,3,4].map(s=>`<button onclick="closeExportModal();window._exportScale=${s};exportGIF()" class="export-res-btn"><span class="export-res-label">${s}x</span><span class="export-res-sub">${s===1?'72':s===2?'144':s===3?'216':'288'} DPI</span></button>`).join('')}
               </div>
-            </div>
-            <div class="space-y-2">
-              <button onclick="closeExportModal();exportGIF()" class="${exportOptionClass}">
-                <i data-lucide="film" class="w-4 h-4"></i><span>Export GIF</span>
-              </button>
-              <button onclick="closeExportModal();exportLottie()" id="lottie-btn" class="${exportOptionClass}">
-                <i data-lucide="box" class="w-4 h-4"></i><span>Export Lottie</span>
-              </button>
-              <button onclick="copyCodeJSON()" class="${exportOptionClass}">
-                <i data-lucide="code-2" class="w-4 h-4"></i><span id="copy-btn-lbl">Copy CSS Code</span>
-              </button>
-              <button onclick="closeExportModal();downloadCSSCode()" class="${exportOptionClass}">
-                <i data-lucide="file-code-2" class="w-4 h-4"></i><span>Download CSS</span>
-              </button>
             </div>
           </div>
         </div>
@@ -6469,7 +6540,7 @@
     S.size = '400x400';
     S.scale = 1;
     S.time = 0;
-    S.compDur = 5.0;
+    S.compDur = 4.0;
     if (S.playing) togglePlay();
     refreshAll();
     setCustomBgInputs(S.customBg, S.customBg2);
@@ -7951,7 +8022,7 @@
   function generateLottieJSON(state, assetDataUrl, assetW, assetH) {
     const [wStr, hStr] = (state.size || '400x400').split('x');
     const W = parseInt(wStr) || 400, H = parseInt(hStr) || 400;
-    const fr = 30, totalDur = state.compDur || 5, op = Math.round(totalDur * fr);
+    const fr = 30, totalDur = state.compDur || 4, op = Math.round(totalDur * fr);
     const cx = W/2 + (state.assetX || 0), cy = H/2 + (state.assetY || 0);
     const visLayers = state.layers.filter(l => l.visible);
     const ease = { i:{x:0.42,y:1}, o:{x:0.58,y:0} };
@@ -8104,9 +8175,8 @@
       await _ensureLibs();
 
       const [wStr,hStr] = (S.size||'400x400').split('x');
-      const baseW = parseInt(wStr)||400, baseH = parseInt(hStr)||400;
+      const cw = parseInt(wStr)||400, ch = parseInt(hStr)||400;
       const exportScale = (window._exportScale && Number(window._exportScale)) || 1;
-      const cw = baseW * exportScale, ch = baseH * exportScale;
 
       const total = (typeof getTotalDur==='function') ? getTotalDur() : (S.compDur||S.duration||3);
       const FPS = 20;
@@ -8135,7 +8205,7 @@
       const _captureOpts = {
         width: cw,
         height: ch,
-        pixelRatio: 1,
+        pixelRatio: exportScale,
         backgroundColor: bgHex,
         cacheBust: true,
         skipFonts: true,
